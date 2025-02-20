@@ -1,19 +1,17 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RouterModule],
   template: `
 <div class="min-h-screen flex items-center justify-center bg-black relative">
-
+  
   <!-- Imagen de Fondo (Visible en grandes, superpuesta en medianas/pequeñas) -->
   <div class="absolute inset-0 md:relative md:w-1/2 h-screen transition-all duration-500 ease-in-out">
-    <img src="assets/mediologo.png" 
-         alt="Logo" 
-         class="w-full h-full object-cover md:block md:relative opacity-100 md:opacity-100">
+    <img src="assets/mediologo.png" alt="Logo" class="w-full h-full object-cover md:block md:relative opacity-100 md:opacity-100">
   </div>
 
   <!-- Contenedor del Login -->
@@ -25,7 +23,7 @@ import { Router } from '@angular/router';
         <!-- Campo de Nombre de Usuario con Icono -->
         <div class="relative">
           <span class="absolute inset-y-0 left-3 flex items-center text-gray-500">
-            <img src="assets/icons/user.png" alt="Usuario" class="w-5 h-5">
+            <img src="assets/user.png" alt="Usuario" class="w-5 h-5">
           </span>
           <input type="text" [(ngModel)]="username" name="username" placeholder="Nombre de Usuario"
             class="w-full pl-10 p-3 rounded-3xl bg-gray-200 focus:outline-none">
@@ -34,7 +32,7 @@ import { Router } from '@angular/router';
         <!-- Campo de Contraseña con Icono y Botón de Ver/Ocultar -->
         <div class="relative">
           <span class="absolute inset-y-0 left-3 flex items-center text-gray-500">
-            <img src="assets/icons/password.png?=v2" alt="Contraseña" class="w-5 h-5">
+            <img src="assets/password.png?=v2" alt="Contraseña" class="w-5 h-5">
           </span>
           <input 
             [type]="passwordVisible ? 'text' : 'password'" 
@@ -48,7 +46,7 @@ import { Router } from '@angular/router';
             (click)="togglePasswordVisibility()" 
             class="absolute inset-y-0 right-3 flex items-center text-gray-500 focus:outline-none">
             <img 
-              [src]="passwordVisible ? 'assets/icons/closeeye.svg' : 'assets/icons/openeye.svg'" 
+              [src]="passwordVisible ? 'assets/closeeye.png' : 'assets/openeye.png'" 
               alt="Ver/Ocultar Contraseña" 
               class="w-5 h-5">
           </button>
@@ -64,8 +62,8 @@ import { Router } from '@angular/router';
 
       <!-- Enlaces de Recuperación y Registro -->
       <div class="text-center mt-4 text-white text-sm flex justify-between">
-        <a href="#" class="hover:underline">He olvidado mi contraseña</a>
-        <a href="#" class="hover:underline">¿Aún no tienes una cuenta?</a>
+        <a routerLink="/forgot-password" class="hover:underline">He olvidado mi contraseña</a>
+        <a routerLink="/register" class="hover:underline">¿Aún no tienes una cuenta?</a>
       </div>
 
       <hr class="my-6 border-t border-white">
@@ -77,7 +75,6 @@ import { Router } from '@angular/router';
       </button>
     </div>
   </div>
-
 </div>
   `,
   styles: [`
@@ -98,12 +95,7 @@ export class LoginComponent {
   constructor(private router: Router) {}
 
   onLogin() {
-    if (this.username === 'admin' && this.password === 'admin123') {
-      alert('Inicio de sesión exitoso');
-      this.router.navigate(['/home']);
-    } else {
-      alert('Credenciales incorrectas');
-    }
+    // No esta hecha
   }
 
   togglePasswordVisibility() {
