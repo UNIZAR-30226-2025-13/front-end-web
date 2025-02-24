@@ -89,7 +89,42 @@ export class RegisterComponent {
   constructor(private router: Router) {}
 
   onRegister() {
-    // No esta hecha
+    // 1. Comprobar si los campos están vacíos
+    if (!this.username) {
+      window.alert('El nombre de usuario es obligatorio.');
+      return;
+    }
+
+    if (!this.correo) {
+      window.alert('El correo electrónico es obligatorio.');
+      return;
+    }
+
+    if (!this.password) {
+      window.alert('La contraseña es obligatoria.');
+      return;
+    }
+
+    // 2. Validar el formato del correo electrónico
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailPattern.test(this.correo)) {
+      window.alert('Por favor, introduce un correo electrónico válido.');
+      return;
+    }
+
+    // 3. Comprobar la seguridad de la contraseña
+    // Debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordPattern.test(this.password)) {
+      window.alert('La contraseña debe tener al menos 8 caracteres, con mayúsculas, minúsculas, números y símbolos especiales.');
+      return;
+    }
+
+    // 4. Si todo es válido, continuar con el registro
+    window.alert('¡Registro exitoso!');
+    console.log('Formulario válido. Registrando usuario...');
+    // Lógica de registro o redirección
+    this.router.navigate(['/inicio']);
   }
 
   togglePasswordVisibility() {
