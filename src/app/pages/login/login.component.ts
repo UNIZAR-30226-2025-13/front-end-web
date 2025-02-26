@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +17,7 @@ import { Router, RouterModule } from '@angular/router';
 
   <!-- Contenedor del Login -->
   <div class="w-full md:w-1/2 h-screen flex items-center justify-center p-8 relative z-10 md:bg-transparent">
-    <div class="p-8 max-w-md w-full">
+    <div class="p-5 max-w-md w-full">
       <h2 class="text-3xl font-bold text-white text-center mb-6">Iniciar Sesión</h2>
 
       <form (submit)="onLogin()" class="space-y-4">
@@ -92,10 +93,24 @@ export class LoginComponent {
   password = '';
   passwordVisible = false;
 
-  constructor(private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   onLogin() {
-    // No esta hecha
+    const loginData = {
+      username: this.username,
+      password: this.password
+    };
+
+    this.http.post('http://localhost:8080/autorizacion/login', loginData).subscribe({
+      next: (response: any) => {
+        console.log('Inicio de sesión exitoso', response);
+        this.router.navigate(['/dashboard']);
+      },
+      error: (error) => {
+        console.error('Error en el inicio de sesión', error);
+        alert('Credenciales incorrectas');
+      }
+    });
   }
 
   togglePasswordVisibility() {
