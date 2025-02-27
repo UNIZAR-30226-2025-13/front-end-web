@@ -1,0 +1,86 @@
+<body>
+<div class="presentation_block">
+    <img src= {{img_artiste}} alt="Image_artiste" class="image_artiste">
+    <div class="artiste_data ">
+        <div class="width" >
+            <p>{{type}}</p> 
+            <img src="assets\certification.png" alt="Image_certification" style="width: 21px; height: 21px;">
+        </div>
+        <h1>{{name_artiste}}</h1>
+        <div class="width">
+            <button (click)='follow()' class="follow_button">
+                <img src="assets\plus.png" alt="Image_plus" style="width: 15px; height: 15px; margin-right: 10px;">
+                <p class="button_texte">Seguir</p>
+
+         
+            </button>
+            <p style="font-size: 16px;">{{nb_follower}} seguidores </p>
+        </div>
+        
+    </div>
+
+</div>
+<div class="top-songs_this-is_container">
+<div class="top-songs-container">
+  <h2> Las más reproducidas </h2>
+  <div class="songs_list">
+    <div class="song_item" *ngFor="let song of songs" (click)="playSong(song)">
+      <img [src]="song.icon" alt="Song Icone" class="song_icone">
+      <div class="song_info">
+        <p class="song_title">{{ song.title }}</p>
+        <p>{{ song.artist }}</p>
+      </div>
+      <p class="song_plays">{{ song.number }} </p>
+      <p class="song_duration">{{ song.duration }}</p>
+    </div>
+  </div>
+</div>
+ 
+  <div class="this_is_container">
+    <h2>Todas las canciones </h2>
+    
+    <button (click)='this_is()' class="this_is_litte_container" >
+    <div class="image_container">
+      <img src="assets\image_test_artiste.png" alt="Image_test_artiste" class ="image_artiste_heart">
+      <img src="assets\heart.png" alt="Image du dessus" class = "heart">
+    </div>
+    <h2 class = "this_is"> This is {{name_artiste}} </h2>
+  </button>
+    </div>
+  </div>
+  
+  <div class="Lanzamientos_container">
+    <h2> Lanzamientos </h2>
+  <div class="button_container">
+    <button (click)="setTab('album')" [class.active]="selectedTab === 'album'" class="Lanzamientos_button">
+      <p class="button_texte">Albumes</p>
+    </button>
+    <button (click)="setTab('cancion')" [class.active]="selectedTab === 'cancion'" class="Lanzamientos_button">
+      <p class="button_texte">Canciones</p>
+    </button>
+  </div>
+
+  <div *ngIf="selectedTab === 'album'" class="album-container">
+    <div *ngFor="let album of albums" class="album-item">
+      <img [src]="album.cover" [alt]="album.title" style="height: 169px ;width:169px;">
+      <p>{{ album.title }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="selectedTab === 'cancion'" class="songs_list">
+
+    <div *ngFor="let cancion of Canciones" class="song_item" style="width: 60%;">
+      <img [src]="cancion.icon" alt="Song icone"class="song_icone">
+      <div class="song_info">
+        <p class="song_title">{{ cancion.title }}</p>
+        <p>{{ cancion.artist }}</p>
+      </div>
+      <p class="song_plays">{{ cancion.number }} </p>
+      <p class="song_duration">{{ cancion.duration }}</p>
+    </div>
+  </div>
+  </div>
+
+
+
+</body>
