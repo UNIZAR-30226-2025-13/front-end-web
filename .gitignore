@@ -43,3 +43,4 @@ Thumbs.db
 
 # API
 src/environments/*.ts
+node_modules

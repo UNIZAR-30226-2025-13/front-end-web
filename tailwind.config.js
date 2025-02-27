@@ -9,6 +9,9 @@ module.exports = {
         colors: {
           'sponge': '#A200F4', // Nombre personalizado y valor hexadecimal
         },
+        fontFamily: {
+          'montserrat': ['Montserrat', 'sans-serif'],
+        },
       },
     },
     plugins: [],
