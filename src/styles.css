@@ -15,3 +15,13 @@ html {
 body {
     font-family: 'Montserrat', sans-serif;
 }
+
+/* Ocultar la barra de desplazamiento en todos los navegadores */
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* Para Internet Explorer y Edge */
+    scrollbar-width: none;      /* Para Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;              /* Para Chrome, Safari y Opera */
+}

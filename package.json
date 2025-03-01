@@ -10,6 +10,7 @@
   },
   "private": true,
   "dependencies": {
+    "@abacritt/angularx-social-login": "^2.3.0",
     "@angular/animations": "^19.1.0",
     "@angular/common": "^19.1.0",
     "@angular/compiler": "^19.1.0",
@@ -20,6 +21,8 @@
     "@angular/router": "^19.1.0",
     "@fontsource/montserrat": "^5.1.1",
     "@tailwindcss/postcss": "^4.0.7",
+    "colorthief": "^2.6.0",
+    "google-one-tap": "^1.0.6",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

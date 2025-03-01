@@ -113,16 +113,18 @@ export class RegisterComponent {
       contrasena: this.password
   };
   
-  this.http.post('http://localhost:8080/autorizacion/register', registroData)
-    .subscribe({
-      next: (response) => {
-        console.log('¡Registro exitoso!', response);
-        this.router.navigate(['/inicio']);
-      },
-      error: (error) => {
-        console.error('Error en el registro:', error);
-        window.alert('Hubo un problema con el registro: ' + error.message);
-      }
+  this.http.post('http://localhost:8080/register', registroData, {
+        headers: { 'Content-Type': 'application/json' }
+    }).subscribe({
+        next: (response) => {
+            console.log('¡Registro exitoso!', response);
+            this.router.navigate(['/login']);
+            
+        },
+        error: (error) => {
+            console.error('Error en el registro:', error);
+            window.alert('Hubo un problema con el registro: ' + error.error.message);
+        }
     });
   }
 

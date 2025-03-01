@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { HomeComponent } from '../home/home.component';
 import { PlayerComponent } from '../player/player.component';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router  } from '@angular/router';
+import { UsuarioService } from '../../services/usuario.service';
 
 @Component({
   selector: 'app-inicio',
@@ -44,4 +45,7 @@ import { RouterModule } from '@angular/router';
     }
   `
 })
-export class MarcoComponent {}
+export class MarcoComponent {
+  
+
+}

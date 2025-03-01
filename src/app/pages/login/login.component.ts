@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
+import { UsuarioService } from '../../services/usuario.service';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -26,7 +28,7 @@ import { HttpClient } from '@angular/common/http';
           <span class="absolute inset-y-0 left-3 flex items-center text-gray-500">
             <img src="assets/user.png" alt="Usuario" class="w-5 h-5">
           </span>
-          <input type="text" [(ngModel)]="username" name="username" placeholder="Nombre de Usuario"
+          <input type="text" [(ngModel)]="nombre_usuario" name="username" placeholder="Nombre de Usuario"
             class="w-full pl-10 p-3 rounded-3xl bg-gray-200 focus:outline-none">
         </div>
 
@@ -37,7 +39,7 @@ import { HttpClient } from '@angular/common/http';
           </span>
           <input 
             [type]="passwordVisible ? 'text' : 'password'" 
-            [(ngModel)]="password" 
+            [(ngModel)]="contrasena" 
             name="password" 
             placeholder="Contraseña"
             class="w-full pl-10 p-3 rounded-3xl bg-gray-200 focus:outline-none">
@@ -63,8 +65,8 @@ import { HttpClient } from '@angular/common/http';
 
       <!-- Enlaces de Recuperación y Registro -->
       <div class="text-center mt-4 text-white text-sm flex justify-between">
-        <a routerLink="/forgot-password" class="hover:underline">He olvidado mi contraseña</a>
         <a routerLink="/register" class="hover:underline">¿Aún no tienes una cuenta?</a>
+        <a routerLink="/forgot-password" class="hover:underline">He olvidado mi contraseña</a>
       </div>
 
       <hr class="my-6 border-t border-white">
@@ -89,22 +91,27 @@ import { HttpClient } from '@angular/common/http';
   `]
 })
 export class LoginComponent {
-  username = '';
-  password = '';
+  nombre_usuario: string = '';
+  contrasena: string = '';
   passwordVisible = false;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private usuarioService: UsuarioService,
+    private router: Router
+  ) {}
 
   onLogin() {
-    const loginData = {
-      username: this.username,
-      password: this.password
-    };
+    const loginData = { nombre_usuario: this.nombre_usuario, contrasena: this.contrasena };
 
-    this.http.post('http://localhost:8080/autorizacion/login', loginData).subscribe({
+    this.authService.login(loginData).subscribe({
       next: (response: any) => {
         console.log('Inicio de sesión exitoso', response);
-        this.router.navigate(['/dashboard']);
+        
+        localStorage.setItem('token', response.token);
+        this.usuarioService.guardarUsuario(response.usuario);
+
+        this.router.navigate(['/inicio/todo']);
       },
       error: (error) => {
         console.error('Error en el inicio de sesión', error);
