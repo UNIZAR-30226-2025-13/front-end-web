@@ -16,54 +16,22 @@ import { Router } from '@angular/router'
       <!-- Contenedor del Login -->
       <div class="w-full md:w-1/2 h-screen flex items-center justify-center p-8 relative z-10 md:bg-transparent">
         <div class="p-8 max-w-md w-full">
-          <h2 class="text-3xl font-bold text-white text-center mb-6">Cambiar Contraseña</h2>
+          <h2 class="text-3xl font-bold text-white text-center mb-6">¿Has olvidado tu contraseña?</h2>
 
-          <form (submit)="onChangePassword()" class="space-y-4">
+          <form (submit)="onForgotPassword()" class="space-y-4">
             <!-- Campo de Nombre de Usuario con Icono -->
             <div class="relative">
               <span class="absolute inset-y-0 left-3 flex items-center text-gray-500">
-                <img src="assets/user.png" alt="Usuario" class="w-5 h-5">
+                <img src="assets/email.png" alt="Usuario" class="w-5 h-5">
               </span>
-              <input type="text" [(ngModel)]="username" name="username" placeholder="Nombre de Usuario"
+              <input type="text" [(ngModel)]="email" name="email" placeholder="Correo Electrónico"
                 class="w-full pl-10 p-3 rounded-3xl bg-gray-200 focus:outline-none">
             </div>
-
-            <div class="relative">
-              <span class="absolute inset-y-0 left-3 flex items-center text-gray-500">
-                <img src="assets/token.png" alt="Correo" class="w-5 h-5">
-              </span>
-              <input type="text" [(ngModel)]="token" name="correo" placeholder="Token"
-                class="w-full pl-10 p-3 rounded-3xl bg-gray-200 focus:outline-none">
-            </div>
-
-            <!-- Campo de Contraseña con Icono y Botón de Ver/Ocultar -->
-            <div class="relative">
-              <span class="absolute inset-y-0 left-3 flex items-center text-gray-500">
-                <img src="assets/password.png?=v2" alt="Contraseña" class="w-5 h-5">
-              </span>
-              <input 
-                [type]="passwordVisible ? 'text' : 'password'" 
-                [(ngModel)]="password" 
-                name="password" 
-                placeholder="Contraseña"
-                class="w-full pl-10 p-3 rounded-3xl bg-gray-200 focus:outline-none">
-              
-              <button 
-                type="button" 
-                (click)="togglePasswordVisibility()" 
-                class="absolute inset-y-0 right-3 flex items-center text-gray-500 focus:outline-none">
-                <img 
-                  [src]="passwordVisible ? 'assets/closeeye.png' : 'assets/openeye.png'" 
-                  alt="Ver/Ocultar Contraseña" 
-                  class="w-5 h-5">
-              </button>
-            </div>
-
 
             <!-- Botón de Iniciar Sesión -->
             <button type="submit"
               class="w-full bg-[var(--sponge)] hover:bg-purple-400 text-white p-3 rounded-3xl font-bold border-white max-md:border-1">
-              Cambiar Contraseña
+              Enviar Correo
             </button>
           </form>
         </div>
@@ -73,18 +41,11 @@ import { Router } from '@angular/router'
   styles: ``
 })
 export class ForgotPasswordComponent {
-  username = '';
-  password = '';
-  token = '';
-  passwordVisible = false;
+  email = '';
 
   constructor(private router: Router) {}
 
-  onChangePassword() {
+  onForgotPassword() {
     // No esta hecha
-  }
-
-  togglePasswordVisibility() {
-    this.passwordVisible = !this.passwordVisible;
   }
 }

@@ -26,7 +26,11 @@ export class AuthService {
   }
 
   getArtist(nombre_artista: string) {
-    return this.http.get<any>(`http://localhost:8080/artist?nombre_artista=${nombre_artista}`);
+    return this.http.get<any>(`${this.apiUrl}/artist?nombre_artista=${nombre_artista}`);
+  }
+
+  playSong(song: any) {
+    return this.http.get<any>(`${this.apiUrl}/play-song?id_cancion=${song}`)
   }
 
 }
