@@ -66,16 +66,8 @@ import { HttpClient } from '@angular/common/http';
       <!-- Enlaces de Recuperación y Registro -->
       <div class="text-center mt-4 text-white text-sm flex justify-between">
         <a routerLink="/register" class="hover:underline">¿Aún no tienes una cuenta?</a>
-        <a routerLink="/forgot-password" class="hover:underline">He olvidado mi contraseña</a>
+        <a routerLink="/change-password" class="hover:underline">He olvidado mi contraseña</a>
       </div>
-
-      <hr class="my-6 border-t border-white">
-
-      <!-- Botón de Inicio con Google -->
-      <button class="w-full flex items-center justify-center p-3 rounded-3xl bg-gray-200 hover:bg-gray-300 mt-4">
-        <img src="assets/google-icon.svg" alt="Google" class="w-6 h-6 mr-2">
-        Iniciar Sesión con Google
-      </button>
     </div>
   </div>
 </div>

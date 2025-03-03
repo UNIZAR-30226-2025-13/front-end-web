@@ -1,15 +1,21 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, registerLocaleData } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
+import { RouterModule, Router } from '@angular/router'
+import localeEs from '@angular/common/locales/es';
+import { PlayerService } from '../../services/player.service';
+
+registerLocaleData(localeEs, 'es-ES');
+
 
 // @ts-ignore
 import ColorThief from 'colorthief';
 
 @Component({
   selector: 'app-artista',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   template: `
   
     @if (!artistNotFound) {
@@ -27,26 +33,24 @@ import ColorThief from 'colorthief';
               <img src="assets/plus.png" alt="Seguir" class="w-4 h-4 mr-2">
               <p class="font-montserrat font-bold text-sm text-white">Seguir</p>
             </button>
-            <p class="text-white text-base max-sm:hidden">{{ artista.seguidores }} seguidores</p>
+            <p class="text-white text-base max-sm:hidden">{{ artista.seguidores | number:'1.0-0':'es-ES' }} seguidores</p>
           </div>
         </div>
       </div>
 
       <div class="flex flex-row max-2xl:flex-col flex-wrap pt-[35px] w-full">
         <!-- Sección de las más reproducidas -->
-        <div class="w-2/3 max-xl:w-full">
+        <div class="w-2/3 max-xl:w-full pr-20 max-xl:pr-0">
           <h2 class="font-montserrat font-bold text-2xl text-white mb-5">
               Las más reproducidas
           </h2>
           <div>
-            <div *ngFor="let song of this.max_rep"
-              (click)="playSong(song)"
-              class="grid grid-cols-12 gap-4 items-center cursor-pointer mb-4">
+            <div *ngFor="let song of this.max_rep" class="grid grid-cols-12 gap-4 items-center mb-4">
               
               <!-- Contenedor de la imagen, título y artista -->
               <div class="col-span-8 flex items-center">
                 <!-- Imagen a la izquierda -->
-                <img [src]="song.link_img" alt="Icono de la canción"
+                <img [src]="song.link_imagen" alt="Icono de la canción" (click)="playSong(song)"
                     class="w-[44px] h-[44px] rounded-[10px] object-cover flex-shrink-0 mr-4">
                 <!-- Título y Artista en columna -->
                 <div class="flex flex-col min-w-0">
@@ -54,13 +58,14 @@ import ColorThief from 'colorthief';
                         {{ song.titulo  }}
                     </p>
                     <div class="flex flex-row">
-                      <p class="text-white text-sm">
+                      <p [routerLink]="['/inicio/artista/', encodeNombreArtista(song.nombre_artista)]" class="text-white text-sm hover:underline">
                           {{ song.nombre_artista }}
                       </p> 
                       @if (song.artistas_feat != null) {
-                        @for (ft of song.artistas_feat; track ft) {
-                          <p class="text-white text-sm">
-                            , {{ ft }}
+                        @for (ft of getArtistasFeat(song); track ft) {
+                          <p class="text-white text-sm">,&nbsp;</p>
+                          <p [routerLink]="['/inicio/artista/', encodeNombreArtista(ft)]" class="text-white text-sm hover:underline">
+                             {{ ft }}
                           </p>
                         }
                       }
@@ -69,11 +74,11 @@ import ColorThief from 'colorthief';
               </div>
               
               <!-- Número y duración de la canción -->
-              <p class="col-span-2 max-sm:hidden text-white whitespace-nowrap">
-                  {{ song.n_repros }}
+              <p class="col-span-2 max-sm:hidden text-white whitespace-nowrap text-right">
+                  {{ song.n_repros | number:'1.0-0':'es-ES' }}
               </p>
-              <p class="col-span-2 max-sm:hidden text-white whitespace-nowrap">
-                  {{ song.duracion }}
+              <p class="col-span-2 max-sm:hidden text-white whitespace-nowrap text-right">
+                  {{ formatDuration(song.duracion) }}
               </p> 
             </div>
           </div>
@@ -89,7 +94,7 @@ import ColorThief from 'colorthief';
             
             <div class="relative w-[288px] h-[288px] min-w-[288px] min-h-[288px]">
               <img [src]="img_artiste" alt="Imagen del artista" 
-                  class="w-[288px] h-[288px] object-cover opacity-25">
+                  class="w-[288px] h-[288px] rounded-[40px] object-cover opacity-25">
               <img src="assets/heart.png" alt="Corazón" 
                   class="absolute top-[25%] left-[25%] w-40">
             </div>
@@ -130,7 +135,7 @@ import ColorThief from 'colorthief';
         <div *ngIf="selectedTab === 'cancion'" 
             class="h-60 flex overflow-x-auto whitespace-nowrap scrollbar-hide space-x-4 pb-4">
             <div *ngFor="let cancion of this.artista.canciones" class="flex flex-col items-center flex-none w-44">
-                <img [src]="cancion.link_img" [alt]="cancion.titulo" class="h-44 w-44 rounded-[40px] object-cover">
+                <img [src]="cancion.link_imagen" [alt]="cancion.titulo" class="h-44 w-44 rounded-[40px] object-cover">
                 <p class="text-white mt-2 font-montserrat font-bold">{{ cancion.titulo }}</p>
                 <p class="text-white text-sm">{{ cancion.nombre_artista }}</p>
             </div>
@@ -161,35 +166,39 @@ export class ArtistaComponent implements OnInit, AfterViewInit {
   constructor(
     private route: ActivatedRoute, 
     private authService: AuthService, 
-    private titleService: Title
+    private titleService: Title,
+    private router: Router,
+    private playerService: PlayerService
   ) {}
 
   ngOnInit() {
-    const nombre_artista_encoded = this.route.snapshot.paramMap.get('nombre_artista') ?? '';
-    this.nombre_artista = decodeURIComponent(nombre_artista_encoded);
-    this.titleService.setTitle(`${this.nombre_artista} | Spongefy`);
+    this.route.paramMap.subscribe(params => {
+      const nombre_artista_encoded = this.route.snapshot.paramMap.get('nombre_artista') ?? '';
+      this.nombre_artista = decodeURIComponent(nombre_artista_encoded);
+      this.titleService.setTitle(`${this.nombre_artista} | Spongefy`);
 
-    this.authService.getArtist(nombre_artista_encoded).subscribe({
-        next: (data) => {
-            if (data) {
-                this.artista = data;
-                // Aplicar transformaciones de Cloudinary dinámicamente
-                this.img_artiste = this.transformCloudinaryUrl(this.artista.link_imagen);
-                this.max_rep = this.artista.canciones
-                    .sort((a: any, b: any) => b.n_repros - a.n_repros)
-                    .slice(0, 5);
+      this.authService.getArtist(nombre_artista_encoded).subscribe({
+          next: (data) => {
+              if (data) {
+                  this.artista = data;
+                  // Aplicar transformaciones de Cloudinary dinámicamente
+                  this.img_artiste = this.transformCloudinaryUrl(this.artista.link_imagen);
+                  this.max_rep = this.artista.canciones
+                      .sort((a: any, b: any) => b.n_repros - a.n_repros)
+                      .slice(0, 5);
 
-                this.artistNotFound = false;
-            } else {
-                this.artistNotFound = true;
-            }
-        },
-        error: (err) => {
-            console.error('Error al obtener el perfil del artista:', err);
-            this.artistNotFound = true;
-        },
-    });
-  }
+                  this.artistNotFound = false;
+              } else {
+                  this.artistNotFound = true;
+              }
+          },
+          error: (err) => {
+              console.error('Error al obtener el perfil del artista:', err);
+              this.artistNotFound = true;
+          },
+      });
+    }
+  )}
 
   // Función para añadir transformaciones a la URL de Cloudinary
   transformCloudinaryUrl(url: string): string {
@@ -199,7 +208,19 @@ export class ArtistaComponent implements OnInit, AfterViewInit {
 
   follow() {}
 
-  playSong(song: any) {}
+  playSong(song: any) {
+    this.authService.playSong(song.id_cancion).subscribe({
+      next: (response: any) => {
+        if (response && response.link_cm) {
+          this.playerService.playSong(response);
+        }
+      },
+      error: (err) => {
+        console.error('Error al reproducir la canción:', err);
+      }
+    });
+  }
+  
 
   this_is() {}
 
@@ -236,5 +257,21 @@ export class ArtistaComponent implements OnInit, AfterViewInit {
     } catch (error) {
       console.error('Error al extraer el color dominante:', error);
     }
+  }
+
+  getArtistasFeat(song: any): string[] {
+    return song.artistas_feat ? song.artistas_feat.split(',').map((artista: string) => artista.trim()) : [];
+  }
+
+  encodeNombreArtista(nombre: string): string {
+    return encodeURIComponent(nombre);
+  }
+
+  formatDuration(duration: string): string {
+    const parts = duration.split(':');
+    if (parts.length === 3 && parts[0] === '00') {
+      return `${parts[1]}:${parts[2]}`;
+    }
+    return duration;
   }
 }
