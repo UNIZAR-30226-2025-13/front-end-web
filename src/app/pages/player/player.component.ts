@@ -63,12 +63,22 @@ import { PlayerService } from '../../services/player.service';
     </div>
 
     <!-- Parte derecha -->
-    <div class="flex flex-row items-center pr-10 flex-1 justify-end max-lg:hidden">
-      <img class="w-[30px] h-[30px] mr-2" src="assets/lyrics.png">
-      <img class="w-[30px] h-[30px] mr-2" src="assets/queue.png">
-      <img class="w-[30px] h-[30px] mr-2" src="assets/sound.png">
-      <hr class="border-2 border-white w-[100px]">
-    </div>
+<div class="flex flex-row items-center pr-10 flex-1 justify-end max-lg:hidden">
+  <img class="w-[30px] h-[30px] mr-2" src="assets/lyrics.png">
+  <img class="w-[30px] h-[30px] mr-2" src="assets/queue.png">
+  <img class="w-[30px] h-[30px] mr-2" src="assets/sound.png">
+
+  <!-- Slider de volumen -->
+  <input 
+    type="range" 
+    class="custom-volume-slider w-[100px]" 
+    min="0" 
+    max="1" 
+    step="0.01" 
+    [value]="volume"
+    (input)="changeVolume($event)"
+  >
+</div>
   </div>
 
   <!-- Elemento de audio (oculto) con enlace de Cloudinary -->
@@ -110,6 +120,39 @@ import { PlayerService } from '../../services/player.service';
   border-radius: 50%;
   cursor: pointer;
 }
+
+.custom-volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  
+  /* Fondo inicial */
+  background: linear-gradient(to right, white 100%, rgba(255, 255, 255, 0.4) 100%);
+}
+
+/* Personalización del thumb (el punto deslizante) */
+.custom-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.custom-volume-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
 `
 })
 export class PlayerComponent implements OnInit {
@@ -119,9 +162,27 @@ export class PlayerComponent implements OnInit {
   isPlaying = false;
   currentTime = 0;
   duration = 0;
-  cantantes: string[] = [];
+  cantantes: string[] = [];volume = 1; // Volumen inicial al 100%
 
-  constructor(private playerService: PlayerService) {}
+  constructor(
+    private playerService: PlayerService
+  ) {}
+
+
+  changeVolume(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.volume = parseFloat(input.value);
+  
+    if (this.audioPlayer?.nativeElement) {
+      this.audioPlayer.nativeElement.volume = this.volume;
+    }
+  
+    // Actualizar el fondo del slider
+    const percentage = this.volume * 100;
+    input.style.background = `linear-gradient(to right, 
+      white ${percentage}%, 
+      rgba(255, 255, 255, 0.4) ${percentage}%)`;
+  }
 
   ngOnInit() {
     this.playerService.currentSong.subscribe(song => {

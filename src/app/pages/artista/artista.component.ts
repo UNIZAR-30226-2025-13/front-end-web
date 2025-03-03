@@ -49,9 +49,17 @@ import ColorThief from 'colorthief';
               
               <!-- Contenedor de la imagen, título y artista -->
               <div class="col-span-8 flex items-center">
-                <!-- Imagen a la izquierda -->
-                <img [src]="song.link_imagen" alt="Icono de la canción" (click)="playSong(song)"
-                    class="w-[44px] h-[44px] rounded-[10px] object-cover flex-shrink-0 mr-4">
+                <div class="relative w-[44px] h-[44px] group mr-5" (click)="playSong(song)">
+                    <!-- Imagen de la canción -->
+                    <img [src]="song.link_imagen" alt="Icono de la canción"
+                        class="w-full h-full rounded-[10px] object-cover flex-shrink-0">
+
+                    <!-- Capa oscura con icono de Play -->
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-[10px]">
+                        <img src="assets/play.png" alt="Play"
+                            class="w-6 h-6 cursor-pointer">
+                    </div>
+                </div>
                 <!-- Título y Artista en columna -->
                 <div class="flex flex-col min-w-0">
                     <p class="font-montserrat font-bold text-lg text-white">
@@ -150,8 +158,6 @@ import ColorThief from 'colorthief';
         </div>
       </div>
     } 
-
-  
   `,
   styles: ``
 })

@@ -2,10 +2,11 @@ import { Component, HostListener } from '@angular/core';
 import { UsuarioService } from '../../services/usuario.service';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterModule],
+  imports: [RouterModule, FormsModule],
   template: `
   <div class="bg-black">
     <div class="flex flex-row bg-black border-b-[3px] border-r-[3px] border-l-[3px] border-[var(--sponge)] w-full h-[90px] rounded-bl-[40px] rounded-br-[40px] justify-between items-center">
@@ -62,18 +63,74 @@ import { AuthService } from '../../services/auth.service';
               <hr class="border-gray-500 mb-4">
 
               <ul class="space-y-2">
-                <li (click)="verPerfil()" class="px-4 py-2 hover:bg-[var(--buttonhover)]/10 cursor-pointer rounded-lg font-semibold">
+                <li (click)="verPerfil()" class="px-4 py-2 hover:bg-[var(--buttonhover)]/10 cursor-pointer rounded-[40px] font-semibold">
                   Editar Perfil
                 </li>
-                <li (click)="cerrarSesion()" class="px-4 py-2 hover:bg-[var(--buttonhover)]/10 cursor-pointer rounded-lg font-semibold">
+                <li (click)="cerrarSesion()" class="px-4 py-2 hover:bg-[var(--buttonhover)]/10 cursor-pointer rounded-[40px] font-semibold">
                   Cerrar Sesión
                 </li>
-                <li (click)="eliminarPerfil()" class="px-4 py-2 hover:bg-red-600/10 text-red-400 cursor-pointer rounded-lg font-semibold">
+                <!-- Botón que abre el modal -->
+                <li (click)="eliminarPerfil()" class="px-4 py-2 hover:bg-[var(--buttonhover)]/10 cursor-pointer rounded-[40px] font-semibold">
                   Eliminar Cuenta
                 </li>
               </ul>
             </div>
            }
+
+           <!-- MODAL de confirmación de eliminación -->
+          @if (mostrarModal) {
+            <div class="fixed inset-0 flex items-center justify-center bg-black/70 z-50">
+              <!-- Contenedor principal -->
+              <div class="flex h-[600px] w-[800px] max-md:w-[400px] max-md:h-[400px] bg-black rounded-3xl shadow-lg overflow-hidden">
+                                
+                <!-- Imagen en la mitad izquierda -->
+                <div class="hidden md:block md:w-1/2 relative">
+                <img src="assets/back.png" (click)="cerrarModal()" 
+                  class="absolute top-4 left-4 hover:border-2 hover:bg-white text-white rounded-full w-8 h-8 flex items-center justify-center"/>
+                  <img src="assets/mediologo.png" alt="Logo"
+                    class="w-full h-full object-cover rounded-l-3xl">
+                </div>
+
+                <!-- Contenido del modal en la mitad derecha -->
+                <div class="w-full md:w-1/2 p-8 flex flex-col items-center justify-center">
+                  <!-- Botón de cerrar dentro del modal -->
+                  <h2 class="text-3xl font-bold text-white text-center mb-6">Eliminar Cuenta</h2>
+                    <p class="text-center text-gray-400 mb-4">¿Estás seguro? Esta acción no se puede deshacer.</p>
+
+                    <!-- Campo de Nombre de Usuario con Icono -->
+                    <div class="relative w-full mb-4">
+                      <span class="absolute inset-y-0 left-3 flex items-center text-gray-500">
+                        <img src="assets/user.png" alt="Usuario" class="w-5 h-5">
+                      </span>
+                      <input type="text" [(ngModel)]="usuarioConfirm" name="usuarioConfirm"
+                        placeholder="Nombre de usuario"
+                        class="w-full pl-10 p-3 rounded-3xl bg-gray-200 focus:outline-none">
+                    </div>
+
+                    <!-- Campo de Contraseña con Icono -->
+                    <div class="relative w-full mb-4">
+                      <span class="absolute inset-y-0 left-3 flex items-center text-gray-500">
+                        <img src="assets/password.png" alt="Contraseña" class="w-5 h-5">
+                      </span>
+                      <input type="password" [(ngModel)]="passwordConfirm" name="passwordConfirm"
+                        placeholder="Contraseña"
+                        class="w-full pl-10 p-3 rounded-3xl bg-gray-200 focus:outline-none">
+                    </div>
+
+                    <!-- Botón de Confirmar Eliminación -->
+                    <button (click)="confirmarEliminacion()"
+                      class="w-full bg-red-600 hover:bg-red-700 text-white p-3 rounded-3xl font-bold">
+                      Eliminar Cuenta
+                    </button>
+
+                    <button (click)="cerrarModal()"
+                      class="hidden max-md:block w-full mt-4 bg-gray-600 hover:bg-gray-700 text-white p-3 rounded-3xl font-bold">
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
         </div>
       </div>
     </div>
@@ -84,6 +141,9 @@ import { AuthService } from '../../services/auth.service';
 export class HomeComponent {
   dropdownOpen = false;
   usuarioInfo: any;
+  mostrarModal = false;
+  usuarioConfirm = '';
+  passwordConfirm = '';
 
   constructor(
     private usuarioService: UsuarioService,
@@ -130,18 +190,40 @@ export class HomeComponent {
     this.router.navigate(['/login']);
   }
 
+  // Método para abrir el modal
   eliminarPerfil() {
-    const deleteData = { nombre_usuario: this.usuarioInfo.nombre_usuario};
-    this.closeDropdown();
+    this.mostrarModal = true;
+  }
+
+  // Método para cerrar el modal
+  cerrarModal() {
+    this.mostrarModal = false;
+    this.usuarioConfirm = ''; 
+    this.passwordConfirm = ''; 
+  }
+
+  confirmarEliminacion() {
+    if (this.usuarioConfirm !== this.usuarioInfo.nombre_usuario) {
+      alert('El nombre de usuario no coincide.');
+      return;
+    }
+
+    if (this.passwordConfirm.length < 6) {
+      alert('Ingresa una contraseña válida.');
+      return;
+    }
+
+    const deleteData = { nombre_usuario: this.usuarioInfo.nombre_usuario };
+
     if (confirm('¿Estás seguro de que deseas eliminar tu perfil? Esta acción no se puede deshacer.')) {
       this.authService.deleteUser(deleteData).subscribe({
-        next: (response: any) => {
-          console.log('Se ha borrado el usuario correctamente', response);
+        next: () => {
+          console.log('Se ha borrado el usuario correctamente');
           this.router.navigate(['/login']);
         },
         error: (error) => {
-          console.error('Error al borrar la cuenta ' + this.usuarioInfo.nombre_usuario, error);
-          alert('No se ha podido eliminar su cuenta')
+          console.error('Error al borrar la cuenta', error);
+          alert('No se ha podido eliminar su cuenta');
         }
       });
     }
