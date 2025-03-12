@@ -153,10 +153,10 @@ export class HomeComponent {
 
   ngOnInit() {
     this.usuarioInfo = this.usuarioService.getUsuario();
-    if (!this.usuarioInfo) {
+    /*if (!this.usuarioInfo) {
       alert('No has iniciado sesión.');
       this.router.navigate(['/login']);
-    }
+    }*/
   }
 
   // Abre/cierra el menú desplegable

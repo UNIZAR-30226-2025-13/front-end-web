@@ -66,7 +66,7 @@ import { HttpClient } from '@angular/common/http';
       <!-- Enlaces de Recuperación y Registro -->
       <div class="text-center mt-4 text-white text-sm flex justify-between">
         <a routerLink="/register" class="hover:underline">¿Aún no tienes una cuenta?</a>
-        <a routerLink="/change-password" class="hover:underline">He olvidado mi contraseña</a>
+        <a routerLink="/forgot-password" class="hover:underline">He olvidado mi contraseña</a>
       </div>
     </div>
   </div>
@@ -103,7 +103,7 @@ export class LoginComponent {
         localStorage.setItem('token', response.token);
         this.usuarioService.guardarUsuario(response.usuario);
 
-        this.router.navigate(['/inicio/todo']);
+        this.router.navigate(['/inicio']);
       },
       error: (error) => {
         console.error('Error en el inicio de sesión', error);

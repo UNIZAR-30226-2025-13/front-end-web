@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router'
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -18,7 +19,7 @@ import { Router } from '@angular/router'
         <div class="p-8 max-w-md w-full">
           <h2 class="text-3xl font-bold text-white text-center mb-6">Cambiar Contraseña</h2>
 
-          <form (submit)="onChangePassword()" class="space-y-4">
+          <form (submit)="onChangePassword($event)" class="space-y-4">
             <!-- Campo de Nombre de Usuario con Icono -->
             <div class="relative">
               <span class="absolute inset-y-0 left-3 flex items-center text-gray-500">
@@ -77,11 +78,37 @@ export class ChangePasswordComponent {
   password = '';
   token = '';
   passwordVisible = false;
+  message = '';
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
-  onChangePassword() {
-    // No esta hecha
+  onChangePassword(event: Event) {
+    event.preventDefault(); // Evitar recarga de la página
+
+    if (!this.username || !this.password || !this.token) {
+      this.message = "Todos los campos son obligatorios.";
+      return;
+    }
+
+    const userData = {
+      nombre_usuario: this.username,
+      token: this.token,
+      nueva_contrasena: this.password
+    };
+
+    this.authService.changePassword(userData).subscribe({
+      next: () => {
+        this.message = "Contraseña cambiada con éxito.";
+        setTimeout(() => this.router.navigate(['/login']), 2000);
+      },
+      error: (error) => {
+        console.error("Error al cambiar la contraseña:", error);
+        this.message = "Error al cambiar la contraseña. Inténtalo de nuevo.";
+      }
+    });
   }
 
   togglePasswordVisibility() {

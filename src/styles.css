@@ -4,9 +4,11 @@
 
 :root {
     --sponge: #A200F4;
-    --spongedark: #630194;
+    --spongedark: #341146;
     --buttonhover: #949494;
     --button: #3C3C3C;
+    --graybackground: #151515;
+    --lightSponge: #d176ff;
 }
 
 html {

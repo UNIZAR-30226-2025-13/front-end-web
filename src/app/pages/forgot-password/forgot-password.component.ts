@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router'
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -18,7 +19,7 @@ import { Router } from '@angular/router'
         <div class="p-8 max-w-md w-full">
           <h2 class="text-3xl font-bold text-white text-center mb-6">¿Has olvidado tu contraseña?</h2>
 
-          <form (submit)="onForgotPassword()" class="space-y-4">
+          <form (submit)="onForgotPassword($event)" class="space-y-4">
             <!-- Campo de Nombre de Usuario con Icono -->
             <div class="relative">
               <span class="absolute inset-y-0 left-3 flex items-center text-gray-500">
@@ -42,10 +43,33 @@ import { Router } from '@angular/router'
 })
 export class ForgotPasswordComponent {
   email = '';
+  message = '';
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthService
+  ) {}
 
-  onForgotPassword() {
-    // No esta hecha
+  onForgotPassword(event: Event) {
+    event.preventDefault(); // Evitar recarga de la página
+
+    if (!this.email) {
+      this.message = "Por favor, ingresa tu correo electrónico.";
+      return;
+    }
+    console.log(this.email)
+
+    this.authService.sendEmail(this.email).subscribe({
+      next: (response: any) => {
+        this.message = "Correo enviado con éxito. Revisa tu bandeja de entrada.";
+        setTimeout(() => {
+          this.router.navigate(['/change-password']);
+        }, 2000);
+      },
+      error: (error) => {
+        console.error("Error al enviar el correo:", error);
+        this.message = "Error al enviar el correo. Inténtalo de nuevo.";
+      }
+    });
   }
 }
