@@ -68,14 +68,6 @@ import { HttpClient } from '@angular/common/http';
         <a routerLink="/register" class="hover:underline">¿Aún no tienes una cuenta?</a>
         <a routerLink="/forgot-password" class="hover:underline">He olvidado mi contraseña</a>
       </div>
-
-      <hr class="my-6 border-t border-white">
-
-      <!-- Botón de Inicio con Google -->
-      <button class="w-full flex items-center justify-center p-3 rounded-3xl bg-gray-200 hover:bg-gray-300 mt-4">
-        <img src="assets/google-icon.svg" alt="Google" class="w-6 h-6 mr-2">
-        Iniciar Sesión con Google
-      </button>
     </div>
   </div>
 </div>
@@ -111,7 +103,7 @@ export class LoginComponent {
         localStorage.setItem('token', response.token);
         this.usuarioService.guardarUsuario(response.usuario);
 
-        this.router.navigate(['/inicio/todo']);
+        this.router.navigate(['/inicio']);
       },
       error: (error) => {
         console.error('Error en el inicio de sesión', error);

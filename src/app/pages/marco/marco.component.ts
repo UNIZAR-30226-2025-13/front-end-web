@@ -1,51 +1,46 @@
 import { Component } from '@angular/core';
 import { HomeComponent } from '../home/home.component';
 import { PlayerComponent } from '../player/player.component';
-import { RouterModule, Router  } from '@angular/router';
-import { UsuarioService } from '../../services/usuario.service';
+import { BibliotecaComponent } from '../biblioteca/biblioteca.component';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-inicio',
-  imports: [HomeComponent, PlayerComponent, RouterModule],
+  standalone: true,
+  imports: [HomeComponent, PlayerComponent, BibliotecaComponent, RouterModule],
   template: `
-    <app-home></app-home>
-    <div class="content-area flex-1 flex overflow-auto">
-      <section class="dynamic-content flex-1 w-full">
+    <div class="flex flex-col h-screen">
+  <!-- Barra superior fija -->
+  <header class="h-auto bg-gray-900 text-white">
+    <app-home/>
+  </header>
+
+  <!-- Área central flexible -->
+  <div class="flex flex-1 overflow-hidden bg-black">
+    <!-- Biblioteca redimensionable -->
+    <app-biblioteca class="flex-shrink-0 py-3.5"/>
+
+    <!-- Contenido principal -->
+    <main class="flex-1 overflow-auto scrollbar-hide">
+    <section class="flex-1 overflow-auto scrollbar-hide">
         <router-outlet></router-outlet>
       </section>
-    </div>
+    </main>
+  </div>
 
-    <app-player></app-player>
+  <!-- Reproductor fijo en la parte inferior -->
+  <footer class="h-auto bg-gray-900 text-white">
+    <app-player/>
+  </footer>
+</div>
+
   `,
-  styles: `
-    :host {
-      @apply flex flex-col h-screen overflow-hidden;
-    }
-
-    .content-area {
-      @apply flex-1 flex overflow-y-auto;
-    }
-
-    /* Estilos personalizados para la barra de desplazamiento */
-    .content-area::-webkit-scrollbar {
-      width: 3px;
-    }
-
-    .content-area::-webkit-scrollbar-thumb {
-      background-color: #6b7280; /* Gris medio */
-      border-radius: 8px;
-    }
-
-    .content-area::-webkit-scrollbar-track {
-      background: #000000; /* Gris claro */
-    }
-
-    .content-area::-webkit-scrollbar-thumb:hover {
-      background-color: #4b5563; /* Gris oscuro */
-    }
-  `
+  styles: [
+    `
+      :host {
+        @apply flex flex-col h-screen;
+      }
+    `,
+  ],
 })
-export class MarcoComponent {
-  
-
-}
+export class MarcoComponent {}

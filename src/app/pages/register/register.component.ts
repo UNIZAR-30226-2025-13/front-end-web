@@ -67,14 +67,6 @@ import { HttpClient } from '@angular/common/http';
             Registrarse
           </button>
         </form>
-
-        <hr class="my-6 border-t border-white">
-
-        <!-- Botón de Inicio con Google -->
-        <button class="w-full flex items-center justify-center p-3 rounded-3xl bg-gray-200 hover:bg-gray-300 mt-4">
-          <img src="assets/google-icon.svg" alt="Google" class="w-6 h-6 mr-2">
-          Registrarse con Google
-        </button>
       </div>
     </div>
   </div>

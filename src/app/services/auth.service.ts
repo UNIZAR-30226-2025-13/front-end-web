@@ -26,7 +26,43 @@ export class AuthService {
   }
 
   getArtist(nombre_artista: string) {
-    return this.http.get<any>(`http://localhost:8080/artist?nombre_artista=${nombre_artista}`);
+    return this.http.get<any>(`${this.apiUrl}/artist?nombre_artista=${nombre_artista}`);
   }
 
+  playSong(song: any) {
+    return this.http.get<any>(`${this.apiUrl}/play-song?id_cancion=${song}`)
+  }
+
+  getHome() {
+    return this.http.get(`${this.apiUrl}/home`);
+  }
+
+  getHomeMusic() {
+    return this.http.get(`${this.apiUrl}/home-music`);
+  }
+
+  getHomePodcast() {
+    return this.http.get(`${this.apiUrl}/home-podcast`);
+  }
+
+  getUserLists(nombre_usuario: string) {
+    return this.http.get(`${this.apiUrl}/get-lists?nombre_usuario=${nombre_usuario}`);
+  }
+  
+  getUserPlaylists(nombre_usuario: string) {
+    return this.http.get(`${this.apiUrl}/get-playlists?nombre_usuario=${nombre_usuario}`);
+  }
+
+  sendEmail(correo_electronico: string) {
+    return this.http.put(`${this.apiUrl}/change-password-request?correo=${correo_electronico}`, {});
+  }
+  
+  changePassword(user: any) {
+    return this.http.post(`${this.apiUrl}/change-password`, user);
+  }
+
+  addSongToPlaylist(id_cancion: number, id_playlist: number) {
+    return this.http.post(`${this.apiUrl}/add-song-playlist`, { id_cancion, id_playlist });
+  }  
+  
 }
