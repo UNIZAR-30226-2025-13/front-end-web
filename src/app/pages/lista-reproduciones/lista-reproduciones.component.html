@@ -51,7 +51,7 @@
     <hr class="border-t-2 border-white my-4 ">  
         <div *ngFor="let song of canciones" class="grid grid-cols-20 gap-4  text-white items-center ">
             <div class="flex m-4 col-span-6 ">
-                <img [src]=song.icon alt="Icono de la canción" (click)="playSong(song.id_cancion)"
+                <img [src]=song.link_imagen alt="Icono de la canción" (click)="playSong(song.id_cancion)"
                     class="w-[45px] h-[45px] rounded-[10px] object-cover flex-shrink-0 mr-4">
                 <div class="flex flex-col min-w-0">
                     <p class="font-montserrat font-bold text-lg text-white">
@@ -64,7 +64,7 @@
                      </div>
                 </div>
             </div>
-            <div class="col-span-4">{{ song.album }}</div>
+            <div class="col-span-4"> TODO Album</div>
             <div class="col-span-4 flex"  >
             <ng-container *ngIf="song.valoration_media === 0; else rated_media"> 
                 <img src="assets/star_no_rate.png" alt="star" class="w-5 h-auto flex-col" />
@@ -78,7 +78,7 @@
             </div> 
             <div class="col-span-4">{{ song.fecha_pub }}</div> 
             <div class="col-span-1">{{ song.duration }}</div>
-            <div class=" flex items-center space-x-3   col-span-1">
+            <div class=" flex items-center space-x-3   col-span-1 mr-5">
                 <img src="assets\anyadirplaylist.png" alt="anadir" (click)="add()" class=" h-[17px] w-[18px]">
                 <img src="assets\heart.png" alt="like" (click)="like()" class=" h-[17px] w-[18px]">
                 <p (click)="option()" class="font-montserrat font-bold text-xl text-white pb-3 ">...</p> 

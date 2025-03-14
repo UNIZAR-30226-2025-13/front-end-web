@@ -18,7 +18,7 @@ export class ListaReproducionesComponent implements OnInit {
   playlistNotFound = false;
   durationTotal: string = '';
   numberSong:number = 0;
-  visibility: string = '';//TODO
+  visibility: string = 'publica';//TODO
 
   constructor(
     private route: ActivatedRoute,
@@ -27,25 +27,27 @@ export class ListaReproducionesComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.id_playlist = this.route.snapshot.paramMap.get('id_playlist') ?? '';
-
-    if (this.id_playlist) {
-      this.getPlaylistData(this.id_playlist);
-    }
+    this.route.paramMap.subscribe(params => {
+      this.id_playlist = params.get('id_playlist') ?? '';
+      if (this.id_playlist) {
+        this.getPlaylistData(this.id_playlist);
+      }
+    });
   }
 
   getPlaylistData(id_playlist: string) {
     this.authService.getPlaylistData(id_playlist).subscribe({
       next: (data) => {
+        console.log('Données reçues:', data);
         if (data) {
           this.playlist = data;
-          this.name = data.name;
+          this.name = data.nombre;
           this.color_playlist = data.color;
           this.canciones = data.canciones || [];
           this.titleService.setTitle(`${data.nombre} | Spongefy`);
           this.durationTotal = this.calculateDurationTotal(this.canciones);
           this.playlistNotFound = false;
-          this.numberSong = this.canciones.length
+          this.numberSong = this.canciones.length;
         } else {
           this.playlistNotFound = true;
         }
@@ -57,53 +59,54 @@ export class ListaReproducionesComponent implements OnInit {
     });
   }
 
-  /**
-   * Convertit la durée totale de la playlist au format "J h m s".
-   */
+
   calculateDurationTotal(canciones: any[]): string {
     let totalSeconds = 0;
-
+  
     canciones.forEach((cancion) => {
-      const parts = cancion.duracion.split(' ');
-      let seconds = 0;
-
-      parts.forEach((part: string) => {
-        if (part.includes('h')) {
-          seconds += parseInt(part.replace('h', '')) * 3600;
-        } else if (part.includes('m')) {
-          seconds += parseInt(part.replace('m', '')) * 60;
-        } else if (part.includes('s')) {
-          seconds += parseInt(part.replace('s', ''));
-        } else if (part.includes('J')) {
-          seconds += parseInt(part.replace('J', '')) * 86400;
+      console.log('Durée de la chanson:', cancion.duracion); 
+  
+      if (typeof cancion.duracion === 'string' && cancion.duracion.includes(':')) {
+        const parts = cancion.duracion.split(':').map(Number);
+  
+        if (parts.length === 3) {
+          
+          const [hours, minutes, seconds] = parts;
+          if (!isNaN(hours) && !isNaN(minutes) && !isNaN(seconds)) {
+            totalSeconds += hours * 3600 + minutes * 60 + seconds;
+          } else {
+            console.warn('Valeur non numérique détectée dans la durée:', parts);
+          }
+        } else {
+          console.warn('Format de durée incorrect:', cancion.duracion);
         }
-      });
-
-      totalSeconds += seconds;
+      } else {
+        console.warn('Durée invalide ou manquante:', cancion.duracion);
+      }
     });
-
+  
+    console.log('Durée totale en secondes:', totalSeconds); 
     return this.formatDuration(totalSeconds);
   }
+  
 
-  /**
-   * Formate une durée en secondes en "J h m s".
-   */
+  
   formatDuration(totalSeconds: number): string {
-    const days = Math.floor(totalSeconds / 86400);
-    totalSeconds %= 86400;
-    const houres = Math.floor(totalSeconds / 3600);
+    console.log('Formatage de:', totalSeconds); 
+    const hours = Math.floor(totalSeconds / 3600);
     totalSeconds %= 3600;
     const minutes = Math.floor(totalSeconds / 60);
-    const secondes = totalSeconds % 60;
-
-    let dureeFormatee = '';
-    if (days > 0) dureeFormatee += `${days}J `;
-    if (houres > 0) dureeFormatee += `${houres}h `;
-    if (minutes > 0) dureeFormatee += `${minutes}m `;
-    if (secondes > 0) dureeFormatee += `${secondes}s`;
-
-    return dureeFormatee.trim();
+    const seconds = totalSeconds % 60;
+  
+    
+    const formatted = `${hours.toString().padStart(2, '0')}:${minutes
+      .toString()
+      .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    console.log('Durée formatée:', formatted); 
+    return formatted;
   }
+  
 
   playSong(id_cancion: number) {
     this.authService.playSong(id_cancion).subscribe({

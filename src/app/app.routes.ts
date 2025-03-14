@@ -7,7 +7,7 @@ import { TodoComponent } from './pages/todo/todo.component';
 import { ArtistaComponent } from './pages/artista/artista.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { PodcasterComponent } from './pages/podcaster/podcaster.component';
-import { ListaReproduccionesComponent } from './pages/lista-reproducciones/lista-reproducciones.component';
+import { ListaReproducionesComponent } from './pages/lista-reproduciones/lista-reproduciones.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -21,7 +21,7 @@ export const routes: Routes = [
       { path: '', component: TodoComponent, title: 'Inicio | Spongefy' },
       { path: 'artista/:nombre_artista', component: ArtistaComponent },
       { path: 'podcaster/:nombre_artista', component: PodcasterComponent },
-      { path: 'lista_reproduccion/:id', component: ListaReproduccionesComponent}
+      { path: 'lista_reproducion/:id_playlist', component: ListaReproducionesComponent}
     ]
   },
 ];

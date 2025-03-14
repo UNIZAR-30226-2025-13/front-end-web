@@ -42,11 +42,6 @@ export class AuthService {
   }
 
   
-
-  playSong(song: any) {
-    return this.http.get<any>(`${this.apiUrl}/play-song?id_cancion=${song}`)
-  }
-
   getHome() {
     return this.http.get(`${this.apiUrl}/home`);
   }
