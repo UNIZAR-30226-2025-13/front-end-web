@@ -36,27 +36,32 @@ import { FormsModule } from '@angular/forms';
       @if (mostrar === 'listas') {
         <ul class="list-none p-0 flex-grow text-xl ">
           @if (ancho > this.MIN_WIDTH) {
-            <button class="mt-2 text-white bg-[var(--sponge)] font-bold truncate w-full text-left p-2 flex justify-between items-center rounded-[40px]">
+            <button class="mt-2 text-white bg-[var(--sponge)] font-bold truncate w-full text-left p-2 flex justify-between items-center rounded-[40px] transition-transform duration-300 hover:scale-99 cursor-pointer"
+            [routerLink]="['/inicio/lista_reproduccion/', (combinedLists[0].id_lista)]">
                 <p class="ml-2">Tus canciones favoritas</p>
                 <img src="assets/heart.png" alt="Corazón" class="w-6 h-6 mr-2"> 
             </button>  
           } @else {
-            <button class="mt-2 text-white bg-[var(--sponge)] font-bold truncate w-full text-left p-2 flex justify-center items-center rounded-[40px]">
+            <button class="mt-2 text-white bg-[var(--sponge)] font-bold truncate w-full text-left p-2 flex justify-center items-center rounded-[40px] transition-transform duration-300 hover:scale-99 cursor-pointer"
+            [routerLink]="['/inicio/lista_reproduccion/', (combinedLists[0].id_lista)]">
               <img src="assets/heart.png" alt="Corazón" class="w-6 h-6"> 
             </button>  
           }
           @if (ancho > this.MIN_WIDTH) {  
-            <button class="mt-2 text-white bg-[var(--spongedark)] font-bold truncate w-full text-left p-2 flex justify-between items-center rounded-[40px]">
+            <button class="mt-2 text-white bg-[var(--spongedark)] font-bold truncate w-full text-left p-2 flex justify-between items-center rounded-[40px] transition-transform duration-300 hover:scale-99 cursor-pointer"
+            [routerLink]="['/inicio/lista_reproduccion/', (combinedLists[1].id_lista)]">
               <p class="ml-2">Tus episodios favoritos</p>
               <img src="assets/heart.png" alt="Corazón" class="w-6 h-6 mr-2">   
             </button>
           } @else {
-            <button class="mt-2 text-white bg-[var(--spongedark)] font-bold truncate w-full text-left p-2 flex justify-center items-center rounded-[40px]">
+            <button class="mt-2 text-white bg-[var(--spongedark)] font-bold truncate w-full text-left p-2 flex justify-center items-center rounded-[40px] transition-transform duration-300 hover:scale-99 cursor-pointer"
+            [routerLink]="['/inicio/lista_reproduccion/', (combinedLists[1].id_lista)]">
               <img src="assets/heart.png" alt="Corazón" class="w-6 h-6">   
             </button>
             }
-          <li *ngFor="let playlist of combinedLists; trackBy: trackByFn">
-            <button class="flex flex-row mt-2 text-white font-bold truncate w-full text-left p-2">
+          <li *ngFor="let playlist of combinedLists.slice(2); trackBy: trackByFn">
+            <button class="flex flex-row mt-2 text-white font-bold truncate w-full text-left p-2 transition-transform duration-300 hover:scale-99 cursor-pointer"
+            [routerLink]="playlist.type === 'lista' ? ['/inicio/lista_reproduccion/', playlist.id_lista] : null">
             <p class="ml-2 truncate">{{ playlist.nombre }}</p>
             @if (ancho > this.MIN_WIDTH) {  
               <img *ngIf="playlist.type === 'carpeta'" src="assets/folder.png" alt="Carpeta" class="w-6 h-6 ml-auto mr-2">
@@ -68,7 +73,7 @@ import { FormsModule } from '@angular/forms';
       @if (mostrar === 'podcasts') {
         <ul class="list-none p-0 flex-grow text-xl">
           <li *ngFor="let podcast of podcast_fav; trackBy: trackByFn">
-            <button class="flex flex-row items-center mt-2 text-white font-bold truncate w-full text-left p-2"
+            <button class="flex flex-row items-center mt-2 text-white font-bold truncate w-full text-left p-2 transition-transform duration-300 hover:scale-99 cursor-pointer"
             [routerLink]="['/inicio/podcaster', encodeNombreArtista(podcast.nombre_podcaster)]"
             [ngStyle]="{'padding-left': ancho <= MIN_WIDTH ? '7px' : '0px'}">
               <img [src]="podcast.link_imagen" class="min-w-12 min-h-12 w-12 h-12 rounded-[10px]">
@@ -82,7 +87,7 @@ import { FormsModule } from '@angular/forms';
       @if (mostrar === 'artistas') {
         <ul class="list-none p-0 flex-grow text-xl">
           <li *ngFor="let artista of artistas_fav; trackBy: trackByFn">
-            <button class="flex flex-row items-center mt-2 text-white font-bold truncate w-full text-left p-2"
+            <button class="flex flex-row items-center mt-2 text-white font-bold truncate w-full text-left p-2 transition-transform duration-300 hover:scale-99 cursor-pointer"
             [routerLink]="['/inicio/artista', encodeNombreArtista(artista.nombre_artista)]"
             [ngStyle]="{'padding-left': ancho <= MIN_WIDTH ? '7px' : '0px'}">
               <img [src]="artista.link_imagen" class="min-w-12 min-h-12 w-12 h-12 rounded-[10px]"> 
@@ -179,32 +184,38 @@ export class BibliotecaComponent implements OnInit {
     this.authService.getUserLists(nombre_usuario).subscribe(
       (response: any) => {
         const listas = response.listas === "No hay listas" ? [] : response.listas;
-      const carpetas = response.carpetas === "No hay carpetas" ? [] : response.carpetas;
-
-      // Combina listas y carpetas en un solo array
-      const listasFiltradas = listas.filter((item: any) => 
-        item.nombre !== "Tus canciones favoritas" && item.nombre !== "Tus episodios favoritos"
-      );
-
-      // Combina listas filtradas y carpetas en un solo array
-      const combinedLists = [
-        ...listasFiltradas.map((item: any) => ({ ...item, type: 'lista' })),
-        ...carpetas.map((item: any) => ({ ...item, type: 'carpeta' }))
-      ];
-  
-        // Optionally shuffle or sort the array if needed
-        this.combinedLists = combinedLists.sort((a, b) => a.nombre.localeCompare(b.nombre)); // Uncomment to sort alphabetically
-        
-        // Assign to component variable for rendering
-        this.combinedLists = combinedLists;
+        const carpetas = response.carpetas === "No hay carpetas" ? [] : response.carpetas;
+    
+        // Separa las listas favoritas del resto
+        const favoritas = listas.filter((item: any) =>
+          item.nombre === "Tus canciones favoritas" || item.nombre === "Tus episodios favoritos"
+        );
+    
+        const listasFiltradas = listas.filter((item: any) =>
+          item.nombre !== "Tus canciones favoritas" && item.nombre !== "Tus episodios favoritos"
+        );
+    
+        // Convierte las listas y carpetas en un solo array con el tipo
+        const combinedLists = [
+          ...listasFiltradas.map((item: any) => ({ ...item, type: 'lista' })),
+          ...carpetas.map((item: any) => ({ ...item, type: 'carpeta' }))
+        ].sort((a, b) => a.nombre.localeCompare(b.nombre)); // Ordena alfabéticamente
+    
+        // Orden final: favoritas primero, luego el resto ordenado
+        this.combinedLists = [
+          ...favoritas.map((item: any) => ({ ...item, type: 'favorito' })), // Añadir tipo opcionalmente
+          ...combinedLists
+        ];
+    
         this.artistas_fav = Array.isArray(response.artistas_favoritos) ? response.artistas_favoritos : [];
         this.podcast_fav = Array.isArray(response.podcasts_favoritos) ? response.podcasts_favoritos : [];
-        console.log(response)
+    
+        console.log(response);
       },
       (error) => {
         console.error('Error al obtener las listas:', error);
       }
-    );
+    );    
   }
 
   // Abrir el popup

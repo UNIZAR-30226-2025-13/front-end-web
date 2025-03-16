@@ -9,6 +9,7 @@
     --button: #3C3C3C;
     --graybackground: #151515;
     --lightSponge: #d176ff;
+    --shadowsponge: 0px 0px 15px #A200F4;
 }
 
 html {
