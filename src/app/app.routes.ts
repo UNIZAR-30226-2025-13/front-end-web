@@ -7,10 +7,10 @@ import { TodoComponent } from './pages/todo/todo.component';
 import { ArtistaComponent } from './pages/artista/artista.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { PodcasterComponent } from './pages/podcaster/podcaster.component';
-import { ListaReproduccionesComponent } from './pages/lista-reproducciones/lista-reproducciones.component';
 import { ListaPodcastsComponent } from './pages/lista-podcasts/lista-podcasts.component';
 import { AlbumComponent } from './pages/album/album.component';
 import { CancionComponent } from './pages/cancion/cancion.component';
+import { ListaReproducionesComponent } from './pages/lista-reproduciones/lista-reproduciones.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -27,7 +27,7 @@ export const routes: Routes = [
       { path: 'album/:id_album', component: AlbumComponent },
       { path: 'cancion/:id_cancion', component: CancionComponent },
       { path: 'podcast/:id_podcast', component: ListaPodcastsComponent},
-      { path: 'lista_reproduccion/:id', component: ListaReproduccionesComponent}
+      { path: 'lista_reproduccion/:id_playlist', component: ListaReproducionesComponent}
     ]
   },
 ];
