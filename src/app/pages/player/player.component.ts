@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { PlayerService } from '../../services/player.service';
 import { UsuarioService } from '../../services/usuario.service';
 import { AuthService } from '../../services/auth.service';
+import { RouterModule, Router } from '@angular/router';
 
 @Component({
   selector: 'app-player',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   template: `
   <div class="bg-black">
   <div class="flex flex-row bg-[var(--sponge)] w-full h-[90px] rounded-tl-[40px] rounded-tr-[40px] justify-between">
@@ -16,21 +17,23 @@ import { AuthService } from '../../services/auth.service';
       <img [src]="currentSong?.link_imagen" class="h-[50px] mr-1.5 rounded-2xl">
       <div class="text-white text-sm">
         <a class="block font-bold">{{ currentSong?.titulo }}</a>
-        <div class="flex flex-row flex-wrap">
+        <div class="w-full max-xl:w-20 overflow-hidden text-ellipsis whitespace-nowrap">
           <ng-container *ngFor="let cantante of cantantes; let i = index">
-            <a>{{ cantante }}</a>
+            <a [routerLink]="['/inicio/artista/', encodeNombreArtista(cantante)]"
+              class="text-white hover:underline"
+            >{{ cantante }}</a>
             <span *ngIf="i < cantantes.length - 1">,&nbsp;</span>
           </ng-container>
         </div>
       </div>
       <!-- Botón Añadir a Playlist -->
       <div class="relative">
-          <img src="assets/anyadirplaylist.png" class="h-[25px] cursor-pointer" (click)="togglePlaylistPopup()">
+          <img src="assets/anyadirplaylist.png" class="min-w-[25px] h-[25px] cursor-pointer" (click)="togglePlaylistPopup()">
           <!-- Popup de la playlist -->
           <div *ngIf="showPlaylistPopup && currentSong?.link_cm" 
-              class="absolute bottom-full left-0 mb-2 bg-black border-1 border-[var(--sponge)] text-white p-2 w-90 max-h-70 overflow-auto rounded-[10px] shadow-lg scrollbar-hide">
+              class="absolute bottom-full left-0 mb-2 bg-black border-1 border-[var(--sponge)] text-white p-2 w-90 max-h-70 max-md:w-70 overflow-auto rounded-[10px] shadow-lg scrollbar-hide">
             <div *ngFor="let playlist of playlists" 
-                class="p-1 cursor-pointer hover:underline"
+                class="p-1 cursor-pointer hover:underline truncate line-clamp-1"
                 (click)="addSongToPlaylist(playlist)">
               {{ playlist.nombre }}
             </div>
@@ -41,9 +44,9 @@ import { AuthService } from '../../services/auth.service';
   
     <!-- Parte central -->
     <div class="flex flex-col justify-center flex-1 items-center max-lg:mr-10">
-      <div class="flex flex-row gap-2 max-sm:justify-end max-sm:items-end max-sm:w-full">
-        <img class="w-[30px] h-[30px] max-sm:hidden" src="assets/aleatorio.png">
-        <img class="w-[35px] h-[35px] max-sm:hidden" src="assets/atras.png">
+      <div class="flex flex-row gap-2 max-md:justify-end max-md:items-end max-md:w-full">
+        <img class="w-[30px] h-[30px] max-md:hidden" src="assets/aleatorio.png">
+        <img class="w-[35px] h-[35px] max-md:hidden" src="assets/atras.png">
 
         <!-- Botón de play/pause con control de audio -->
         <div 
@@ -55,12 +58,12 @@ import { AuthService } from '../../services/auth.service';
             [src]="isPlaying ? 'assets/pause.png' : 'assets/play.png'">
         </div>
 
-        <img class="w-[35px] h-[35px] max-sm:hidden" src="assets/adelante.png">
-        <img class="w-[30px] h-[30px] max-sm:hidden" src="assets/bucle.png">
+        <img class="w-[35px] h-[35px] max-md:hidden" src="assets/adelante.png">
+        <img class="w-[30px] h-[30px] max-md:hidden" src="assets/bucle.png">
       </div>
 
       <!-- Barra de progreso de la canción -->
-      <div class="flex flex-row text-white gap-2 items-center max-sm:hidden">
+      <div class="flex flex-row text-white gap-2 items-center max-md:hidden">
         <a class="w-10">{{ formatTime(currentTime) }}</a> 
         <input 
           type="range" 
@@ -189,7 +192,8 @@ export class PlayerComponent implements OnInit {
   constructor(
     private playerService: PlayerService,
     private authService: AuthService,
-    private usuarioService: UsuarioService
+    private usuarioService: UsuarioService,
+    private router: Router
   ) {}
   
   ngOnInit() {
@@ -334,6 +338,10 @@ export class PlayerComponent implements OnInit {
     const min = Math.floor(seconds / 60);
     const sec = Math.floor(seconds % 60);
     return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+  }
+
+  encodeNombreArtista(nombre: string): string {
+    return encodeURIComponent(nombre);
   }
   
 }
