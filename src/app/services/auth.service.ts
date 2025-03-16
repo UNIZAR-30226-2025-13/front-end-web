@@ -64,5 +64,14 @@ export class AuthService {
   addSongToPlaylist(id_cancion: number, id_playlist: number) {
     return this.http.post(`${this.apiUrl}/add-song-playlist`, { id_cancion, id_playlist });
   }  
-  
+
+  createPlaylist(nombre_lista: string, nombre_usuario: string, color: string, tipo: string) {
+    const playlistData = {
+      nombre_lista,
+      nombre_usuario,
+      color,
+      tipo
+    };
+    return this.http.post(`${this.apiUrl}/create-list`, playlistData);
+  }
 }

@@ -181,6 +181,15 @@ export class BibliotecaComponent implements OnInit {
       return;
     }
  
+    this.cogerListasUsuarios(nombre_usuario);
+  }
+
+  // Abrir el popup
+  abrirPopup() {
+    this.mostrarPopup = true;
+  }
+
+  cogerListasUsuarios(nombre_usuario: string) {
     this.authService.getUserLists(nombre_usuario).subscribe(
       (response: any) => {
         const listas = response.listas === "No hay listas" ? [] : response.listas;
@@ -218,11 +227,6 @@ export class BibliotecaComponent implements OnInit {
     );    
   }
 
-  // Abrir el popup
-  abrirPopup() {
-    this.mostrarPopup = true;
-  }
-
   // Cerrar el popup
   cerrarPopup() {
     this.mostrarPopup = false;
@@ -258,18 +262,15 @@ export class BibliotecaComponent implements OnInit {
       return;
     }
   
-    // Simulación de guardado (puedes reemplazar esto con tu lógica para guardar en el backend)
-    console.log('Guardando nueva lista:');
-    console.log('- Nombre:', this.nuevoNombre);
-    console.log('- Color:', this.nuevoColor);
-    console.log('- Tipo:', this.tipoLista);
-  
-    // Aquí iría la lógica para agregar la lista a tu backend o servicio
-  
-    // Cerrar el popup después de guardar
-    this.cerrarPopup();
+    this.authService.createPlaylist(this.nuevoNombre, this.userService.getUsuario()?.nombre_usuario, this.nuevoColor, this.tipoLista)
+      .subscribe(response => {
+        alert('Lista creada correctamente.');
+        this.cerrarPopup();
+        this.cogerListasUsuarios(this.userService.getUsuario()?.nombre_usuario);
+      }, error => {
+        alert('Hubo un error al crear la lista.');
+      });
   }
-  
 
   iniciarRedimension(event: MouseEvent) {
     event.preventDefault();
