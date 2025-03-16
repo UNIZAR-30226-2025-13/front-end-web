@@ -102,9 +102,9 @@ import ColorThief from 'colorthief';
             Todas las canciones
           </h2>
           
-          <button (click)="this_is()" class="flex flex-row items-end text-left">
+          <button class="flex flex-row items-end text-left cursor-pointer group" [routerLink]="['/inicio/lista_reproduccion/', (artista.lista_this_is.id_lista)]">
             
-            <div class="group relative w-[288px] h-[288px] min-w-[288px] min-h-[288px]">
+            <div class="relative w-[288px] h-[288px] min-w-[288px] min-h-[288px]">
               <img [src]="img_artiste" alt="Imagen del artista" 
                   class="w-[288px] h-[288px] rounded-[40px] object-cover opacity-25">
               <img src="assets/heart.png" alt="Corazón" 
