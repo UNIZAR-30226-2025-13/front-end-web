@@ -4,7 +4,9 @@ import { Title } from '@angular/platform-browser';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { PlayerService } from '../../services/player.service';
+<<<<<< Maryne
 import { FormsModule } from '@angular/forms';
+
 
 // @ts-ignore
 import ColorThief from 'colorthief';
@@ -12,6 +14,7 @@ import ColorThief from 'colorthief';
 @Component({
   selector: 'app-lista-reproduciones',
   imports: [CommonModule, RouterModule, FormsModule],
+
   template: `
   <div class="bg-black pt-4 px-[34px] min-h-full">
     <!-- upper box -->
@@ -97,22 +100,23 @@ import ColorThief from 'colorthief';
 
     <!-- upper box -->
     <div class="flex justify-between">
-  <div class="flex items-center gap-2 m-4 p-2 rounded-full hover:bg-neutral-700 hover:border-neutral-600 focus-within:border-neutral-500 focus-within:bg-neutral-600 transition-colors w-fit">
-    <img src="assets/search.png" class="h-[40px] w-[40px]" (click)="search()">
-    <input [(ngModel)]="searchQuery" (input)="search()" class="font-montserrat text-white text-lg bg-transparent outline-none placeholder-gray-400 rounded-md px-2 min-w-[100px] w-full flex-1" placeholder="Buscar">
-  </div>
+      <div class="flex items-center gap-2 m-4 p-2 rounded-full hover:bg-neutral-700 hover:border-neutral-600 focus-within:border-neutral-500 focus-within:bg-neutral-600 transition-colors w-fit">
+        <img src="assets/search.png" class="h-[40px] w-[40px]" (click)="search()">
+        <input [(ngModel)]="searchQuery" (input)="search()" class="font-montserrat text-white text-lg bg-transparent outline-none placeholder-gray-400 rounded-md px-2 min-w-[100px] w-full flex-1" placeholder="Buscar">
+      </div>
 
 
-        <div class="flex font-montserrat text-white text-lg m-4 items-center">
+      <div class="flex font-montserrat text-white text-lg m-4 items-center">
         <img src="assets/sort.png" class="h-[22px] w-[22px]">
         <select (change)="sortSongs($event)" class="bg-black border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-white focus:border-white block w-full p-2.5 dark:bg-black dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-black dark:focus:border-black rounded-md p-1">
           <option value="Fecha_publicación" selected> Fecha de publicación</option>
           <option value="reproduciones">Nombre de reproductions</option>
           <option value="titulo">Titulo </option>
         </select>
-        </div>
+      </div>
 </div>
     
+
     <div class="m-4">       
     <!-- song list -->
     <div class="grid grid-cols-20 gap-4 text-left text-white">
@@ -223,7 +227,8 @@ export class ListaReproducionesComponent implements OnInit {
         if (data) {
           this.playlist = data;
           this.name = data.nombre;
-          this.canciones_playlist = data.canciones || [];
+          this.canciones_playlist = data.canciones || [];          
+          this.canciones = data.canciones || [];
           this.titleService.setTitle(`${data.nombre} | Spongefy`);
           this.durationTotal = this.calculateDurationTotal(this.canciones_playlist);
           this.playlistNotFound = false;
@@ -237,6 +242,7 @@ export class ListaReproducionesComponent implements OnInit {
           this.canciones = this.canciones_playlist;
           console.log('chansons:', this.canciones);
 
+
         } else {
           this.playlistNotFound = true;
         }
@@ -248,10 +254,11 @@ export class ListaReproducionesComponent implements OnInit {
     });
   }
 
-  calculateDurationTotal(canciones_playlist: any[]): string {
+
+  calculateDurationTotal(canciones: any[]): string {
     let totalSeconds = 0;
 
-    canciones_playlist.forEach((cancion) => {
+    canciones.forEach((cancion) => {
         console.log('Durée de la chanson:', cancion.duracion);
 
         if (typeof cancion.duracion === 'string' && cancion.duracion.includes(':')) {
@@ -475,7 +482,8 @@ playSong(song: any) {
   rgbToHex(r: number, g: number, b: number): string {
     return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1).toUpperCase()}`;
 }
-sortSongs(event: Event) {
+
+ sortSongs(event: Event) {
   const selectElement = event.target as HTMLSelectElement;
   const selectedValue = selectElement.value;
   console.log('Valeur sélectionnée:', selectedValue);
@@ -508,7 +516,6 @@ search() {
 }
 }
 }
-
 
 
 
