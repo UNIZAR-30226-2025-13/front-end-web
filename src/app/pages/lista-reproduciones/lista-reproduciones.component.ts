@@ -221,7 +221,7 @@ import ColorThief from 'colorthief';
  
           <option value="Fecha_publicación" selected> Fecha de publicación</option>
  
-          <option value="reproduciones">Nombre de reproductions</option>
+          <option value="reproduciones">Número de reproduciones</option>
  
           <option value="titulo">Titulo </option>
 
@@ -240,14 +240,25 @@ import ColorThief from 'colorthief';
 
         </select>
         <div class="flex items-center gap-2 m-4 ml-0 p-2 rounded-full hover:bg-neutral-700 hover:border-neutral-600 focus-within:border-neutral-500 focus-within:bg-neutral-600 transition-colors w-fit">
+          
+        <ng-container *ngIf="order === true; else order_change"> 
+ 
+          <img src="assets/up_arrow.png" alt="up_arrow" class="w-5 h-auto " (click)="revert()"/>
 
-          <img src="assets/cambiar_order.png" class="h-[28x] w-[28px]" (click)="revert()">
+        </ng-container>
+
+        <ng-template #order_change>
+
+        <img src="assets/down_arrow.png" alt="down_arrow" class="w-5 h-auto" (click)="revert()"/>
+
+      </ng-template>
 
  
 
+ 
+       
  
         </div>
- 
         </div>
 </div>
  
@@ -349,8 +360,6 @@ import ColorThief from 'colorthief';
  
               </ng-container>
  
-            
- 
             <ng-template #rated_media>
  
             <img *ngFor="let star of generateStars(song.valoration_media)" src="assets/star.png" alt="star" class="w-5 h-auto flex-col"/>
@@ -424,6 +433,8 @@ export class ListaReproducionesComponent implements OnInit {
  
 
   filteredSongs : any= null;
+
+  order = true;
  
 
  
@@ -1008,7 +1019,7 @@ sortSongs(event: Event) {
 
   console.log('Valeur sélectionnée:', selectedValue);
  
-
+  this.order = true;
   switch (selectedValue) {
  
 
@@ -1083,6 +1094,7 @@ search() {
 
 revert(){
   this.canciones.reverse();
+  this.order = !this.order;
 }
  
 
