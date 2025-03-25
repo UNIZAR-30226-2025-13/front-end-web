@@ -4,7 +4,7 @@ import { CommonModule} from '@angular/common';
 @Component({
   selector: 'app-lyrics',
   imports: [CommonModule],
-  styleUrl: './lyrics.component.css',
+  
   template:`
   <pre class="text-white font-bold text-3xl overflow-y-auto rounded-lg m-5 p-7" [ngStyle]="{'background-color': dominantColor}" [innerText]="text"></pre>
   `,
