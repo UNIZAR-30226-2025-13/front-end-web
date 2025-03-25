@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, Renderer2, ViewChild, NgZone } from '@angular/core';
 import { CommonModule, registerLocaleData } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { Title } from '@angular/platform-browser';
@@ -18,10 +18,10 @@ import ColorThief from 'colorthief';
   imports: [CommonModule, RouterModule],
   template: `
   
-    @if (!artistNotFound) {
-      <div class="bg-black pt-4 px-[34px] h-min-full">
+    @if (!podcasterNotFound) {
+    <div #container class="bg-black pt-4 px-[34px] h-min-full w-full">
       <div class="flex bg-opacity-60 p-4 rounded-[40px] items-end" [ngStyle]="{'background-color': dominantColor}">
-        <img [src]="img_artiste" alt="Imagen del podcaster" id="artistImage" class="rounded-[20px] h-[200px] w-[200px]">
+        <img [src]="img_artiste" alt="Imagen del podcaster" id="artistImage" class="max-sm:hidden rounded-[20px] h-[200px] w-[200px] object-cover">
         <div class="pl-[14px]">
           <div class="flex items-center">
             <p class="text-white text-[14px]">{{ type }}</p>
@@ -38,30 +38,41 @@ import ColorThief from 'colorthief';
         </div>
       </div>
 
-      <div class="flex flex-row max-2xl:flex-col flex-wrap pt-[35px] w-full">
+      <div class="flex flex-wrap pt-[35px] w-full" [ngClass]="{'flex-col': this.anchoReal < 1400, 'flex-row': !(this.anchoReal < 1400)}">
+        
+
         <!-- Sección de las más reproducidas -->
-        <div class="w-2/3 max-xl:w-full pr-20 max-xl:pr-0">
+        <div class="w-2/3 max-xl:w-full pr-20 max-xl:pr-0 pb-4">
           <h2 class="font-montserrat font-bold text-2xl text-white mb-5">
               Actualizado Últimamente
           </h2>
-          <div>
-            
+          <div class="flex flex-row">
+            <div >
+              <img class="min-w-80 h-80 rounded-[40px]" [src]="this.ep_mas_reciente[0].link_imagen">
+            </div>          
+            <div class="flex flex-col text-white pl-5 gap-4 w-140">
+              <p class="text-5xl font-extrabold line-clamp-2">{{this.ep_mas_reciente[0].nombre}}</p>
+              <p class="text-2xl font-bold line-clamp-1"> Último episodio </p>
+              <p class="text-2xl font-semibold line-clamp-2"> {{this.ep_mas_reciente[0].titulo_episodio}} </p>
+              <p class="text-sm line-clamp-4"> {{this.ep_mas_reciente[0].descripcion}} </p>
+            </div>          
           </div>
         </div>
 
         <!-- Sección de "This is" -->
-        <div class="w-1/3 max-xl:w-full flex flex-col justify-center">
+        <div class="flex flex-col"
+        [ngClass]="{'w-full': this.anchoReal < 1400, 'w-2/5': !(this.anchoReal < 1400)}">
           <h2 class="font-montserrat font-bold text-2xl text-white mb-5">
             Todas las episodios
           </h2>
           
-          <button (click)="this_is()" class="flex flex-row items-end text-left">
+          <button class="flex flex-row items-end text-left cursor-pointer group" [routerLink]="['/inicio/lista_reproduccion/', (podcaster.lista_this_is.id_lista)]">
             
             <div class="relative w-[288px] h-[288px] min-w-[288px] min-h-[288px]">
               <img [src]="img_artiste" alt="Imagen del podcaster" 
                   class="w-[288px] h-[288px] rounded-[40px] object-cover opacity-25">
               <img src="assets/heart.png" alt="Corazón" 
-                  class="absolute top-[25%] left-[25%] w-40">
+                  class="absolute top-[25%] left-[25%] w-40 transition-transform duration-300 group-hover:scale-120">
             </div>
             
             <h2 class="max-sm:hidden font-montserrat font-bold text-6xl text-white ml-[18px] w-80">
@@ -78,11 +89,11 @@ import ColorThief from 'colorthief';
             <button (click)="setTab('podcast')" 
                 class="bg-[var(--button)] rounded-full flex items-center px-4 py-1 mr-4"
                 [ngClass]="{'bg-[var(--buttonhover)]': selectedTab === 'podcast'}">
-                <p class="font-montserrat font-bold text-sm text-white">Podcast</p>
+                <p class="font-montserrat font-bold text-sm text-white">Podcasts</p>
             </button>
-            <button (click)="setTab('cancion')" 
+            <button (click)="setTab('episodios')" 
                 class="bg-[var(--button)] rounded-full flex items-center px-4 py-1"
-                [ngClass]="{'bg-[var(--buttonhover)]': selectedTab === 'cancion'}">
+                [ngClass]="{'bg-[var(--buttonhover)]': selectedTab === 'episodios'}">
                 <p class="font-montserrat font-bold text-sm text-white">Episodios</p>
             </button>
         </div>
@@ -90,27 +101,50 @@ import ColorThief from 'colorthief';
         <!-- Vista de Álbumes (Fila larga con scroll horizontal) -->
         <div *ngIf="selectedTab === 'podcast'" 
             class="h-60 flex overflow-x-auto whitespace-nowrap scrollbar-hide space-x-4 pb-4">
-            <div *ngFor="let podcast of this.podcaster.albumes" class="flex flex-col items-center flex-none w-44">
-                <img [src]="podcast.link_imagen" [alt]="podcast.nombre_podcast" class="h-44 w-44 rounded-[40px] object-cover">
-                <p class="text-white mt-2 font-bold">{{ podcast.nombre_podcast }}</p>
+            <div *ngFor="let podcast of this.podcaster.podcasts_info" class="flex flex-col items-center flex-none max-w-44">
+                <img [src]="podcast.link_imagen" [alt]="podcast.nombre" class="h-44 w-44 rounded-[40px] object-cover">
+                <p class="text-white mt-2 font-bold line-clamp-2 max-w-44">{{ podcast.nombre }}</p>
             </div>
         </div>
 
         <!-- Vista de Canciones (Fila larga con scroll horizontal) -->
-        <div *ngIf="selectedTab === 'cancion'" 
-            class="h-60 flex overflow-x-auto whitespace-nowrap scrollbar-hide space-x-4 pb-4">
-            <div *ngFor="let episodio of this.podcaster.episodios" class="flex flex-col items-center flex-none w-44">
-                <img [src]="episodio.link_imagen" [alt]="episodio.titulo" class="h-44 w-44 rounded-[40px] object-cover">
-                <p class="text-white mt-2 font-montserrat font-bold">{{ episodio.titulo }}</p>
-                <p class="text-white text-sm">{{ episodio.nombre_artista }}</p>
-            </div>
+        <div *ngIf="selectedTab === 'episodios'" 
+        class="h-60 flex overflow-x-auto whitespace-nowrap scrollbar-hide space-x-4 pb-4">
+        
+          <div *ngFor="let episodios of this.podcaster.list_episodios" 
+              class="group flex flex-col items-center flex-none max-w-44 cursor-pointer">
+              
+              <!-- Contenedor de la imagen con relative -->
+              <div class="relative">
+                  <!-- Imagen de la canción -->
+                  <img [src]="episodios.link_imagen" 
+                      [alt]="episodios.titulo_episodio" 
+                      class="h-44 w-44 rounded-[40px] object-cover">
+                  
+                  <!-- Ícono de Play dentro de la imagen, abajo a la derecha -->
+                  <img src="assets/play.png" 
+                      alt="Play" 
+                      class="hover:block none absolute bottom-4 right-4 h-11 w-11 bg-[var(--sponge)] p-1 rounded-full 
+                      opacity-0 transform rotate-[-45deg] group-hover:opacity-100 group-hover:rotate-0
+                      transition-all duration-300"
+                      (click)="playSong(episodios)">
+              </div>
+
+              <!-- Información de la canción -->
+              <p class="text-white mt-2 font-montserrat font-bold line-clamp-2 max-w-44 h-auto">
+                  {{ episodios.titulo_episodio }}
+              </p>
+              <p class="text-white text-sm line-clamp-2 max-w-44">
+                  {{ episodios.nombre }}
+              </p>
+          </div>
         </div>
       </div>
       </div>
     } @else {
       <div class="bg-black pt-4 px-[34px] h-full">
         <div class="text-center py-20">
-          <p class="text-white text-3xl font-bold">No se ha podido encontrar a {{ this.nombre_artista}}.</p>
+          <p class="text-white text-3xl font-bold">No se ha podido encontrar a {{ this.nombre_podcaster}}.</p>
           <p class="text-white text-lg mt-4">Intenta buscar otro nombre o revisa la conexión.</p>
         </div>
       </div>
@@ -118,123 +152,192 @@ import ColorThief from 'colorthief';
   `,
   styles: ``
 })
-export class PodcasterComponent implements OnInit, AfterViewInit{
-    podcaster: any = null;
-    type: string = "Podcaster";
-    img_artiste: string = "";
-    artistNotFound: boolean = false; // Indicador de error
-    nombre_artista = ''
-    max_rep: any;
-  
-    constructor(
-      private route: ActivatedRoute, 
-      private authService: AuthService, 
-      private titleService: Title,
-      private router: Router,
-      private playerService: PlayerService
-    ) {}
-  
-    ngOnInit() {
-      this.route.paramMap.subscribe(params => {
-        const nombre_artista_encoded = this.route.snapshot.paramMap.get('nombre_artista') ?? '';
-        this.nombre_artista = decodeURIComponent(nombre_artista_encoded);
-        this.titleService.setTitle(`${this.nombre_artista} | Spongefy`);
-  
-        this.authService.getArtist(nombre_artista_encoded).subscribe({
-            next: (data) => {
-                if (data) {
-                    this.podcaster = data;
-                    // Aplicar transformaciones de Cloudinary dinámicamente
-                    this.img_artiste = this.transformCloudinaryUrl(this.podcaster.link_imagen);
-                    this.max_rep = this.podcaster.episodios
-                        .sort((a: any, b: any) => b.n_repros - a.n_repros)
-                        .slice(0, 5);
-  
-                    this.artistNotFound = false;
-                } else {
-                    this.artistNotFound = true;
-                }
-            },
-            error: (err) => {
-                console.error('Error al obtener el perfil del podcaster:', err);
-                this.artistNotFound = true;
-            },
-        });
-      }
-    )}
-  
-    // Función para añadir transformaciones a la URL de Cloudinary
-    transformCloudinaryUrl(url: string): string {
-      if (!url.includes('cloudinary.com')) return url; // Asegurarse de que sea una URL de Cloudinary
-      return url.replace('/upload/', '/upload/f_auto,fl_lossy,fl_any_format/');
-    }
-  
-    follow() {}
-  
-    playSong(song: any) {
-      this.authService.playSong(song.id_cancion).subscribe({
-        next: (response: any) => {
-          if (response && response.link_cm) {
-            this.playerService.playSong(response);
+export class PodcasterComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('container', { static: false }) container!: ElementRef;
+
+  podcaster: any = null;
+  ep_mas_reciente: any = null;
+  type: string = 'Artista';
+  img_artiste: string = '';
+  podcasterNotFound: boolean = false;
+  nombre_podcaster = '';
+  max_rep: any;
+  dominantColor: string = 'rgba(75, 85, 99, 0.5)'; // Color gris predeterminado
+  selectedTab: 'podcast' | 'episodios' = 'podcast';
+  anchoReal: number = 0;
+  private resizeObserver!: ResizeObserver;
+
+  constructor(
+    private route: ActivatedRoute,
+    private authService: AuthService,
+    private titleService: Title,
+    private router: Router,
+    private playerService: PlayerService,
+    private renderer: Renderer2,
+    private ngZone: NgZone
+  ) {}
+
+  ngOnInit() {
+    this.route.paramMap.subscribe((params) => {
+      const nombre_podcaster_encoded = this.route.snapshot.paramMap.get('nombre_podcaster') ?? '';
+      this.nombre_podcaster = decodeURIComponent(nombre_podcaster_encoded);
+      this.titleService.setTitle(`${this.nombre_podcaster} | Spongefy`);
+
+      this.authService.getPodcaster(nombre_podcaster_encoded).subscribe({
+        next: (data) => {
+          if (data) {
+            this.podcaster = data;
+            this.ep_mas_reciente = data.ep_mas_reciente;
+            this.img_artiste = this.transformCloudinaryUrl(this.podcaster.link_imagen);
+            this.max_rep = this.podcaster.episodios
+              .sort((a: any, b: any) => b.n_repros - a.n_repros)
+              .slice(0, 5);
+
+            // Extraer color dominante
+            const imgElement = document.getElementById('artistImage') as HTMLImageElement;
+            if (imgElement) {
+              imgElement.crossOrigin = 'anonymous'; // Evita errores CORS
+              if (imgElement.complete) {
+                this.extractColor(imgElement);
+              } else {
+                imgElement.onload = () => this.extractColor(imgElement);
+              }
+            }
+
+            this.podcasterNotFound = false;
+          } else {
+            this.podcasterNotFound = true;
           }
         },
         error: (err) => {
-          console.error('Error al reproducir la canción:', err);
-        }
+          console.error('Error al obtener el perfil del podcaster:', err);
+          this.podcasterNotFound = true;
+        },
       });
-    }
+    });
+  }
+
+  ngAfterViewInit() {
+    // Obtener ancho inicial del componente
+    this.anchoReal = this.container.nativeElement.offsetWidth;
+    console.log(this.anchoReal);
     
-  
-    this_is() {}
-  
-    selectedTab: 'podcast' | 'cancion' = 'podcast';
-  
-    setTab(tab: 'podcast' | 'cancion') {
-      this.selectedTab = tab;
-    }
-  
-    dominantColor: string = 'rgba(75, 85, 99, 4)'; // Color gris predeterminado con opacidad
-  
-    ngAfterViewInit() {
-      const imgElement = document.getElementById('artistImage') as HTMLImageElement;
-      if (imgElement) {
-        imgElement.crossOrigin = 'anonymous'; // Importante para CORS
-        if (imgElement.complete) {
-            this.extractColor(imgElement);
-        } else {
-            imgElement.onload = () => {
-                this.extractColor(imgElement);
-            };
-        }
+    // Observador de cambio de tamaño
+    this.resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        this.anchoReal = entry.contentRect.width;
+        this.ngZone.run(() => {
+          this.anchoReal = this.container.nativeElement.offsetWidth;
+          console.log(this.anchoReal);
+        });
+      }
+    });
+    this.resizeObserver.observe(this.container.nativeElement);
+    
+    const imgElement = document.getElementById('artistImage') as HTMLImageElement;
+    if (imgElement) {
+      imgElement.crossOrigin = 'anonymous'; // Evita errores CORS
+      if (imgElement.complete) {
+        this.extractColor(imgElement);
+      } else {
+        imgElement.onload = () => this.extractColor(imgElement);
       }
     }
-  
-    extractColor(imgElement: HTMLImageElement) {
-      try {
+
+  }
+
+  ngOnDestroy() {
+    this.resizeObserver.disconnect();
+  }
+
+  extractColor(imgElement: HTMLImageElement) {
+    try {
         const colorThief = new ColorThief();
-        if (imgElement && imgElement.src) {
-            const result = colorThief.getColor(imgElement);
-            this.dominantColor = `rgba(${result[0]}, ${result[1]}, ${result[2]}, 0.5)`;
-            console.log('Dominant Color:', this.dominantColor);
+
+        if (imgElement.naturalWidth > 0) {
+            const palette = colorThief.getPalette(imgElement, 10); // Extrae hasta 10 colores
+            
+            if (!palette || palette.length === 0) {
+                console.error("No se pudo extraer la paleta de colores.");
+                return;
+            }
+
+            let bestColor = null;
+            let maxSaturation = -1;
+
+            for (const color of palette) {
+                const [r, g, b] = color;
+                const { h, s, l } = this.rgbToHsl(r, g, b);
+
+                // Filtrar solo colores grises y blancos, pero mantener oscuros
+                if (s > maxSaturation && s > 0.2) {
+                    maxSaturation = s;
+                    bestColor = color;
+                }
+            }
+
+            if (bestColor) {
+                this.dominantColor = `rgba(${bestColor[0]}, ${bestColor[1]}, ${bestColor[2]}, 0.5)`;
+            } else {
+                this.dominantColor = "rgba(255, 255, 255, 0.5)"; // Blanco como fallback
+            }
         }
-      } catch (error) {
-        console.error('Error al extraer el color dominante:', error);
-      }
+    } catch (error) {
+        console.error("Error al extraer el color más saturado y brillante:", error);
     }
-  
-    getArtistasFeat(song: any): string[] {
-      return song.artistas_feat ? song.artistas_feat.split(',').map((podcaster: string) => podcaster.trim()) : [];
+}
+
+// 🔹 Función para convertir RGB a HSL
+ rgbToHsl(r: number, g: number, b: number) {
+    r /= 255, g /= 255, b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+
+    if (max !== min) {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
     }
-  
-    encodeNombreArtista(nombre: string): string {
-      return encodeURIComponent(nombre);
-    }
-  
-    formatDuration(duration: string): string {
-      const parts = duration.split(':');
-      if (parts.length === 3 && parts[0] === '00') {
-        return `${parts[1]}:${parts[2]}`;
-      }
-      return duration;
-    }
+
+    return { h, s, l };
+}
+
+  transformCloudinaryUrl(url: string): string {
+    return url.includes('cloudinary.com') ? url.replace('/upload/', '/upload/f_auto,fl_lossy,fl_any_format/') : url;
+  }
+
+  follow() {}
+
+  playSong(song: any) {
+    this.authService.playSong(song.id_episodio).subscribe({
+      next: (response: any) => {
+        if (response && response.link_cm) {
+          this.playerService.playSong(response);
+        }
+      },
+      error: (err) => {
+        console.error('Error al reproducir la canción:', err);
+      },
+    });
+  }
+
+  this_is() {}
+
+  setTab(tab: 'podcast' | 'episodios') {
+    this.selectedTab = tab;
+  }
+
+  encodeNombreArtista(nombre: string): string {
+    return encodeURIComponent(nombre);
+  }
+
+  formatDuration(duration: string): string {
+    const parts = duration.split(':');
+    return parts.length === 3 && parts[0] === '00' ? `${parts[1]}:${parts[2]}` : duration;
+  }
 }

@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PlayerService } from '../../services/player.service';
 import { UsuarioService } from '../../services/usuario.service';
@@ -59,7 +59,7 @@ import { RouterModule, Router } from '@angular/router';
         </div>
 
         <img class="w-[35px] h-[35px] max-md:hidden" src="assets/adelante.png">
-        <img class="w-[30px] h-[30px] max-md:hidden" src="assets/bucle.png">
+        <img class="w-[30px] h-[30px] max-md:hidden" src="assets/bucle.png" [ngStyle]="{'opacity-50' : !loop}">
       </div>
 
       <!-- Barra de progreso de la canción -->
@@ -82,7 +82,7 @@ import { RouterModule, Router } from '@angular/router';
     <!-- Parte derecha -->
 <div class="flex flex-row items-center pr-10 flex-1 justify-end max-lg:hidden">
   <img class="w-[30px] h-[30px] mr-2" src="assets/lyrics.png">
-  <img class="w-[30px] h-[30px] mr-2" src="assets/queue.png">
+  <img class="w-[30px] h-[30px] mr-2" src="assets/queue.png" (click)="toggleColaRepro()">
   <img class="w-[30px] h-[30px] mr-2" src="assets/sound.png">
 
   <!-- Slider de volumen -->
@@ -177,6 +177,8 @@ export class PlayerComponent implements OnInit {
 
   currentSong: any = null;
   isPlaying = false;
+  loop = false;
+  random = false;
   currentTime = 0;
   duration = 0;
   cantantes: string[] = [];volume = 1;
@@ -195,6 +197,12 @@ export class PlayerComponent implements OnInit {
     private usuarioService: UsuarioService,
     private router: Router
   ) {}
+
+  @Output() toggleCola = new EventEmitter<void>();
+
+  toggleColaRepro(): void {
+    this.toggleCola.emit();
+  }
   
   ngOnInit() {
     this.playerService.currentSong.subscribe(song => {
@@ -343,5 +351,6 @@ export class PlayerComponent implements OnInit {
   encodeNombreArtista(nombre: string): string {
     return encodeURIComponent(nombre);
   }
+
   
 }
