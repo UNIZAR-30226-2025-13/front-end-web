@@ -11,6 +11,8 @@ import { ListaPodcastsComponent } from './pages/lista-podcasts/lista-podcasts.co
 import { AlbumComponent } from './pages/album/album.component';
 import { CancionComponent } from './pages/cancion/cancion.component';
 import { ListaReproducionesComponent } from './pages/lista-reproduciones/lista-reproduciones.component';
+import { BuscadorComponent } from './pages/buscador/buscador.component';
+import { PerfilUsuarioComponent } from './pages/perfil-usuario/perfil-usuario.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -27,7 +29,11 @@ export const routes: Routes = [
       { path: 'album/:id_album', component: AlbumComponent },
       { path: 'cancion/:id_cancion', component: CancionComponent },
       { path: 'podcast/:id_podcast', component: ListaPodcastsComponent},
-      { path: 'lista_reproduccion/:id_playlist', component: ListaReproducionesComponent}
+      { path: 'lista_reproduccion/:id_playlist', component: ListaReproducionesComponent},
+      { path: 'buscador', component: BuscadorComponent},
+      { path: 'usuario/:nombre_usuario', component: PerfilUsuarioComponent}
+
     ]
   },
+
 ];
