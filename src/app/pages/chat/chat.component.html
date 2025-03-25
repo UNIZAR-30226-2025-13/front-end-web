@@ -1,0 +1,68 @@
+<div class="flex h-screen">  
+    <!-- chat -->
+    <div class="w-9/10 m-10 ml-14 flex flex-col min-h-200 h-[25vh]">
+        <div class="flex bg-opacity-60 p-4 rounded-[20px] p-10 pl-14 items-end bg-[var(--spondemidledark)] ">
+            <p class="text-white font-bold text-[30px] text-center">{{nombre_amigo}}</p>
+        </div>
+
+        <!-- Lista mensaje -->
+        <div class="flex-1 overflow-y-auto h-[60vh] p-6 mt-4 mb-2 overflow-x-hidden" #chatContainer >
+            <div *ngFor="let msg of text" class="w-full flex flex-col m-3">
+                
+                <!--  texte -->
+                <div *ngIf="msg.typo === 'mensaje'" class="flex" [ngClass]="{'justify-end': msg.persona === 1, 'justify-start': msg.persona === 2}">
+                    <div class="w-1/2 flex items-center" [ngClass]="{'justify-end space-x-2': msg.persona === 1, 'justify-start space-x-2': msg.persona === 2}">
+                        <img *ngIf="msg.persona === 2" src="assets/triangle_chat_otro.png" alt="triangle" class="h-[30px] w-[25px] m-1 -mr-1 mb-1">
+                        <div class="rounded-lg p-4 w-full flex justify-center items-center text-center"
+                            [ngClass]="{'bg-[var(--spondemidledark)]': msg.persona === 1, 'bg-[var(--spongedark)]': msg.persona === 2}">
+                            <p class="font-medium text-white">{{ msg.texto }}</p>
+                        </div>
+                        <img *ngIf="msg.persona === 1" src="assets/triangle_chat.png" alt="triangle" class="m-1 -ml-1 mb-1 h-[30px] w-[25px]">
+                    </div>
+                </div>
+                <!-- Cancion -->
+                <div *ngIf="msg.typo === 'cancion'" class="flex" [ngClass]="{'justify-end': msg.persona === 1, 'justify-start': msg.persona === 2}">
+                    <div class="w-1/2 flex items-center" [ngClass]="{'justify-end space-x-2': msg.persona === 1, 'justify-start space-x-2': msg.persona === 2}">
+                        <img *ngIf="msg.persona === 2" src="assets/triangle_chat_otro.png" alt="triangle" class="h-[30px] w-[25px] m-1 -mr-1 mb-1">
+                        <div class="rounded-lg p-4 w-full flex flex-row items-center justify-center "
+                            [ngClass]="{'bg-[var(--spondemidledark)]': msg.persona === 1, 'bg-[var(--spongedark)]': msg.persona === 2}">
+                            <p class="font-medium text-white">{{ getCancionInfo(msg.id) }}</p>
+                            <img [src]="info_cancion.link_imagen" alt="icone album" class="h-[200px] w-[200px] mr-4">
+                            <div class="m-2 mt-5 flex flex-col items-center justify-center text-center">
+                                <p class="text-white font-bold">{{ info_cancion.titulo }}</p>
+                                <p class="text-white font-bold">{{ info_cancion.autor }}</p>
+                                <p class="font-medium text-white mt-3">Mira esta canción!</p>
+                                <a class="font-medium text-white underline mt-3" href="">Ver canción</a>
+                            </div>
+                        </div>
+                        <img *ngIf="msg.persona === 1" src="assets/triangle_chat.png" alt="triangle" class="m-1 -ml-3 h-[30px] w-[25px] mb-1">
+                    </div>
+                </div>
+
+                <!--  anadir todo los typos -->
+            </div>
+    
+
+            
+        </div>
+
+        <!-- escribir -->
+        <div class="flex p-4 rounded-[20px] items-center bg-stone-700 h-[10vh] w-full mt-auto sticky bottom-20">
+            <input (input)="ecrire()" 
+                class="font-montserrat text-white text-lg bg-gray-400 placeholder-stone-700 placeholder-opacity-80 h-full p-5 rounded-[20px] min-w-[100px] w-full mr-5 flex-1 focus:outline-none focus:ring-0" 
+                placeholder="Escribe un mensaje...">
+            <img src="assets/send.png" alt="send" class="h-[40px] w-[40px] m-1 -mr-1">
+        </div>
+    </div>
+
+    <!-- amigos -->
+    <div class="bg-[var(--graybackground)] flex-shrink-0 py-2.5 rounded-lg m-10 overflow-y-auto">
+        <h2 class="text-lg font-bold text-white whitespace-nowrap m-4">Tus amigos</h2>
+        <li><button class="flex items-center flex-row mt-2 text-white font-bold truncate w-full text-left p-2">
+            <p class="truncate m-2">jorgehache</p>
+            <img src="assets/chat.png" alt="chat" class="w-12 h-12 rounded-full ml-auto mr-2 p-2 bg-[var(--spondemidledark)]"></button></li>
+        <li><button class="flex flex-row items-center mt-2 text-white font-bold truncate w-full text-left p-2">
+            <p class="m-2 truncate">marioclavero</p>
+            <img src="assets/chat.png" alt="chat" class="w-12 h-12 rounded-full ml-auto mr-2 p-2 bg-[var(--spondemidledark)]"></button></li>
+    </div>
+</div>

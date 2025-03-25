@@ -82,4 +82,7 @@ export class AuthService {
     };
     return this.http.post(`${this.apiUrl}/create-list`, playlistData);
   }
+
+  getInfoAlbum(id: number)
+  {return this.http.get(`${this.apiUrl}/album?id_album=${id}`)}
 }
