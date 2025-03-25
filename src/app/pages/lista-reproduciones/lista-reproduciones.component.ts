@@ -9,6 +9,9 @@ import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
  
 import { PlayerService } from '../../services/player.service';
+<<<<<< Maryne
+import { FormsModule } from '@angular/forms';
+
 
 import { FormsModule } from '@angular/forms';
  
@@ -23,11 +26,7 @@ import ColorThief from 'colorthief';
 @Component({
  
   selector: 'app-lista-reproduciones',
- 
-
   imports: [CommonModule, RouterModule, FormsModule],
- 
- 
   template: `
  
   <div class="bg-black pt-4 px-[34px] min-h-full">
@@ -262,8 +261,6 @@ import ColorThief from 'colorthief';
         </div>
 </div>
  
-
- 
     <div class="m-4">       
  
     <!-- song list -->
@@ -411,27 +408,17 @@ export class ListaReproducionesComponent implements OnInit {
   name: string = '';
  
   color_playlist: string = '';
- 
 
   canciones_playlist: any[] = [];
- 
-
   canciones:any[] = [];
- 
   playlistNotFound = false;
  
   durationTotal: string = '';
  
   numberSong:number = 0;
- 
   visibility: string = 'publica';
- 
   img_artiste: string = '';
- 
-
   searchQuery: string = '';
- 
-
   filteredSongs : any= null;
 
   order = true;
@@ -487,29 +474,14 @@ export class ListaReproducionesComponent implements OnInit {
           this.playlist = data;
  
           this.name = data.nombre;
- 
 
-          this.canciones_playlist = data.canciones || [];
- 
+          this.canciones_playlist = data.canciones || [];          
+          this.canciones = data.canciones || [];
           this.titleService.setTitle(`${data.nombre} | Spongefy`);
- 
-
           this.durationTotal = this.calculateDurationTotal(this.canciones_playlist);
- 
           this.playlistNotFound = false;
- 
-
           this.numberSong = this.canciones_playlist.length;
- 
-
           console.log('chansons_un:', this.canciones_playlist);
- 
-
-          
- 
-
-
- 
           if (this.isThisIsPlaylist()) {
  
             this.handleThisIsPlaylist();
@@ -518,8 +490,7 @@ export class ListaReproducionesComponent implements OnInit {
  
             this.color_playlist = data.color;
  
-          }
- 
+          } 
 
           this.canciones = this.canciones_playlist;
  
@@ -552,8 +523,7 @@ export class ListaReproducionesComponent implements OnInit {
  
 
   calculateDurationTotal(canciones_playlist: any[]): string {
- 
- 
+
     let totalSeconds = 0;
  
 
@@ -1059,7 +1029,39 @@ sortSongs(event: Event) {
   }
  
 
+ sortSongs(event: Event) {
+  const selectElement = event.target as HTMLSelectElement;
+  const selectedValue = selectElement.value;
+  console.log('Valeur sélectionnée:', selectedValue);
+  switch (selectedValue) {
+      case 'Fecha_publicación':
+          this.canciones.sort((a, b) => new Date(b.fecha_pub).getTime() - new Date(a.fecha_pub).getTime());
+          break;
+      case 'reproduciones':
+          this.canciones.sort((a, b) => b.n_repros - a.n_repros);
+          break;
+      case 'titulo':
+          this.canciones.sort((a, b) => a.titulo.localeCompare(b.titulo));
+          break;
+  }
 }
+
+search() {
+  if (!this.searchQuery || this.searchQuery.trim() === ''){
+    this.canciones = this.canciones_playlist
+  }
+  else{
+  this.canciones = this.canciones_playlist.filter(song =>
+    song.titulo.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+    song.nombre_artista.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+    song.artistas_feat.toLowerCase().includes(this.searchQuery.toLowerCase())
+
+    //TODO add album
+  
+  );
+}
+}
+
  
 
  
@@ -1078,6 +1080,7 @@ search() {
 
   else{
  
+
 
   this.canciones = this.canciones_playlist.filter(song =>
  
