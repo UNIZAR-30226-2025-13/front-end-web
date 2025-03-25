@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 export class AuthService {
 
   private apiUrl = 'https://spongefy-back-end.onrender.com';
+  
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -129,4 +130,25 @@ export class AuthService {
     };
     return this.http.post(`${this.apiUrl}/remove-list-from-folder`, list_folderData);
   }
+
+  searchCreator(name: string) {
+    return this.http.get<any>(`${this.apiUrl}/search-creator?cadena=${name}`);
+  }
+
+  searchMultimedia(name: string) {
+    return this.http.get<any>(`${this.apiUrl}/search-multimedia?cadena=${name}`);
+  }
+
+  searchAlbum(name: string) {
+    return this.http.get<any>(`${this.apiUrl}/search-album?cadena=${name}`);
+  }
+
+  searchPodcast(name: string) {
+    return this.http.get<any>(`${this.apiUrl}/search-podcast?cadena=${name}`);
+  }
+
+  searchUsuarios(name: string) {
+    return this.http.get<any>(`${this.apiUrl}/search-usuario?cadena=${name}`);
+  }
+  
 }

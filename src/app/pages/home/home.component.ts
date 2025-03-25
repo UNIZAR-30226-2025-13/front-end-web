@@ -3,6 +3,7 @@ import { UsuarioService } from '../../services/usuario.service';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
+import { BusquedaService } from '../../services/busqueda.service';
 
 @Component({
   selector: 'app-home',
@@ -30,9 +31,10 @@ import { FormsModule } from '@angular/forms';
             </div>
             <!-- Input de búsqueda -->
             <input 
-                type="text" 
-                placeholder="Buscar..." 
-                class="flex-grow bg-transparent text-white placeholder-gray-500 outline-none"
+              type="text" 
+              placeholder="Buscar..." 
+              class="flex-grow bg-transparent text-white placeholder-gray-500 outline-none"
+              (input)="actualizarBusqueda($event)"
             />
         </div>
     </div>
@@ -145,10 +147,15 @@ export class HomeComponent {
   usuarioConfirm = '';
   passwordConfirm = '';
 
+  //Cadena del Input de búsqueda
+  cadena: string = '';
+  showBuscador: boolean = false; // Para controlar si se muestra el buscador
+
   constructor(
     private usuarioService: UsuarioService,
     private authService: AuthService,
-    public router: Router
+    public router: Router,
+    private busquedaService: BusquedaService 
   ) {}
 
   ngOnInit() {
@@ -158,6 +165,17 @@ export class HomeComponent {
       this.router.navigate(['/login']);
     }*/
   }
+
+
+  // Método para actualizar la búsqueda, emitir el nuevo valor al servicio busqueda
+  actualizarBusqueda(event: any) {
+    this.cadena = event.target.value;
+    this.showBuscador = this.cadena.trim() !== ''; // Si hay texto, mostrar BuscadorComponent
+    this.busquedaService.actualizarBusqueda(this.cadena);
+    this.router.navigate(['/inicio/buscador']); // Redirigir a la ruta del buscador
+
+  }
+
 
   // Abre/cierra el menú desplegable
   toggleDropdown() {
@@ -228,4 +246,9 @@ export class HomeComponent {
       });
     }
   }
+
+
+  
+  
+
 }
