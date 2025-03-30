@@ -85,4 +85,23 @@ export class AuthService {
 
   getInfoAlbum(id: number)
   {return this.http.get(`${this.apiUrl}/album?id_album=${id}`)}
+
+  shuffle(nombre_usuario: string, posicion: number) {
+    const body = {
+      nombre_usuario: nombre_usuario,
+      posicion: posicion
+    };
+  
+    return this.http.post(`${this.apiUrl}/queue/shuffle`, body);
+  }
+
+  addToFav(nombre_usuario: string, id_cm: number){
+    const body = {
+      nombre_usuario: nombre_usuario,
+      id_cm: id_cm
+    };
+  
+    return this.http.post(`${this.apiUrl}/add-to-favourites}`, body);
+
+  }
 }

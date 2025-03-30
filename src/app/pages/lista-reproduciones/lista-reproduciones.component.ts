@@ -9,11 +9,9 @@ import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
  
 import { PlayerService } from '../../services/player.service';
-<<<<<< Maryne
-import { FormsModule } from '@angular/forms';
-
 
 import { FormsModule } from '@angular/forms';
+
  
 
  
@@ -971,10 +969,10 @@ playSong(song: any) {
  
 
  
-  rgbToHex(r: number, g: number, b: number): string {
- 
-    return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1).toUpperCase()}`;
- 
+rgbToHex(r: number, g: number, b: number): string {
+
+  return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1).toUpperCase()}`;
+
 }
  
 
@@ -1026,42 +1024,7 @@ sortSongs(event: Event) {
    
  
 
-  }
- 
-
- sortSongs(event: Event) {
-  const selectElement = event.target as HTMLSelectElement;
-  const selectedValue = selectElement.value;
-  console.log('Valeur sélectionnée:', selectedValue);
-  switch (selectedValue) {
-      case 'Fecha_publicación':
-          this.canciones.sort((a, b) => new Date(b.fecha_pub).getTime() - new Date(a.fecha_pub).getTime());
-          break;
-      case 'reproduciones':
-          this.canciones.sort((a, b) => b.n_repros - a.n_repros);
-          break;
-      case 'titulo':
-          this.canciones.sort((a, b) => a.titulo.localeCompare(b.titulo));
-          break;
-  }
-}
-
-search() {
-  if (!this.searchQuery || this.searchQuery.trim() === ''){
-    this.canciones = this.canciones_playlist
-  }
-  else{
-  this.canciones = this.canciones_playlist.filter(song =>
-    song.titulo.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-    song.nombre_artista.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-    song.artistas_feat.toLowerCase().includes(this.searchQuery.toLowerCase())
-
-    //TODO add album
-  
-  );
-}
-}
-
+  }}
  
 
  

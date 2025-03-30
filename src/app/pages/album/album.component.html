@@ -42,16 +42,36 @@
             <div class="flex m-4 ml-0 col-span-6 ">
                 
                 <div class="flex flex-col min-w-0">
-                    <p class="font-montserrat font-bold text-lg text-white">
-                        {{ song.title}}
+                    <p class="font-montserrat font-bold text-lg text-white"(dblclick)="playSong(song)">
+                        {{ song.titulo}}
                     </p>
-                    <div class="flex flex-row">
-                      <p  class="text-white text-sm hover:underline">
-                          {{ song.artist}}
-                     </div>
+                    <a  class="text-white text-sm hover:underline" [routerLink]="['/inicio/artista/', encodeNombreArtista(song.nombre_artista)]">
+ 
+                        {{ song.nombre_artista }}
+                    </a>
+
+                        <ng-container *ngIf="song.artistas_feat != null">
+
+                          <ng-container *ngFor="let ft of getArtistasFeat(song); track by ft">
+
+                            
+
+                            <p [routerLink]="['/inicio/artista/', encodeNombreArtista(ft)]" 
+
+                              class="text-white text-sm hover:underline inline-block min-w-max">
+
+                              {{ ft }}
+
+                            </p>
+
+                          </ng-container>
+                        </ng-container>
+
                 </div>
+
+               
             </div>
-            <div class="col-span-4">{{ song.reproducion}}</div>
+            <div class="col-span-4">{{ song.n_repros}}</div>
             <div class="col-span-4 flex"  >
                  <!-- change condition to agree with the database-->
                 <ng-container *ngIf="song.tu_valoration === 0; else rated"> 
@@ -77,10 +97,10 @@
               
                 
             </div> 
-            <div class="col-span-1">{{ song.duration }}</div>
+            <div class="col-span-1">{{ song.duracion }}</div>
             <div class=" flex items-center space-x-3   col-span-1">
                 <img src="assets\anyadirplaylist.png" alt="anadir" (click)="add()" class=" h-[17px] w-[18px]">
-                <img src="assets\heart.png" alt="like" (click)="like()" class=" h-[17px] w-[18px]">
+                <img src="assets\heart.png" alt="like" (click)="like(song.id_cancion)" class=" h-[17px] w-[18px]">
                 <p (click)="option()" class="font-montserrat font-bold text-xl text-white pb-3 ">...</p> 
         
             </div>
