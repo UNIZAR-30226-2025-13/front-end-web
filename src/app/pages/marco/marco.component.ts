@@ -1,13 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HomeComponent } from '../home/home.component';
 import { PlayerComponent } from '../player/player.component';
+import { ColaComponent } from '../cola/cola.component';
 import { BibliotecaComponent } from '../biblioteca/biblioteca.component';
 import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-inicio',
   standalone: true,
-  imports: [HomeComponent, PlayerComponent, BibliotecaComponent, RouterModule],
+  imports: [HomeComponent, PlayerComponent, BibliotecaComponent, RouterModule, ColaComponent, CommonModule],
   template: `
     <div class="flex flex-col h-screen">
   <!-- Barra superior fija -->
@@ -26,11 +28,13 @@ import { RouterModule } from '@angular/router';
         <router-outlet></router-outlet>
       </section>
     </main>
+
+    <app-cola class="max-lg:hidden py-3.5" *ngIf="showColaVisible"/>
   </div>
 
   <!-- Reproductor fijo en la parte inferior -->
   <footer class="h-auto bg-gray-900 text-white">
-    <app-player/>
+    <app-player (toggleCola)="toggleColaVisibility()"/>
   </footer>
 </div>
 
@@ -43,4 +47,17 @@ import { RouterModule } from '@angular/router';
     `,
   ],
 })
-export class MarcoComponent {}
+export class MarcoComponent {
+  showColaVisible = false;
+  showAmigosVisible = false
+
+  toggleColaVisibility(): void {
+    this.showColaVisible = !this.showColaVisible;
+    this.showAmigosVisible = false;
+  }
+
+  toggleAmigosVisibility(): void {
+    this.showAmigosVisible = !this.showAmigosVisible;
+    this.showColaVisible = false;
+  }
+}

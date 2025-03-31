@@ -6,12 +6,13 @@ import { ActivatedRoute } from '@angular/router';
 import { RouterModule, Router } from '@angular/router'
 import localeEs from '@angular/common/locales/es';
 import { PlayerService } from '../../services/player.service';
+import { UsuarioService } from '../../services/usuario.service';
 
 registerLocaleData(localeEs, 'es-ES');
 
-
 // @ts-ignore
 import ColorThief from 'colorthief';
+import { QueueService } from '../../services/queue.service';
 
 @Component({
   selector: 'app-artista',
@@ -21,7 +22,8 @@ import ColorThief from 'colorthief';
     @if (!artistNotFound) {
     <div #container class="bg-black pt-4 px-[34px] h-min-full w-full">
       <div class="flex bg-opacity-60 p-4 rounded-[40px] items-end" [ngStyle]="{'background-color': dominantColor}">
-        <img [src]="img_artiste" alt="Imagen del artista" id="artistImage" class="max-sm:hidden rounded-[20px] h-[200px] w-[200px] object-cover">
+        <img [src]="img_artiste" alt="Imagen del artista" id="artistImage" class="rounded-[20px] h-[200px] w-[200px] object-cover"
+        [ngClass]="{'hidden': this.anchoReal < 650, 'block': !(this.anchoReal < 650)}">
         <div class="pl-[14px]">
           <div class="flex items-center">
             <p class="text-white text-[14px]">{{ type }}</p>
@@ -29,11 +31,17 @@ import ColorThief from 'colorthief';
           </div>
           <h1 class="font-montserrat font-bold text-4xl ml-[-2px] text-white">{{ artista.nombre_artista }}</h1>
           <div class="flex items-center mt-2">
-            <button (click)="follow()" class="bg-[var(--sponge)] border border-white rounded-full flex items-center px-4 py-1 mr-4">
-              <img src="assets/plus.png" alt="Seguir" class="w-4 h-4 mr-2">
-              <p class="font-montserrat font-bold text-sm text-white">Seguir</p>
+            <button (click)="follow()" 
+                    class="bg-[var(--sponge)] border border-white rounded-full flex items-center px-4 py-1 mr-4 w-30">
+              <img [src]="isFollowing ? 'assets/heart.png' : 'assets/plus.png'" 
+                  alt="Seguir" 
+                  class="w-4 h-4 mr-2 transition-transform duration-300" 
+                  [ngClass]="{'rotate-0': isFollowing, 'rotate-[-90deg]': !isFollowing}">
+              <p class="font-montserrat font-bold text-sm text-white">
+                {{ isFollowing ? 'Seguido' : 'Seguir' }}
+              </p>
             </button>
-            <p class="text-white text-base max-sm:hidden">{{ artista.seguidores | number:'1.0-0':'es-ES' }} seguidores</p>
+            <p class="text-white text-base">{{ this.seguidores | number:'1.0-0':'es-ES' }} seguidores</p>
           </div>
         </div>
       </div>
@@ -46,11 +54,11 @@ import ColorThief from 'colorthief';
               Las más reproducidas
           </h2>
           <div>
-            <div *ngFor="let song of this.max_rep" class="grid grid-cols-12 gap-4 items-center hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101 p-2" (dblclick)="playSong(song)">
+            <div *ngFor="let song of this.max_rep" class="grid grid-cols-12 gap-4 items-center hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101 p-2" (dblclick)="addSongToQueue(song)">
               
               <!-- Contenedor de la imagen, título y artista -->
               <div class="col-span-8 flex items-center">
-                <div class="relative w-[44px] h-[44px] group mr-5 min-w-[44px]" (click)="playSong(song)">
+                <div class="relative w-[44px] h-[44px] group mr-5 min-w-[44px]" (click)="addSongToQueue(song)">
                     <!-- Imagen de la canción -->
                     <img [src]="song.link_imagen" alt="Icono de la canción"
                         class="w-full h-full rounded-[10px] object-cover flex-shrink-0">
@@ -163,7 +171,7 @@ import ColorThief from 'colorthief';
                       class="hover:block none absolute bottom-4 right-4 h-11 w-11 bg-[var(--sponge)] p-1 rounded-full 
                       opacity-0 transform rotate-[-45deg] group-hover:opacity-100 group-hover:rotate-0
                       transition-all duration-300"
-                      (click)="playSong(cancion)">
+                      (click)="addSongToQueue(cancion)">
               </div>
 
               <!-- Información de la canción -->
@@ -200,6 +208,8 @@ export class ArtistaComponent implements OnInit, AfterViewInit, OnDestroy {
   dominantColor: string = 'rgba(75, 85, 99, 0.5)'; // Color gris predeterminado
   selectedTab: 'album' | 'cancion' = 'album';
   anchoReal: number = 0;
+  isFollowing: boolean = false;
+  seguidores: number = 0;
   private resizeObserver!: ResizeObserver;
 
   constructor(
@@ -209,7 +219,9 @@ export class ArtistaComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private playerService: PlayerService,
     private renderer: Renderer2,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private userService: UsuarioService,
+    private queueService: QueueService
   ) {}
 
   ngOnInit() {
@@ -227,6 +239,7 @@ export class ArtistaComponent implements OnInit, AfterViewInit, OnDestroy {
               .sort((a: any, b: any) => b.n_repros - a.n_repros)
               .slice(0, 5);
 
+            this.seguidores = this.artista.seguidores
             // Extraer color dominante
             const imgElement = document.getElementById('artistImage') as HTMLImageElement;
             if (imgElement) {
@@ -237,6 +250,12 @@ export class ArtistaComponent implements OnInit, AfterViewInit, OnDestroy {
                 imgElement.onload = () => this.extractColor(imgElement);
               }
             }
+            this.authService.isFollowerCreator(this.userService.getUsuario()?.nombre_usuario, this.artista.nombre_artista).subscribe({
+              next: (response) => {
+                console.log('Respuesta de isFollowerCreator:', response);
+                this.isFollowing = response.es_seguidor;
+              }
+            });
 
             this.artistNotFound = false;
           } else {
@@ -345,7 +364,31 @@ export class ArtistaComponent implements OnInit, AfterViewInit, OnDestroy {
     return url.includes('cloudinary.com') ? url.replace('/upload/', '/upload/f_auto,fl_lossy,fl_any_format/') : url;
   }
 
-  follow() {}
+  follow() {
+    if (!this.isFollowing) {
+      this.authService.followCreator(this.userService.getUsuario()?.nombre_usuario, this.artista.nombre_artista).subscribe({
+        next: () => {
+          console.log('Seguido correctamente');
+          this.isFollowing = !this.isFollowing;
+          this.seguidores += this.isFollowing ? 1 : -1;
+        },
+        error: (err) => {
+          console.error('Error al seguir al artista:', err);
+        }
+      });
+    } else {
+      this.authService.unfollowCreator(this.userService.getUsuario()?.nombre_usuario, this.artista.nombre_artista).subscribe({
+        next: () => {
+          console.log('Dejado de seguir correctamente');
+          this.isFollowing = !this.isFollowing;
+          this.seguidores += this.isFollowing ? 1 : -1;
+        },
+        error: (err) => { 
+          console.error('Error al dejar de seguir al artista:', err);
+        }
+      });
+    }
+  }  
 
   playSong(song: any) {
     this.authService.playSong(song.id_cancion).subscribe({
@@ -356,6 +399,28 @@ export class ArtistaComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error al reproducir la canción:', err);
+      },
+    });
+  }
+
+  addSongToQueue(selectedSong: any) {
+    const usuario = this.userService.getUsuario()?.nombre_usuario;
+    console.log('Cancion seleccionada:', selectedSong);
+    this.queueService.clearQueue(this.userService.getUsuario()?.nombre_usuario).subscribe(() => {
+    });
+    
+    if (!usuario || !selectedSong) return;
+  
+    // Añadir solo la canción seleccionada a la cola
+    this.queueService.addToQueue(usuario, selectedSong.id_cancion).subscribe({
+      next: () => {
+        // Cargar la canción seleccionada inmediatamente
+        this.playerService.loadSongByPosition(0);
+        this.playerService.getQueue(usuario);
+        console.log('Canción añadida a la cola.');
+      },
+      error: (err: any) => {
+        console.error('Error al añadir la canción a la cola:', err);
       },
     });
   }

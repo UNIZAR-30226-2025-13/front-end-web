@@ -1,9 +1,10 @@
-import { Component, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { PlayerService } from '../../services/player.service';
 import { UsuarioService } from '../../services/usuario.service';
 import { AuthService } from '../../services/auth.service';
 import { RouterModule, Router } from '@angular/router';
+import { QueueService } from '../../services/queue.service';
+import { PlayerService } from '../../services/player.service';
 
 @Component({
   selector: 'app-player',
@@ -16,7 +17,7 @@ import { RouterModule, Router } from '@angular/router';
     <div class="flex items-center pl-10 flex-1 gap-2">
       <img [src]="currentSong?.link_imagen" class="h-[50px] mr-1.5 rounded-2xl">
       <div class="text-white text-sm">
-        <a class="block font-bold">{{ currentSong?.titulo }}</a>
+        <a class="block font-bold line-clamp-2">{{ currentSong?.titulo }}</a>
         <div class="w-full max-xl:w-20 overflow-hidden text-ellipsis whitespace-nowrap">
           <ng-container *ngFor="let cantante of cantantes; let i = index">
             <a [routerLink]="['/inicio/artista/', encodeNombreArtista(cantante)]"
@@ -39,14 +40,19 @@ import { RouterModule, Router } from '@angular/router';
             </div>
           </div>
         </div>
-        <img src="assets/fav.png" class="h-[25px]">
+        <img src="assets/fav.png" class="h-[25px]"
+        (click)="addToFav()">
     </div>
   
     <!-- Parte central -->
     <div class="flex flex-col justify-center flex-1 items-center max-lg:mr-10">
       <div class="flex flex-row gap-2 max-md:justify-end max-md:items-end max-md:w-full">
-        <img class="w-[30px] h-[30px] max-md:hidden" src="assets/aleatorio.png">
-        <img class="w-[35px] h-[35px] max-md:hidden" src="assets/atras.png">
+      <img 
+        class="w-[30px] h-[30px] max-md:hidden cursor-pointer transition-opacity"
+        src="assets/aleatorio.png" 
+        [ngClass]="{ 'opacity-50': !isShuffle, 'opacity-100': isShuffle }"
+        (click)="toggleShuffle()">
+      <img class="w-[35px] h-[35px] max-md:hidden cursor-pointer" src="assets/atras.png" (click)="previousSong()">
 
         <!-- Botón de play/pause con control de audio -->
         <div 
@@ -58,8 +64,12 @@ import { RouterModule, Router } from '@angular/router';
             [src]="isPlaying ? 'assets/pause.png' : 'assets/play.png'">
         </div>
 
-        <img class="w-[35px] h-[35px] max-md:hidden" src="assets/adelante.png">
-        <img class="w-[30px] h-[30px] max-md:hidden" src="assets/bucle.png">
+        <img class="w-[35px] h-[35px] max-md:hidden cursor-pointer" src="assets/adelante.png" (click)="nextSong()">
+        <img 
+          class="w-[30px] h-[30px] max-md:hidden cursor-pointer transition-opacity"
+          src="assets/bucle.png" 
+          [ngClass]="{ 'opacity-50': !loop, 'opacity-100': loop }"
+          (click)="toggleLoop()">
       </div>
 
       <!-- Barra de progreso de la canción -->
@@ -82,7 +92,7 @@ import { RouterModule, Router } from '@angular/router';
     <!-- Parte derecha -->
 <div class="flex flex-row items-center pr-10 flex-1 justify-end max-lg:hidden">
   <img class="w-[30px] h-[30px] mr-2" src="assets/lyrics.png">
-  <img class="w-[30px] h-[30px] mr-2" src="assets/queue.png">
+  <img class="w-[30px] h-[30px] mr-2" src="assets/queue.png" (click)="toggleColaRepro()">
   <img class="w-[30px] h-[30px] mr-2" src="assets/sound.png">
 
   <!-- Slider de volumen -->
@@ -175,110 +185,118 @@ import { RouterModule, Router } from '@angular/router';
 export class PlayerComponent implements OnInit {
   @ViewChild('audioPlayer', { static: false }) audioPlayer!: ElementRef<HTMLAudioElement>;
 
+  constructor(
+    private authService: AuthService,
+    private usuarioService: UsuarioService,
+    private queueService: QueueService,
+    private router: Router,
+    private playerService: PlayerService
+  ) {}
+
   currentSong: any = null;
   isPlaying = false;
   currentTime = 0;
   duration = 0;
-  cantantes: string[] = [];volume = 1;
-  playlists = [
-    { nombre: 'Favoritos' },
-    { nombre: 'Rock Clásico' },
-    { nombre: 'Música Chill' },
-    { nombre: 'Workout' },
-    { nombre: 'Viaje' }
-  ];
+  cantantes: string[] = [];
+  volume = 1;
+  queue: any[] = [];
+  showQueuePopup = false;
   showPlaylistPopup = false;
+  playlists: any[] = [];
+  loop = false;
+  isShuffle = false;
 
-  constructor(
-    private playerService: PlayerService,
-    private authService: AuthService,
-    private usuarioService: UsuarioService,
-    private router: Router
-  ) {}
-  
+  @Output() toggleCola = new EventEmitter<void>();
+
+  toggleColaRepro(): void {
+    this.toggleCola.emit();
+    this.showQueuePopup = !this.showQueuePopup;
+    if (this.showQueuePopup) {
+    }
+  }
+
   ngOnInit() {
+    let nombreUsuario = this.usuarioService.getUsuario().nombre_usuario;
+    this.clearQueue();
+  
+    if (this.audioPlayer?.nativeElement) {
+      // Aquí se llama al método onSongEnd cuando la canción termina
+      this.audioPlayer.nativeElement.onended = () => {
+        this.onSongEnd();  // Llamamos a onSongEnd
+      };
+    }
+  
     this.playerService.currentSong.subscribe(song => {
       if (song) {
         this.currentSong = song;
         this.cantantes = [song.autor, ...(song.artistas_featuring ? song.artistas_featuring.split(', ') : [])];
         this.loadAndPlaySong();
-      }
-    });
-  
-    if (this.audioPlayer?.nativeElement) {
-      this.audioPlayer.nativeElement.onended = () => {
-        this.isPlaying = false;
-        this.currentTime = 0;
-        document.documentElement.style.setProperty('--progress', `0%`);
-      };
-    }
-  }
-
-  changeVolume(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.volume = parseFloat(input.value);
-  
-    if (this.audioPlayer?.nativeElement) {
-      this.audioPlayer.nativeElement.volume = this.volume;
-    }
-  
-    // Actualizar el fondo del slider
-    const percentage = this.volume * 100;
-    input.style.background = `linear-gradient(to right, 
-      white ${percentage}%, 
-      rgba(255, 255, 255, 0.4) ${percentage}%)`;
-  }
-
-  togglePlaylistPopup() {
-    if (this.currentSong?.link_cm) {
-      this.showPlaylistPopup = !this.showPlaylistPopup;
-      
-      // Llamar al método de authService para obtener las playlists
-      this.authService.getUserPlaylists(this.usuarioService.getUsuario().nombre_usuario).subscribe(
-        (response: any) => {
-          // Asumimos que la respuesta contiene un array de playlists
-          this.playlists = response; // Actualizar las playlists con los datos de la API
-        },
-        (error) => {
-          console.error('Error al obtener las playlists:', error);
-        }
-      );
-    }
-  }
-
-  addSongToPlaylist(playlist: any) {
-    this.authService.addSongToPlaylist(this.currentSong.id_cancion, playlist.id_lista).subscribe({
-      next: () => {  // No necesitamos la respuesta si no la vamos a usar
-        // Mostrar alerta con el mensaje de éxito
-        alert('Canción añadida correctamente a la playlist');
-        
-        // Cerrar el popup
-        this.showPlaylistPopup = false;
-      },
-      error: (error) => {
-        // Mostrar alerta con el mensaje de error
-        alert('Error al añadir la canción a la playlist');
-        console.error('Error al añadir la canción:', error);
-      }
+      } else {
+        this.currentSong = null;
+        this.loadAndPlaySong();
+      } 
     });
   }
 
+  /** 🔹 Carga una canción específica de la cola */
+  loadSongByPosition(position: number) {
+    this.playerService.loadSongByPosition(position);
+  }
+
+  /** 🔹 Avanza a la siguiente canción en la cola */
+  nextSong() {
+    this.playerService.nextSong(this.loop)
+  }
+
+  /** 🔹 Retrocede a la canción anterior en la cola */
+  previousSong() {
+    this.playerService.previousSong();
+  }
+
+  /** 🔹 Mezcla la cola de reproducción */
+  toggleShuffle() {
+    this.isShuffle = !this.isShuffle;
+    this.queueService.shuffleQueue(this.usuarioService.getUsuario()?.nombre_usuario).subscribe(() => {
+    });
+  }
+
+  /** 🔹 Cuando termina una canción, pasa a la siguiente */
+  onSongEnd() {
+    this.nextSong();
+  }
+
+  /** 🔹 Elimina toda la cola de reproducción */
+  clearQueue() {
+    this.queueService.clearQueue(this.usuarioService.getUsuario().nombre_usuario).subscribe(() => {
+      this.queue = [];
+      this.currentSong = null;
+    });
+  }
+
+  /** 🔹 Carga y reproduce la canción actual */
   loadAndPlaySong() {
     if (this.audioPlayer?.nativeElement && this.currentSong?.link_cm) {
       const audio = this.audioPlayer.nativeElement;
       audio.src = this.currentSong.link_cm;
       audio.load();
-      
+
       audio.oncanplay = () => {
-        this.currentTime = 0; 
+        this.currentTime = 0;
         this.duration = audio.duration || 0;
         audio.play().then(() => {
           this.isPlaying = true;
         }).catch(err => console.error('Error al reproducir:', err));
       };
+
+      audio.onended = () => {
+        this.nextSong();
+      };
     }
   }
-  
+
+  toggleLoop() {
+    this.loop = !this.loop;
+  }
 
   togglePlay() {
     if (this.audioPlayer?.nativeElement) {
@@ -290,6 +308,17 @@ export class PlayerComponent implements OnInit {
       }
       this.isPlaying = !this.isPlaying;
     }
+  }
+
+  formatTime(seconds: number): string {
+    if (!seconds) return '0:00';
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
+    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+  }
+
+  encodeNombreArtista(nombre: string): string {
+    return encodeURIComponent(nombre);
   }
 
   updateTime() {
@@ -333,15 +362,69 @@ export class PlayerComponent implements OnInit {
     }
   }
 
-  formatTime(seconds: number): string {
-    if (!seconds) return '0:00';
-    const min = Math.floor(seconds / 60);
-    const sec = Math.floor(seconds % 60);
-    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+  togglePlaylistPopup() {
+    if (this.currentSong?.link_cm) {
+      this.showPlaylistPopup = !this.showPlaylistPopup;
+      
+      // Llamar al método de authService para obtener las playlists
+      this.authService.getUserPlaylists(this.usuarioService.getUsuario().nombre_usuario).subscribe(
+        (response: any) => {
+          // Asumimos que la respuesta contiene un array de playlists
+          this.playlists = response; // Actualizar las playlists con los datos de la API
+        },
+        (error) => {
+          console.error('Error al obtener las playlists:', error);
+        }
+      );
+    }
   }
 
-  encodeNombreArtista(nombre: string): string {
-    return encodeURIComponent(nombre);
+  addSongToPlaylist(playlist: any) {
+    this.authService.addSongToPlaylist(this.currentSong.id_cm, playlist.id_lista).subscribe({
+      next: () => {  // No necesitamos la respuesta si no la vamos a usar
+        // Mostrar alerta con el mensaje de éxito
+        alert('Canción añadida correctamente a la playlist');
+        
+        // Cerrar el popup
+        this.showPlaylistPopup = false;
+      },
+      error: (error) => {
+        // Mostrar alerta con el mensaje de error
+        alert('Error al añadir la canción a la playlist');
+        console.error('Error al añadir la canción:', error);
+      }
+    });
   }
+
+  changeVolume(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.volume = parseFloat(input.value);
   
+    if (this.audioPlayer?.nativeElement) {
+      this.audioPlayer.nativeElement.volume = this.volume;
+    }
+  
+    // Actualizar el fondo del slider
+    const percentage = this.volume * 100;
+    input.style.background = `linear-gradient(to right, 
+      white ${percentage}%, 
+      rgba(255, 255, 255, 0.4) ${percentage}%)`;
+  }
+
+  addToFav(): void {
+    if (this.currentSong) {
+      console.log('Añadiendo a favoritos:', this.currentSong.id_cm, this.usuarioService.getUsuario()?.nombre_usuario);
+      this.authService.addToFav(this.currentSong.id_cm, this.usuarioService.getUsuario()?.nombre_usuario).subscribe({
+        next: () => {
+          alert('Canción añadida a favoritos');
+        },
+        error: (error) => {
+          alert('Error al añadir a favoritos');
+          console.error('Error al añadir a favoritos:', error);
+        }
+      });
+    } else {
+      console.error('No song is currently selected.');
+    }
+  }
 }

@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-biblioteca',
   imports: [CommonModule, RouterModule, FormsModule],
   template: `
-    <div #biblioteca class="p-5 bg-[var(--graybackground)] text-white h-full flex flex-col min-w-[100px] max-w-[600px] overflow-auto rounded-tr-2xl rounded-br-2xl relative"
+    <div #biblioteca class="p-5 bg-[var(--graybackground)] text-white h-full flex flex-col min-w-[100px] max-w-[600px] overflow-auto rounded-r-2xl relative"
          [ngStyle]="{ width: ancho + 'px' }">      
       <div class="w-3 bg-transparent cursor-w-resize absolute top-0 bottom-0 right-0"
            (mousedown)="iniciarRedimension($event)"></div>
@@ -34,7 +34,7 @@ import { FormsModule } from '@angular/forms';
       }
       
       @if (mostrar === 'listas') {
-        <ul class="list-none p-0 flex-grow text-xl ">
+        <ul class="list-none p-0 text-xl ">
           @if (ancho > this.MIN_WIDTH) {
             <button class="mt-2 text-white bg-[var(--sponge)] font-bold truncate w-full text-left p-2 flex justify-between items-center rounded-[40px] transition-transform duration-300 hover:scale-99 cursor-pointer"
             [routerLink]="['/inicio/lista_reproduccion/', (combinedLists[0].id_lista)]">
@@ -59,9 +59,11 @@ import { FormsModule } from '@angular/forms';
               <img src="assets/heart.png" alt="Corazón" class="w-6 h-6">   
             </button>
             }
+        </ul>
+        <ul class="list-none p-0 flex-grow text-xl overflow-y-scroll scrollbar-hide">
           <li *ngFor="let playlist of combinedLists.slice(2); trackBy: trackByFn">
             <button class="flex flex-row mt-2 text-white font-bold truncate w-full text-left p-2 transition-transform duration-300 hover:scale-99 cursor-pointer"
-            [routerLink]="playlist.type === 'lista' ? ['/inicio/lista_reproduccion/', playlist.id_lista] : null">
+            [routerLink]="playlist.type === 'lista' ? ['/inicio/lista_reproduccion/', playlist.id_lista] : ['/inicio/carpeta/', playlist.id_carpeta]">
             <p class="ml-2 truncate">{{ playlist.nombre }}</p>
             @if (ancho > this.MIN_WIDTH) {  
               <img *ngIf="playlist.type === 'carpeta'" src="assets/folder.png" alt="Carpeta" class="w-6 h-6 ml-auto mr-2">
@@ -99,38 +101,64 @@ import { FormsModule } from '@angular/forms';
         </ul>
       }
       
-      <button class="bg-[var(--sponge)] text-white rounded-full text-2xl w-12 h-12 flex items-center justify-center absolute right-7 bottom-7 hover:bg-[var(--spongedark)]" (click)="abrirPopup()">+</button>
-      <!-- Popup modal para crear una lista -->
-      <div *ngIf="mostrarPopup" class="fixed inset-0 flex items-center justify-center bg-black/70 z-10">
-        <div class="bg-black p-6 rounded-lg w-1/2 max-w-xs border-2 border-white">
-          <h3 class="text-xl font-bold mb-4 text-white">Crear nueva lista</h3>
-
-          <!-- Nombre de la lista -->
-          <label for="nombreLista" class="block text-white">Nombre de la lista</label>
-          <input id="nombreLista" type="text" [(ngModel)]="nuevoNombre" 
-            class="text-black border bg-gray-300 p-2 w-full rounded-[10px] mb-4" 
-            placeholder="Ingresa un nombre" maxlength="25">
-          <!-- Selección de color -->
-          <label for="colorLista" class="block text-white">Seleccionar color</label>
-          <input id="colorLista" type="color" [(ngModel)]="nuevoColor" 
-            class="h-8 mb-4 w-full rounded-[10px]">
-
-          <!-- Selección de tipo de contenido -->
-          <label for="tipoLista" class="block text-white">Seleccionar tipo</label>
-          <select id="tipoLista" [(ngModel)]="tipoLista" 
-            class="text-black border bg-gray-300 p-2 w-full rounded-[10px] mb-4">
-            <option value="canciones">Canciones</option>
-            <option value="episodios">Episodios</option>
-          </select>
-
-          <!-- Botones -->
-          <div class="flex justify-end gap-4">
-            <button class="bg-[var(--buttonhover)] text-white px-2 py-1 rounded-[20px] hover:bg-[var(--button)]" (click)="cerrarPopup()">Cancelar</button>
-            <button class="bg-[var(--sponge)] text-white px-2 py-1 hover:bg-[var(--spongedark)] rounded-[20px]" (click)="guardarLista()">Guardar</button>
+      <button class="bg-[var(--sponge)] text-white rounded-full text-2xl w-12 h-12 flex items-center justify-center absolute right-7 bottom-7 hover:bg-[var(--spongedark)]" (click)="abrirPopupSeleccion()">+</button>
+      <div *ngIf="mostrarPopupSeleccion" class="fixed inset-0 flex items-center justify-center bg-black/70 z-10">
+        <div class="bg-black p-6 rounded-lg w-1/3 max-w-xs border-1 border-white">
+          <h3 class="text-xl font-bold mb-4 text-white">¿Qué quieres crear?</h3>
+          <div class="flex flex-col gap-4">
+            <button class="bg-black border-[var(--sponge)] border-1 text-white px-4 py-2 rounded-[20px] hover:bg-[var(--spongedark)]" 
+                    (click)="seleccionarTipo('lista')">Lista de reproducción</button>
+            <button class="bg-black border-[var(--sponge)] border-1 text-white px-4 py-2 rounded-[20px] hover:bg-[var(--spongedark)]" 
+                    (click)="seleccionarTipo('carpeta')">Carpeta</button>
+            <button class="bg-[var(--button)] text-white px-4 py-2 rounded-[20px] hover:bg-[var(--buttonhover)] hover:text-black" 
+                    (click)="cerrarPopup()">Cancelar</button>
           </div>
         </div>
       </div>
+
+    <!-- Popup para crear una lista -->
+    <div *ngIf="mostrarPopupLista" class="fixed inset-0 flex items-center justify-center bg-black/70 z-10">
+      <div class="bg-black p-6 rounded-lg w-1/2 max-w-xs border-2 border-white">
+        <h3 class="text-xl font-bold mb-4 text-white">Crear nueva lista</h3>
+        <label for="nombreLista" class="block text-white">Nombre de la lista</label>
+        <input id="nombreLista" type="text" [(ngModel)]="nuevoNombre" 
+              class="text-black border bg-gray-300 p-2 w-full rounded-[10px] mb-4" 
+              placeholder="Ingresa un nombre" maxlength="25">
+
+        <label for="colorLista" class="block text-white">Seleccionar color</label>
+        <input id="colorLista" type="color" [(ngModel)]="nuevoColor" class="h-8 mb-4 w-full rounded-[10px]">
+
+        <label for="tipoLista" class="block text-white">Seleccionar tipo</label>
+        <select id="tipoLista" [(ngModel)]="tipoLista" class="text-black border bg-gray-300 p-2 w-full rounded-[10px] mb-4">
+          <option value="canciones">Canciones</option>
+          <option value="episodios">Episodios</option>
+        </select>
+
+        <div class="flex justify-end gap-4">
+          <button class="bg-gray-500 text-white px-2 py-1 rounded-[20px] hover:bg-gray-700" (click)="cerrarPopup()">Cancelar</button>
+          <button class="bg-[var(--sponge)] text-white px-2 py-1 hover:bg-[var(--spongedark)] rounded-[20px]" 
+                  (click)="guardarLista()">Guardar</button>
+        </div>
+      </div>
     </div>
+
+    <!-- Popup para crear una carpeta -->
+    <div *ngIf="mostrarPopupCarpeta" class="fixed inset-0 flex items-center justify-center bg-black/70 z-10">
+      <div class="bg-black p-6 rounded-lg w-1/2 max-w-xs border-2 border-white">
+        <h3 class="text-xl font-bold mb-4 text-white">Crear nueva carpeta</h3>
+        <label for="nombreCarpeta" class="block text-white">Nombre de la carpeta</label>
+        <input id="nombreCarpeta" type="text" [(ngModel)]="nuevoNombreCarpeta" 
+              class="text-black border bg-gray-300 p-2 w-full rounded-[10px] mb-4" 
+              placeholder="Ingresa un nombre" maxlength="25">
+
+        <div class="flex justify-end gap-4">
+          <button class="bg-gray-500 text-white px-2 py-1 rounded-[20px] hover:bg-gray-700" (click)="cerrarPopup()">Cancelar</button>
+          <button class="bg-[var(--sponge)] text-white px-2 py-1 hover:bg-[var(--spongedark)] rounded-[20px]" 
+                  (click)="guardarCarpeta()">Guardar</button>
+        </div>
+      </div>
+  </div>
+
   `,
   styles: []
 })
@@ -148,9 +176,12 @@ export class BibliotecaComponent implements OnInit {
   podcast_fav: any[] = [];
 
   // Variables para el popup
-  mostrarPopup: boolean = false;
+  mostrarPopupSeleccion: boolean = false;
+  mostrarPopupLista: boolean = false;
+  mostrarPopupCarpeta: boolean = false;
   nuevoNombre: string = '';
-  nuevoColor: string = '#000000'; // Color predeterminado (negro)
+  nuevoNombreCarpeta: string = '';
+  nuevoColor: string = '#000000';
   tipoLista: string = 'canciones';
 
   constructor(
@@ -185,9 +216,19 @@ export class BibliotecaComponent implements OnInit {
   }
 
   // Abrir el popup
-  abrirPopup() {
-    this.mostrarPopup = true;
+  abrirPopupSeleccion() {
+    this.mostrarPopupSeleccion = true;
   }
+
+  seleccionarTipo(tipo: string) {
+    this.mostrarPopupSeleccion = false;
+    if (tipo === 'lista') {
+      this.mostrarPopupLista = true;
+    } else {
+      this.mostrarPopupCarpeta = true;
+    }
+  }
+
 
   cogerListasUsuarios(nombre_usuario: string) {
     this.authService.getUserLists(nombre_usuario).subscribe(
@@ -229,7 +270,9 @@ export class BibliotecaComponent implements OnInit {
 
   // Cerrar el popup
   cerrarPopup() {
-    this.mostrarPopup = false;
+    this.mostrarPopupLista = false;
+    this.mostrarPopupCarpeta = false;
+    this.mostrarPopupSeleccion = false;
   }
 
   // Guardar la nueva lista
@@ -269,6 +312,35 @@ export class BibliotecaComponent implements OnInit {
         this.cogerListasUsuarios(this.userService.getUsuario()?.nombre_usuario);
       }, error => {
         alert('Hubo un error al crear la lista.');
+      });
+  }
+
+  // Guardar la nueva lista
+  guardarCarpeta() {
+    this.nuevoNombreCarpeta = this.nuevoNombreCarpeta.trim(); // Elimina espacios al inicio y al final
+  
+    if (!this.nuevoNombreCarpeta) {
+      alert('Por favor, ingrese un nombre para la lista.');
+      return;
+    }
+  
+    if (this.nuevoNombreCarpeta.length > 25) {
+      alert('El nombre de la lista no puede superar los 25 caracteres.');
+      return;
+    }
+  
+    if (!this.tipoLista) {
+      alert('Por favor, seleccione un tipo de lista.');
+      return;
+    }
+  
+    this.authService.createFolder(this.nuevoNombreCarpeta, this.userService.getUsuario()?.nombre_usuario)
+      .subscribe(response => {
+        alert('Carpeta creada correctamente.');
+        this.cerrarPopup();
+        this.cogerListasUsuarios(this.userService.getUsuario()?.nombre_usuario);
+      }, error => {
+        alert('Hubo un error al crear la carpeta.');
       });
   }
 
