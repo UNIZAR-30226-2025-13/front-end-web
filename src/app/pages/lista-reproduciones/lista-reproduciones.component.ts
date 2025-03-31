@@ -549,9 +549,11 @@ export class ListaReproducionesComponent implements OnInit {
     return { h, s, l };
   }
  
+
   rgbToHex(r: number, g: number, b: number): string {
     return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1).toUpperCase()}`;
   }
+
 
   sortCMs(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
@@ -609,6 +611,7 @@ export class ListaReproducionesComponent implements OnInit {
     event.stopPropagation();
     this.menuAbierto = !this.menuAbierto;
     this.carpetasVisibles = false; // Ocultar carpetas si el menú se cierra
+
 
     // Cierra el menú si se hace clic fuera de él
     setTimeout(() => {

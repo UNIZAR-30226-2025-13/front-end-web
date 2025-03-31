@@ -92,6 +92,20 @@ export class AuthService {
     };
     return this.http.post(`${this.apiUrl}/create-list`, playlistData);
   }
+
+  getInfoAlbum(id: number)
+  {return this.http.get(`${this.apiUrl}/album?id_album=${id}`)}
+
+  shuffle(nombre_usuario: string, posicion: number) {
+    const body = {
+      nombre_usuario: nombre_usuario,
+      posicion: posicion
+    };
+  
+    return this.http.post(`${this.apiUrl}/queue/shuffle`, body);
+  }
+
+  
   
   addSongToPlaylist(id_cancion: number, id_playlist: number) {
     return this.http.post(`${this.apiUrl}/add-song-playlist`, { id_cancion, id_playlist });
