@@ -145,7 +145,7 @@ import { QueueService } from '../../services/queue.service';
         <!-- Vista de Álbumes (Fila larga con scroll horizontal) -->
         <div *ngIf="selectedTab === 'album'" 
             class="h-60 flex overflow-x-auto whitespace-nowrap scrollbar-hide space-x-4 pb-4">
-            <div *ngFor="let album of this.artista.albumes" class="flex flex-col items-center flex-none max-w-44" [routerLink]="['/inicio/album/', encodeNombreArtista(album.id_album)]" >
+            <div *ngFor="let album of this.artista.albumes" class="flex flex-col items-center cursor-pointer flex-none max-w-44 transition-transform duration-300 hover:scale-97" [routerLink]="['/inicio/album/', encodeNombreArtista(album.id_album)]" >
                 <img [src]="album.link_imagen" [alt]="album.nombre_album" class="h-44 w-44 rounded-[40px] object-cover">
                 <p class="text-white mt-2 font-bold line-clamp-2 max-w-44">{{ album.nombre_album }}</p>
             </div>
@@ -156,7 +156,7 @@ import { QueueService } from '../../services/queue.service';
         class="h-60 flex overflow-x-auto whitespace-nowrap scrollbar-hide space-x-4 pb-4">
         
           <div *ngFor="let cancion of this.artista.canciones" 
-              class="group flex flex-col items-center flex-none max-w-44 cursor-pointer">
+              class="group flex flex-col items-center flex-none max-w-44 cursor-pointer transition-transform duration-300 hover:scale-97">
               
               <!-- Contenedor de la imagen con relative -->
               <div class="relative">

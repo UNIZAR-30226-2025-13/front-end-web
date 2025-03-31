@@ -58,7 +58,7 @@
                       </div>
                 </div> 
             </div>
-            <div class="col-span-4">{{ song.n_repros}}</div>
+            <div class="col-span-4">{{ song.n_repros | number:'1.0-0':'es-ES' }}</div>
             <div class="col-span-4 flex"  >
                 <img *ngFor="let star of generateStars(song.tu_valoration)" [src]="star" alt="star" class="w-5 h-auto flex-col"/>
              <script src="script.js"></script>

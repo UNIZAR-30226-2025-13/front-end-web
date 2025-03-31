@@ -110,7 +110,7 @@ import { UsuarioService } from '../../services/usuario.service';
         <!-- Vista de Álbumes (Fila larga con scroll horizontal) -->
         <div *ngIf="selectedTab === 'podcast'" 
             class="h-60 flex overflow-x-auto whitespace-nowrap scrollbar-hide space-x-4 pb-4">
-            <div *ngFor="let podcast of this.podcaster.podcasts_info" class="flex flex-col items-center flex-none max-w-44">
+            <div *ngFor="let podcast of this.podcaster.podcasts_info" class="flex flex-col items-center cursor-pointer flex-none max-w-44 transition-transform duration-300 hover:scale-97">
                 <img [src]="podcast.link_imagen" [alt]="podcast.nombre" class="h-44 w-44 rounded-[40px] object-cover">
                 <p class="text-white mt-2 font-bold line-clamp-2 max-w-44">{{ podcast.nombre }}</p>
             </div>
@@ -121,7 +121,7 @@ import { UsuarioService } from '../../services/usuario.service';
         class="h-60 flex overflow-x-auto whitespace-nowrap scrollbar-hide space-x-4 pb-4">
         
           <div *ngFor="let episodios of this.podcaster.list_episodios" 
-              class="group flex flex-col items-center flex-none max-w-44 cursor-pointer">
+              class="group flex flex-col items-center flex-none max-w-44 cursor-pointer transition-transform duration-300 hover:scale-97">
               
               <!-- Contenedor de la imagen con relative -->
               <div class="relative">
