@@ -9,15 +9,17 @@ import { FormsModule } from '@angular/forms';
 
 // @ts-ignore
 import ColorThief from 'colorthief';
+import { QueueService } from '../../services/queue.service';
+import { concatMap, concatWith, from, tap } from 'rxjs';
 
 @Component({
   
   selector: 'app-album',
-  imports: [CommonModule,RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './album.component.html',
   styleUrl: './album.component.css'
 })
-export class AlbumComponent {
+export class AlbumComponent implements OnInit, AfterViewInit {
 
   id_album: number = 0;
   album: any = null;
@@ -32,49 +34,23 @@ export class AlbumComponent {
   dominantColor:string = 'rgba(176, 206, 248, 0.5)';
   ano:string = '';
   nombre_usuario:string = '';
-
-
    
-  //to play the first song of the playlist
-  
-  //to put in aleatorio mode
- 
   //to anadir
   add(){}//TODO
   option(){}//TODO
  
-
-
- 
-
-  //TODO
-
   constructor(
-
     private route: ActivatedRoute,
-  
     private titleService: Title,
-  
     private authService: AuthService,
-
     private usuarioService :UsuarioService,
-  
     private router: Router,
-  
     private playerService: PlayerService,
-  
-    private cdRef: ChangeDetectorRef,
-
-    
-      
-    
-  
+    private cdRef: ChangeDetectorRef, 
+    private queueService: QueueService 
   ) {}
 
- 
- 
   ngOnInit() {
-    
     this.route.paramMap.subscribe((params) => {
       const id_album = parseInt(this.route.snapshot.paramMap.get('id_album') ?? '', 10);
 
@@ -84,37 +60,57 @@ export class AlbumComponent {
         return;
       }
       if (id_album) {
-        console.log('id_album:', id_album);
         this.getAlbumData(id_album);
       } else {
         this.AlbumNotFound = true;
       }
     });
-  
   }
 
-  generateStars(valoration: number): number[] {
-    return new Array(valoration).fill(0); 
+  ngAfterViewInit() {
+    setTimeout(() => {
+      const imgElement = document.getElementById('albumImage') as HTMLImageElement;
+      if (imgElement && imgElement.naturalWidth > 0) {
+        this.extractColor(imgElement);
+      } else {
+        console.warn('La imagen aún no está lista, intentándolo de nuevo...');
+      }
+    }, 1000);
+  }
+
+  generateStars(rating: any): string[] {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+  
+    if (rating != null) {
+      for (let i = 0; i < fullStars; i++) {
+        stars.push("assets/star.png"); // Estrella llena
+      }
+    
+      if (hasHalfStar) {
+        stars.push("assets/half_star.png"); // Media estrella
+      }
+    } else {
+      stars.push("assets/star_no_rate.png"); // Estrella llena
+    }
+    return stars;
   }
 
   getAlbumData(id_album: number) {
     this.authService.getInfoAlbum(id_album).subscribe({
       next: (data) => {
-        console.log('Données reçues:', data);
         if (data) {
           this.album = data;
-          console.log('données de lablum', this.album);
-          this.album_name = this.album.album.nombre;  // Utilise 'nombre' de l'album
-          this.artista = this.album.artista;    // Utilise 'artista'
-          console.log('artista', this.album.artista);
-          this.album_icone = this.album.album.link_imagen; // Utilise 'link_imagen'
+          this.album_name = this.album.album.nombre;
+          this.artista = this.album.artista;
+          this.album_icone = this.album.album.link_imagen;
           
           // On s'assure que la réponse contient des chansons
           this.songs = this.album.canciones || [];
-          console.log('données canciones', this.album.canciones);
-          this.titleService.setTitle(`${this.album.nombre} | Spongefy`);
+          this.titleService.setTitle(`${this.album.album.nombre} | Spongefy`);
           this.tiempo = this.calculateDurationTotal(this.songs);
-          console.log('fecha_pub', this.album.album.fecha_pub);
           this.ano = this.formatAno(this.album.album.fecha_pub);
 
           this.fecha = this.formatFecha(this.album.album.fecha_pub);
@@ -122,9 +118,9 @@ export class AlbumComponent {
           this.AlbumNotFound = false;
   
           // Extraire la couleur dominante
-          const imgElement = document.getElementById('album_icone') as HTMLImageElement;
+          const imgElement = document.getElementById('albumImage') as HTMLImageElement;
           if (imgElement) {
-            imgElement.crossOrigin = 'anonymous'; // Eviter les erreurs CORS
+            imgElement.crossOrigin = 'anonymous'; // Evita errores CORS
             if (imgElement.complete) {
               this.extractColor(imgElement);
             } else {
@@ -141,47 +137,45 @@ export class AlbumComponent {
       }
     });
   }
-  
 
   calculateDurationTotal(canciones_playlist: any[]): string {
-  let totalSeconds = 0;
-  canciones_playlist.forEach((cancion) => {
-  if (typeof cancion.duracion === 'string' && cancion.duracion.includes(':')) {
-  const parts = cancion.duracion.split(':').map(Number);
-  if (parts.length === 3) {
-  const [hours, minutes, seconds] = parts;
-  if (!isNaN(hours) && !isNaN(minutes) && !isNaN(seconds)) {
-  totalSeconds += hours * 3600 + minutes * 60 + seconds;
-  } else {
-    console.warn('Valeur non numérique détectée dans la durée:', parts);
-  }
-  } else {
-  console.warn('Format de durée incorrect:', cancion.duracion);
-  }
-  } else {
-  console.warn('Durée invalide ou manquante:', cancion.duracion);
-  }
+    let totalSeconds = 0;
+    canciones_playlist.forEach((cancion) => {
+    if (typeof cancion.duracion === 'string' && cancion.duracion.includes(':')) {
+      const parts = cancion.duracion.split(':').map(Number);
+      if (parts.length === 3) {
+        const [hours, minutes, seconds] = parts;
+        if (!isNaN(hours) && !isNaN(minutes) && !isNaN(seconds)) {
+          totalSeconds += hours * 3600 + minutes * 60 + seconds;
+        } else {
+          console.warn('Valeur non numérique détectée dans la durée:', parts);
+        }
+      } else {
+        console.warn('Format de durée incorrect:', cancion.duracion);
+      }
+    } else {
+      console.warn('Durée invalide ou manquante:', cancion.duracion);
+    }
   });
   return this.formatDuration(totalSeconds);
   }
 
   formatDuration(totalSeconds: number): string {
-
-  const hours = Math.floor(totalSeconds / 3600);
-  totalSeconds %= 3600;
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  let formatted = '';
-  if (hours > 0) {
-  formatted += `${hours} h `;
-  }
-  if (minutes > 0) {
-  formatted += `${minutes} mins `;
-  }
-  if (seconds > 0 || formatted === '') {
-  formatted += `${seconds} s`;
-  }
-  return formatted.trim();
+    const hours = Math.floor(totalSeconds / 3600);
+    totalSeconds %= 3600;
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    let formatted = '';
+    if (hours > 0) {
+      formatted += `${hours} h `;
+    }
+    if (minutes > 0) {
+      formatted += `${minutes} mins `;
+    }
+    if (seconds > 0 || formatted === '') {
+      formatted += `${seconds} s`;
+    }
+    return formatted.trim();
   }
 
   playSong(song: any) {
@@ -217,7 +211,6 @@ export class AlbumComponent {
   }
 
   formatAno(fechaString:string): string{
-    console.log('Données reçues:', fechaString);
     return fechaString.match(/\d{4}/)?.[0] || "";
   }
 
@@ -225,6 +218,7 @@ export class AlbumComponent {
     try {
         const colorThief = new ColorThief();
         if (imgElement.naturalWidth > 0) {
+          
           const palette = colorThief.getPalette(imgElement, 10); // Extrae hasta 10 colores
           if (!palette || palette.length === 0) {
             console.error("No se pudo extraer la paleta de colores.");
@@ -271,12 +265,10 @@ export class AlbumComponent {
   }
 
   encodeNombreArtista(nombre: string): string {
- 
     return encodeURIComponent(nombre);
- 
   }
 
-random() { 
+  random() { 
     this.nombre_usuario = this.usuarioService.getUsuario();
   
     if (!this.nombre_usuario) {
@@ -320,15 +312,46 @@ random() {
     }
   
     // Appel au service d'authentification pour ajouter aux favoris
-    this.authService.addToFav(this.nombre_usuario, id_cm).subscribe({
+    this.authService.addToFav(id_cm, this.nombre_usuario).subscribe({
       next: (response: any) => {
-        console.log("Chanson ajoutée aux favoris avec succès :", response);
       },
       error: (err) => {
         console.error("Erreur lors de l'ajout aux favoris :", err);
       }
     });
   }
-  
 
+  // Aquí viene el método addSongsToQueue
+    addSongsToQueue(selectedSong: any) {
+      this.queueService.clearQueue(this.usuarioService.getUsuario()?.nombre_usuario).subscribe(() => {
+      });
+  
+      const startIndex = this.songs.indexOf(selectedSong);
+      if (startIndex === -1) return;
+  
+      const songsToAdd = this.songs.slice(startIndex);
+      if (songsToAdd.length === 0) return;
+  
+      const usuario = this.usuarioService.getUsuario()?.nombre_usuario;
+  
+      // Crear un observable para la primera canción
+      const firstSong$ = this.queueService.addToQueue(usuario, songsToAdd[0].id_cancion).pipe(
+          tap(() => {
+              this.playerService.loadSongByPosition(0); // Cargar la primera canción
+          })
+      );
+  
+      // Crear observables para las demás canciones (con concurrencia limitada)
+      const remainingSongs$ = from(songsToAdd.slice(1)).pipe(
+          concatMap(song => this.queueService.addToQueue(usuario, song.id_cancion).pipe()) // Delay opcional
+      );
+  
+      // Ejecutar la primera canción de inmediato y luego las demás en secuencia controlada
+      firstSong$.pipe(concatWith(remainingSongs$)).subscribe({
+          complete: () => {
+            this.playerService.getQueue(usuario)
+          },
+          error: err => console.error('Error al añadir canciones:', err)
+      });
+    }
 }
