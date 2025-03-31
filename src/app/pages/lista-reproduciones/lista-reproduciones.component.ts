@@ -1,27 +1,24 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Renderer2, ViewChild, NgZone, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router'; 
 import { Title } from '@angular/platform-browser'; 
 import { AuthService } from '../../services/auth.service'; 
 import { CommonModule } from '@angular/common';
 import { PlayerService } from '../../services/player.service';
 import { FormsModule } from '@angular/forms';
- 
-
- 
-// @ts-ignore
- 
-import ColorThief from 'colorthief';
 import { UsuarioService } from '../../services/usuario.service';
- 
+import { QueueService } from '../../services/queue.service';
+import { concatMap, concatWith, forkJoin, from, of, tap } from 'rxjs';
 
- 
+// @ts-ignore
+import ColorThief from 'colorthief';
+
 @Component({
  
   selector: 'app-lista-reproduciones',
   imports: [CommonModule, RouterModule, FormsModule],
   template: `
  
-  <div class="bg-black pt-4 px-[34px] min-h-full">
+  <div #container class="bg-black pt-4 px-[34px] min-h-full">
     <!-- upper box -->
     <div class="flex p-4 rounded-[40px] items-end"
      [ngStyle]="{'background-color': getTransparentColor(this.color_playlist, 0.5)}"> 
@@ -84,19 +81,22 @@ import { UsuarioService } from '../../services/usuario.service';
               </div>
      
           <!-- Información normal de la list -->
-              <div class="flex flex-col items-start justify-end mb-1">
-                  <p class="text-white">Lista de reproducción</p>
-                  <h1 class="font-montserrat font-bold text-4xl ml-[-2px] text-white">{{ name }}</h1>
-                  <p class="text-white">{{ visibility === 'publica' ? 'Pública' : 'Privada' }} | {{ numberCm }} {{list.es_playlist? (numberCm === 1 ? 'canción' : 'canciones') : (numberCm === 1 ? 'episodio' : 'episodios') }} | {{ durationTotal }}</p>
+              <div class="flex flex-col items-start justify-end mb-1 text-white">
+                  <p class="">Lista de reproducción</p>
+                  <h1 class="font-montserrat font-bold text-4xl ml-[-2px]">{{ name }}</h1>
+                  <div class="flex flex-row">
+                  <span>{{ visibility ? 'Pública' : 'Privada' }} | {{ numberCm }} {{list.es_playlist? (numberCm === 1 ? 'canción' : 'canciones') : (numberCm === 1 ? 'episodio' : 'episodios') }} | {{ durationTotal }} |&nbsp;</span><span class="hover:underline cursor-pointer" [routerLink]="['/inicio/usuario/', this.list.nombre_usuario]">{{this.list.nombre_usuario}}</span>
+                  </div>
               </div>
             </div>
           </ng-template>
         </div>
  
         <div class=" flex mt-4 gap-1.5">
-          <img src="assets/play.png" alt="play" (click)="playSong(contenido[0])" class=" h-[52px] w-[52px]">
+          <img src="assets/play.png" alt="play" (click)="addSongsToQueue(contenido[0])" class=" h-[52px] w-[52px]">
           <img src="assets/aleatorio.png" alt="aleatorio" (click)="random()" class=" h-[52px] w-[52px]">
           
+           @if (this.list.nombre_usuario === this.userService.getUsuario()?.nombre_usuario && !this.isFavoritesPlaylist()) {
           <!-- Contenedor de los "..." con menú -->
           <div class="relative">
             <p class="font-montserrat font-bold text-4xl text-white h-[58px] w-[31px] cursor-pointer"
@@ -111,6 +111,9 @@ import { UsuarioService } from '../../services/usuario.service';
               <button class="flex flex-row text-left px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
                   (click)="borrarLista()">
                   <img class="w-5 h-5 mr-2" src="assets/trash.png">Eliminar Lista</button>
+              <button class="flex flex-row text-left px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
+                  (click)="cambiarPrivacidad()">
+                  <img class="w-5 h-5 mr-2" src="assets/lock.png">Cambiar a {{!visibility ? 'Publica' : 'Privada'}}</button>
             </div>
 
             <!-- Lista de carpetas -->
@@ -123,6 +126,7 @@ import { UsuarioService } from '../../services/usuario.service';
               </p>
             </div>
           </div>
+        }
         </div>
       </div>
     </div>
@@ -137,13 +141,11 @@ import { UsuarioService } from '../../services/usuario.service';
         <img src="assets/sort.png" class="h-[22px] w-[22px]">
         <select (change)="sortCMs($event)" class="bg-black border border-gray-300 text-gray-900 text-sm focus:ring-white focus:border-white block w-full dark:bg-black dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-black dark:focus:border-black rounded-md p-1">
           <option value="Fecha_publicación" selected> Fecha de publicación</option>
-          <option value="titulo">Titulo </option>
+          <option value="titulo">Título </option>
           <option value="artista">{{ list.es_playlist ? 'Artista' : 'Podcaster'}} </option>
           <option value="duracion">Duracion </option>
           <option value="album">{{ list.es_playlist ? 'Álbum' : 'Podcast'}} </option>
-         <!-- 
           <option value="valoracion">Tu Valoracion </option>
-        -->
         </select>
         <div class="flex items-center gap-2 m-4 ml-0 p-2 rounded-full hover:bg-neutral-700 hover:border-neutral-600 focus-within:border-neutral-500 focus-within:bg-neutral-600 transition-colors w-fit"> 
           <ng-container *ngIf="order === true; else order_change"> 
@@ -166,9 +168,10 @@ import { UsuarioService } from '../../services/usuario.service';
             <div class="font-bold col-span-1">Duracion</div>
         </div>
         <hr class="border-t-2 border-white my-4 ">  
-        <div *ngFor="let cm of contenido" class="grid grid-cols-20 gap-4 text-white items-center hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101" (dblclick)="playSong(cm)">
+        <div *ngFor="let cm of contenido"
+            class="grid grid-cols-20 gap-4 text-white items-center hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101" (dblclick)="addSongsToQueue(cm)">
             <div class="flex m-2 col-span-6 ">
-              <div class="relative w-[44px] h-[44px] group mr-5 min-w-[44px]" (click)="playSong(cm)">
+              <div class="relative w-[44px] h-[44px] group mr-5 min-w-[44px]" (click)="addSongsToQueue(cm)">
                     <!-- Imagen de la canción -->
                     <img [src]="cm.link_imagen" alt="Icono de la canción"
                         class="w-full h-full rounded-[10px] object-cover flex-shrink-0"> 
@@ -183,8 +186,8 @@ import { UsuarioService } from '../../services/usuario.service';
                      <p class="font-montserrat font-bold text-lg text-white">
                          {{ cm.titulo  }}
                      </p>
-                     <div class="flex flex-row">
-                       <p  class="text-white text-sm hover:underline min-w-fill max-w-full " [routerLink]="['/inicio/artista/', encodeNombreArtista(cm.nombre_artista)]">{{cm.nombre_creador}}</p>
+                     <div class="flex flex-row w-full overflow-hidden whitespace-nowrap ">
+                       <p  class="text-white text-sm hover:underline min-w-fill max-w-full " [routerLink]="['/inicio/artista/', encodeNombreArtista(cm.nombre_creador)]">{{cm.nombre_creador}}</p>
                            <ng-container *ngIf="cm.artistas_feat != null">
                              <ng-container *ngFor="let ft of getArtistasFeat(cm); track by ft">
                                <p class="text-white text-sm inline-block min-w-max">,&nbsp;</p>
@@ -203,15 +206,15 @@ import { UsuarioService } from '../../services/usuario.service';
                  <img src="assets/star_no_rate.png" alt="star" class="w-5 h-auto flex-col" />
                </ng-container>
              <ng-template #rated_media>
-             <img *ngFor="let star of generateStars(cm.valoration_media)" src="assets/star.png" alt="star" class="w-5 h-auto flex-col"/>
+             <img *ngFor="let star of generateStars(cm.valoration_media)" [src]="star" alt="star" class="w-5 h-auto flex-col"/>
              <script src="script.js"></script>
                </ng-template>          
              </div> 
              <div class="col-span-4">{{ formatFecha(cm.fecha_pub) }}</div> 
              <div class="col-span-1">{{ formatDurationSong(cm.duracion) }}</div>
              <div class=" flex items-center space-x-3   col-span-1 mr-5">
-                 <img src="assets/anyadirplaylist.png" alt="anadir" (click)="add()" class=" h-[17px] w-[18px]">
-                 <img src="assets/heart.png" alt="like" (click)="like()" class=" h-[17px] w-[18px]">
+                 <img src="assets/anyadirplaylist.png" alt="anadir" class=" h-[17px] w-[18px]">
+                 <img src="assets/heart.png" alt="like" class=" h-[17px] w-[18px]">
                  <p class="font-montserrat font-bold text-xl text-white pb-3 ">...</p>    
              </div>       
          </div>
@@ -231,7 +234,7 @@ export class ListaReproducionesComponent implements OnInit {
   playlistNotFound = false;
   durationTotal: string = '';
   numberCm: number = 0;
-  visibility: string = 'publica';
+  visibility: boolean = false;
   img_artiste: string = '';
   searchQuery: string = '';
   filteredSongs : any= null;
@@ -247,7 +250,8 @@ export class ListaReproducionesComponent implements OnInit {
     private router: Router, 
     private playerService: PlayerService, 
     private cdRef: ChangeDetectorRef ,
-    private userService: UsuarioService
+    public userService: UsuarioService,
+    private queueService: QueueService,
   ) {}
 
   ngOnInit() {
@@ -262,17 +266,16 @@ export class ListaReproducionesComponent implements OnInit {
   getPlaylistData(id_lista: string) {
     this.authService.getList(id_lista).subscribe({
       next: (data) => {
-        console.log('Données reçues:', data);
         if (data) {
           this.list = data;
           this.name = data.nombre;
           this.contenido_list = data.contenido || [];          
           this.contenido = data.contenido || [];
+          this.visibility = data.es_publica;
           this.titleService.setTitle(`${data.nombre} | Spongefy`);
           this.durationTotal = this.calculateDurationTotal(this.contenido_list);
           this.playlistNotFound = false;
           this.numberCm = this.contenido_list.length;
-          console.log('chansons_un:', this.contenido_list);
           
           if (this.isThisIsPlaylist()) {
             this.handleThisIsPlaylist();
@@ -280,7 +283,6 @@ export class ListaReproducionesComponent implements OnInit {
             this.color_playlist = data.color;
           } 
 
-          console.log('chansons:', this.contenido);
         } else {
           this.playlistNotFound = true;
         }
@@ -295,7 +297,6 @@ export class ListaReproducionesComponent implements OnInit {
   calculateDurationTotal(contenido_list: any[]): string {
     let totalSeconds = 0;
     contenido_list.forEach((cm) => {
-        console.log('Durée de la chanson:', cm.duracion);
         if (typeof cm.duracion === 'string' && cm.duracion.includes(':')) {
             const parts = cm.duracion.split(':').map(Number);
             if (parts.length === 3) {
@@ -318,7 +319,6 @@ export class ListaReproducionesComponent implements OnInit {
   }
 
   formatDuration(totalSeconds: number): string {
-      console.log('Formatage de:', totalSeconds);
       const hours = Math.floor(totalSeconds / 3600);
       totalSeconds %= 3600;
       const minutes = Math.floor(totalSeconds / 60);
@@ -333,8 +333,6 @@ export class ListaReproducionesComponent implements OnInit {
       if (seconds > 0 || formatted === '') {
           formatted += `${seconds} s`;
       }  
-
-      console.log('Durée formatée:', formatted.trim());
       return formatted.trim();
   }
  
@@ -370,14 +368,35 @@ export class ListaReproducionesComponent implements OnInit {
     return fecha.toLocaleDateString('es-ES', opciones);  
   }
 
-  random(){}//TODO
- 
-  add(){}//TODO
-  
-  like(){}//TODO
+  cambiarPrivacidad(){
+    this.authService.changeListPrivacy(parseInt(this.id_lista), this.userService.getUsuario()?.nombre_usuario).subscribe({
+      next: () => {
+        this.visibility = !this.visibility;
+      },
+      error(err) {
+        console.error('Error al cambiar la privacidad:', err);
+      },
+    })
+  }
 
-  generateStars(valoration: number): number[] {
-    return new Array(valoration).fill(0);  
+  generateStars(rating: any): string[] {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+  
+    if (rating != null) {
+      for (let i = 0; i < fullStars; i++) {
+        stars.push("assets/star.png"); // Estrella llena
+      }
+    
+      if (hasHalfStar) {
+        stars.push("assets/half_star.png"); // Media estrella
+      }
+    } else {
+      stars.push("assets/star_no_rate.png"); // Estrella llena
+    }
+    return stars;
   }
 
   getTransparentColor(hex: string, alpha: number): string {
@@ -409,7 +428,6 @@ export class ListaReproducionesComponent implements OnInit {
   }
 
   handleThisIsPlaylist() {
-    console.log("🎵 Aplicando configuraciones especiales para 'This is...'");
     const nombre_artista = this.getArtistFromThisIs();
     if (!nombre_artista) return;
     const nombre_artista_encoded = encodeURIComponent(nombre_artista);
@@ -426,7 +444,6 @@ export class ListaReproducionesComponent implements OnInit {
                 imgElement.src = this.img_artiste; // 👈 Esto debe ir después de asignar `crossOrigin`
                 imgElement.onload = () => {
                   if (imgElement.naturalWidth > 0) {
-                    console.log("✅ Imagen cargada después del timeout, extrayendo colores...");
                     this.extractColor(imgElement);
                   } else {
                     console.warn("⚠️ Imagen sigue sin estar cargada después del timeout."); 
@@ -456,7 +473,6 @@ export class ListaReproducionesComponent implements OnInit {
                 imgElement.src = this.img_artiste; // 👈 Esto debe ir después de asignar `crossOrigin`
                 imgElement.onload = () => {
                   if (imgElement.naturalWidth > 0) {
-                    console.log("✅ Imagen cargada después del timeout, extrayendo colores...");
                     this.extractColor(imgElement);
                   } else {
                     console.warn("⚠️ Imagen sigue sin estar cargada después del timeout."); 
@@ -506,7 +522,6 @@ export class ListaReproducionesComponent implements OnInit {
             } 
             if (bestColor) {
                 this.color_playlist = this.rgbToHex(bestColor[0], bestColor[1], bestColor[2]);
-                console.log(this.color_playlist);
             } else {
                 this.color_playlist = "#FFFFFF"; // Blanco como fallback
             }
@@ -541,7 +556,6 @@ export class ListaReproducionesComponent implements OnInit {
   sortCMs(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
     const selectedValue = selectElement.value;
-    console.log('Valeur sélectionnée:', selectedValue);
     this.order = true;
     switch (selectedValue) {
         case 'Fecha_publicación':
@@ -574,16 +588,15 @@ export class ListaReproducionesComponent implements OnInit {
   }
 
   search() {
-    if (!this.searchQuery || this.searchQuery.trim() === ''){
-      this.contenido = this.contenido_list
-    }
-    else{
-      this.contenido = this.contenido_list.filter(cm =>
-        cm.titulo.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        cm.nombre_creador.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        cm.artistas_feat.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        cm.nombre_grupo.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
+    if (!this.searchQuery || this.searchQuery.trim() === '') {
+        this.contenido = this.contenido_list;
+    } else {
+        this.contenido = this.contenido_list.filter(cm =>
+            (cm.titulo || "").toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+            (cm.nombre_creador || "").toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+            (cm.artistas_feat || "").toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+            (cm.nombre_grupo || "").toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
     }
   }
 
@@ -617,7 +630,6 @@ export class ListaReproducionesComponent implements OnInit {
   }
 
   agregarACarpeta(id_carpeta: number) {
-    console.log(`Agregado a: ${id_carpeta}`);
     this.authService.addPlaylistToFolder(this.userService.getUsuario()?.nombre_usuario, id_carpeta, this.id_lista)
       .subscribe(response => {
         alert('Lista añadida correctamente.');
@@ -633,7 +645,48 @@ export class ListaReproducionesComponent implements OnInit {
     this.carpetasVisibles = false;
     window.removeEventListener("click", this.cerrarMenu.bind(this));
   }
-  
+
+  random() {
+    const randomIndex = Math.floor(Math.random() * this.contenido.length);
+    const randomSong = this.contenido[randomIndex];
+    this.playSong(randomSong);
+  }
+
+
+  // Aquí viene el método addSongsToQueue
+  addSongsToQueue(selectedSong: any) {
+    this.queueService.clearQueue(this.userService.getUsuario()?.nombre_usuario).subscribe(() => {
+    });
+
+    const startIndex = this.contenido.indexOf(selectedSong);
+    if (startIndex === -1) return;
+
+    const songsToAdd = this.contenido.slice(startIndex);
+    if (songsToAdd.length === 0) return;
+
+    const usuario = this.userService.getUsuario()?.nombre_usuario;
+
+    // Crear un observable para la primera canción
+    const firstSong$ = this.queueService.addToQueue(usuario, songsToAdd[0].id_cm).pipe(
+        tap(() => {
+            this.playerService.loadSongByPosition(0); // Cargar la primera canción
+        })
+    );
+
+    // Crear observables para las demás canciones (con concurrencia limitada)
+    const remainingSongs$ = from(songsToAdd.slice(1)).pipe(
+        concatMap(song => this.queueService.addToQueue(usuario, song.id_cm).pipe()) // Delay opcional
+    );
+
+    // Ejecutar la primera canción de inmediato y luego las demás en secuencia controlada
+    firstSong$.pipe(concatWith(remainingSongs$)).subscribe({
+        complete: () => {
+          console.log('Todas las canciones añadidas a la cola.')
+          this.playerService.getQueue(usuario)
+        },
+        error: err => console.error('Error al añadir canciones:', err)
+    });
+  }
 
   borrarLista () {
 

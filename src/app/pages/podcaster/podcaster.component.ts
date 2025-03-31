@@ -12,6 +12,8 @@ registerLocaleData(localeEs, 'es-ES');
 
 // @ts-ignore
 import ColorThief from 'colorthief';
+import { QueueService } from '../../services/queue.service';
+import { UsuarioService } from '../../services/usuario.service';
 
 @Component({
   selector: 'app-podcaster',
@@ -21,7 +23,8 @@ import ColorThief from 'colorthief';
     @if (!podcasterNotFound) {
     <div #container class="bg-black pt-4 px-[34px] h-min-full w-full">
       <div class="flex bg-opacity-60 p-4 rounded-[40px] items-end" [ngStyle]="{'background-color': dominantColor}">
-        <img [src]="img_artiste" alt="Imagen del podcaster" id="artistImage" class="max-sm:hidden rounded-[20px] h-[200px] w-[200px] object-cover">
+        <img [src]="img_artiste" alt="Imagen del podcaster" id="artistImage" class="rounded-[20px] h-[200px] w-[200px] object-cover"
+        [ngClass]="{'hidden': this.anchoReal < 650, 'block': !(this.anchoReal < 650)}">
         <div class="pl-[14px]">
           <div class="flex items-center">
             <p class="text-white text-[14px]">{{ type }}</p>
@@ -29,11 +32,17 @@ import ColorThief from 'colorthief';
           </div>
           <h1 class="font-montserrat font-bold text-4xl ml-[-2px] text-white">{{ podcaster.nombre_podcaster }}</h1>
           <div class="flex items-center mt-2">
-            <button (click)="follow()" class="bg-[var(--sponge)] border border-white rounded-full flex items-center px-4 py-1 mr-4">
-              <img src="assets/plus.png" alt="Seguir" class="w-4 h-4 mr-2">
-              <p class="font-montserrat font-bold text-sm text-white">Seguir</p>
+            <button (click)="follow()" 
+                    class="bg-[var(--sponge)] border border-white rounded-full flex items-center px-4 py-1 mr-4 w-30">
+              <img [src]="isFollowing ? 'assets/heart.png' : 'assets/plus.png'" 
+                  alt="Seguir" 
+                  class="w-4 h-4 mr-2 transition-transform duration-300" 
+                  [ngClass]="{'rotate-0': isFollowing, 'rotate-[-90deg]': !isFollowing}">
+              <p class="font-montserrat font-bold text-sm text-white">
+                {{ isFollowing ? 'Seguido' : 'Seguir' }}
+              </p>
             </button>
-            <p class="text-white text-base max-sm:hidden">{{ podcaster.seguidores | number:'1.0-0':'es-ES' }} seguidores</p>
+            <p class="text-white text-base">{{ podcaster.seguidores | number:'1.0-0':'es-ES' }} seguidores</p>
           </div>
         </div>
       </div>
@@ -127,7 +136,7 @@ import ColorThief from 'colorthief';
                       class="hover:block none absolute bottom-4 right-4 h-11 w-11 bg-[var(--sponge)] p-1 rounded-full 
                       opacity-0 transform rotate-[-45deg] group-hover:opacity-100 group-hover:rotate-0
                       transition-all duration-300"
-                      (click)="playSong(episodios)">
+                      (click)="addSongToQueue(episodios)">
               </div>
 
               <!-- Información de la canción -->
@@ -165,6 +174,7 @@ export class PodcasterComponent implements OnInit, AfterViewInit, OnDestroy {
   dominantColor: string = 'rgba(75, 85, 99, 0.5)'; // Color gris predeterminado
   selectedTab: 'podcast' | 'episodios' = 'podcast';
   anchoReal: number = 0;
+  isFollowing: boolean = false;
   private resizeObserver!: ResizeObserver;
 
   constructor(
@@ -174,7 +184,9 @@ export class PodcasterComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private playerService: PlayerService,
     private renderer: Renderer2,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private queueService: QueueService,
+    private userService: UsuarioService
   ) {}
 
   ngOnInit() {
@@ -311,7 +323,11 @@ export class PodcasterComponent implements OnInit, AfterViewInit, OnDestroy {
     return url.includes('cloudinary.com') ? url.replace('/upload/', '/upload/f_auto,fl_lossy,fl_any_format/') : url;
   }
 
-  follow() {}
+
+  follow() {
+    this.isFollowing = !this.isFollowing;
+  }
+
 
   playSong(song: any) {
     this.authService.playSong(song.id_episodio).subscribe({
@@ -322,6 +338,28 @@ export class PodcasterComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error al reproducir la canción:', err);
+      },
+    });
+  }
+
+  addSongToQueue(selectedSong: any) {
+    const usuario = this.userService.getUsuario()?.nombre_usuario;
+    console.log('Cancion seleccionada:', selectedSong);
+    this.queueService.clearQueue(this.userService.getUsuario()?.nombre_usuario).subscribe(() => {
+    });
+    
+    if (!usuario || !selectedSong) return;
+  
+    // Añadir solo la canción seleccionada a la cola
+    this.queueService.addToQueue(usuario, selectedSong.id_episodio).subscribe({
+      next: () => {
+        // Cargar la canción seleccionada inmediatamente
+        this.playerService.loadSongByPosition(0);
+        this.playerService.getQueue(usuario);
+        console.log('Canción añadida a la cola.');
+      },
+      error: (err: any) => {
+        console.error('Error al añadir la canción a la cola:', err);
       },
     });
   }

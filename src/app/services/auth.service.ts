@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,6 @@ import { Router } from '@angular/router';
 export class AuthService {
 
   private apiUrl = 'https://spongefy-back-end.onrender.com';
-  
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -151,4 +151,69 @@ export class AuthService {
     return this.http.get<any>(`${this.apiUrl}/search-usuario?cadena=${name}`);
   }
   
+  changeListPrivacy (id_lista: number, nombre_usuario: string) {
+    const listData = {
+      id_lista,
+      nombre_usuario
+    }
+    return this.http.post(`${this.apiUrl}/change-list-privacy`, listData)
+  }
+
+  followUser(nombre_usuario: string, nombre_usuario_a_seguir: string) {
+    const follow = {
+      nombre_usuario,
+      nombre_usuario_a_seguir
+    }
+    return this.http.post<any>(`${this.apiUrl}/follow-user`, follow);
+  }
+
+  unfollowUser(nombre_usuario: string, nombre_usuario_a_dejar_de_seguir: string) {
+    const unfollow = {
+      nombre_usuario,
+      nombre_usuario_a_dejar_de_seguir
+    }
+    return this.http.post<any>(`${this.apiUrl}/unfollow-user`, unfollow);
+  }
+  
+  isFollowerUser(nombre_usuario: string, nombre_usuario_a_seguir: string) {
+    return this.http.get<any>(`${this.apiUrl}/is-a-follower-of-user`, {
+      params: {
+        nombre_usuario,
+        nombre_usuario_a_seguir
+      }
+    });
+  }
+
+  followCreator(nombre_usuario: string, nombre_creador: string) {
+    const follow = {
+      nombre_usuario,
+      nombre_creador
+    }
+    return this.http.post<any>(`${this.apiUrl}/follow-creator?`, follow);
+  }
+
+  unfollowCreator(nombre_usuario: string, nombre_creador: string) {
+    const unfollow = {
+      nombre_usuario,
+      nombre_creador
+    }
+    return this.http.post<any>(`${this.apiUrl}/unfollow-creator`, unfollow);
+  }
+
+  isFollowerCreator(nombre_usuario: string, nombre_creador: string) {
+    return this.http.get<any>(`${this.apiUrl}/is-a-follower-of-creator`, {
+      params: {
+        nombre_usuario,
+        nombre_creador
+      }
+    });
+  }
+
+  addToFav(id_cm: number, nombre_usuario: string) {
+    const fav = {
+      nombre_usuario,
+      id_cm
+    }
+    return this.http.post<any>(`${this.apiUrl}/add-to-favourites`, fav);
+  }
 }
