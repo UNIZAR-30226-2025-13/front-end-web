@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 export class AuthService {
 
   private apiUrl = 'https://spongefy-back-end.onrender.com';
-  
+  //private apiUrl = 'https://localhost:8080';
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -150,5 +150,15 @@ export class AuthService {
   searchUsuarios(name: string) {
     return this.http.get<any>(`${this.apiUrl}/search-usuario?cadena=${name}`);
   }
+
+  searchListas(name: string) {
+    return this.http.get<any>(`${this.apiUrl}/search-lista?cadena=${name}`);
+  }
+
+  getPublicLists(nombre: string) {
+    return this.http.get<any>(`${this.apiUrl}/get-public-lists?nombre_usuario=${nombre}`);
+  }
+
+
   
 }
