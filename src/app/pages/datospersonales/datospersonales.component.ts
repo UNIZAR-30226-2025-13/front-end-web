@@ -5,7 +5,7 @@ import { UsuarioService } from '../../services/usuario.service';
   selector: 'app-datospersonales',
   template: `
     <div class="h-screen flex items-center justify-center bg-black">
-      <div class="w-[600px] h-[500px] p-6 rounded-[20px] bg-[var(--spongedark)] relative text-white text-center flex flex-col justify-between">
+      <div class="w-1/2 h-3/4 p-6 rounded-[20px] bg-[var(--spongedark)] relative text-white text-center flex flex-col justify-between">
 
         <!-- Imagen de fondo del logo -->
         <div class="absolute inset-0 opacity-30 bg-cover bg-center rounded-[20px]"
@@ -51,9 +51,15 @@ export class DatospersonalesComponent implements OnInit {
   editarPerfil() {}
 
   ngOnInit() {
+    document.body.style.overflow = 'hidden';
+
     const usuario = this.usuarioService.getUsuario();
     this.nombreUsuario = usuario ? usuario.nombre : 'Usuario desconocido';
     this.correo = usuario ? usuario.correo : 'Correo desconocido';
     this.contraseña = usuario ? usuario.contraseña : 'Contraseña desconocida';
+  }
+
+  ngOnDestroy() {
+    document.body.style.overflow = 'auto'; 
   }
 }

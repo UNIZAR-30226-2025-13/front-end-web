@@ -164,6 +164,16 @@ export class AuthService {
   searchUsuarios(name: string) {
     return this.http.get<any>(`${this.apiUrl}/search-usuario?cadena=${name}`);
   }
+
+  searchListas(name: string) {
+    return this.http.get<any>(`${this.apiUrl}/search-lista?cadena=${name}`);
+  }
+
+  getPublicLists(nombre: string) {
+    return this.http.get<any>(`${this.apiUrl}/get-public-lists?nombre_usuario=${nombre}`);
+  }
+
+
   
   changeListPrivacy (id_lista: number, nombre_usuario: string) {
     const listData = {

@@ -61,12 +61,12 @@ import { BusquedaService } from '../../services/busqueda.service';
           <!-- Menú desplegable -->
            @if (dropdownOpen) {
             <div class="absolute mt-2 w-50 right-[-30px] bg-[#151515] rounded-tl-[40px] rounded-bl-[40px] shadow-lg z-50 text-white p-4">
-              <h3 class="text-xl font-bold mt-2 mb-8 text-center">Tu Perfil</h3>
+              <h3 class="text-xl font-bold mt-2 mb-8 text-center" >Tu Perfil</h3>
               <hr class="border-gray-500 mb-4">
 
               <ul class="space-y-2">
                 <li (click)="verPerfil()" class="px-4 py-2 hover:bg-[var(--buttonhover)]/10 cursor-pointer rounded-[40px] font-semibold">
-                  Editar Perfil
+                  Ver Perfil
                 </li>
                 <li (click)="cerrarSesion()" class="px-4 py-2 hover:bg-[var(--buttonhover)]/10 cursor-pointer rounded-[40px] font-semibold">
                   Cerrar Sesión
@@ -199,7 +199,7 @@ export class HomeComponent {
   // Lógica para cada opción del menú
   verPerfil() {
     this.closeDropdown();
-    this.router.navigate(['/perfil']);
+    this.router.navigate(['/inicio/usuario/', this.usuarioInfo.nombre_usuario]);
   }
 
   cerrarSesion() {
