@@ -45,202 +45,180 @@ interface Playlist {
                   <p class="text-white">{{artista}} | {{ano}} | {{nb_cancione}} canciones | {{tiempo}}</p>
               </div>
           </div>
-          <div class=" flex mt-4">
+          <div class=" flex mt-4 items-center gap-1">
             <div 
               class="h-[52px] w-[52px] mt-2 flex items-center justify-center transition-transform duration-200 cursor-pointer"
-              [style.transform]="isPlaying ? 'rotate(45deg)' : 'rotate(0deg)'"
-              (click)="playAlbum()">
+              (click)="addSongsToQueue(songs[0])">
               <img 
               class="w-full h-full transition-transform duration-200"
-              [src]="isPlaying ? 'assets/pause.png' : 'assets/play.png'">
+              src="assets/play.png">
            </div>
-           <div class="relative p-2 rounded-full flex items-center justify-center
-                        before:absolute before:inset-0
-                        before:bg-gray-300 before:rounded-full before:opacity-50
-                        before:scale-0 hover:before:scale-100
-                        before:transition-transform before:duration-300
-                        before:transform before:origin-center
-                        cursor-pointer">
-              <img src="assets\aleatorio.png" alt="aleatorio" (click)="random()" class=" items-center justify-center h-[52px] w-[52px] cursor-pointer z-10">
+           <div class="mt-2 rounded-full flex items-center justify-center cursor-pointer">
+              <img src="assets/aleatorio.png" alt="aleatorio" (click)="random()" class=" items-center justify-center h-[52px] w-[52px] cursor-pointer z-10">
            </div> 
-              <div [style.transform]="isOpen ? 'rotate(45deg)' : 'rotate(0deg)'" class="h-[52px] w-[52px] flex items-center justify-center transition-transform duration-200 cursor-pointer">
-              
-                  <img src="assets\anyadirplaylist.png" alt="anadir" (click)="toggleBox('album')" class="mt-2 w-full h-full transition-transform duration-200">
+           <div class="relative flex items-center">
+              <!-- Botón que abre el popup -->
+              <div class="h-[52px] w-[52px] flex items-center justify-center transition-transform duration-200 cursor-pointer">
+                <img src="assets/anyadirplaylist.png" alt="anadir" (click)="toggleBox('album')" class="mt-2 w-full h-full transition-transform duration-200">
               </div>
-          </div>
-      </div>
-  
-   <!-- bloc anadir lista-->
-  <div *ngIf="isOpen" #popup  class="   t-2 h-max-100 max-w-xs w-auto  p-4 bg-[var(--graybackground)] opacity-100 rounded-lg">
-    <div class="max-h-30 overflow-y-auto pr-1 w-full ">
-    <div *ngFor="let choice of choices" class="flex items-center gap-2">
 
-      <input
-          type="checkbox"
-          [(ngModel)]="choice.selected"
-          class="w-5 h-5 cursor-pointer"
-          [ngStyle]="{ 'accent-color': choice.selected ? dominantColor : 'white' }"
-          (change)="choice.name === 'Crear nueva lista' ? toggleNewListInput(choice) : null"
-        />
-      <label class="text-white cursor-pointer">{{ choice.name }}</label>
-    </div>
-    </div>
-
-    <div *ngIf="showNewListInput" class="mt-2">
-      <input 
-        type="text" 
-        [(ngModel)]="newListName" 
-        placeholder=" nombre nueva lista" 
-        class="w-full p-2 rounded text-white focus:ring-white-500 focus:outline-none focus:ring-2"/>
-    </div>
-
-
-
-
-    <!-- Bouton de validation -->
-    <button
-      (click)="validateSelection()"
-      class="mt-2 w-full bg-white text-black hover:bg-zinc-600 py-1 rounded transition duration-300"
-    >
-      Valider
-    </button>
-  </div>
-</div>
-
-
-  
-  <div class="m-1">  
-    <div class = "relative">        
-  <!-- song list -->
-  <div class="grid grid-cols-41 gap-4 text-left text-white mt-20">
-      <div class=" col-span-12 ">Título</div>
-      <div class=" col-span-8 ">Reproducciones</div>
-      <div class=" col-span-8">Tu valoración</div>
-      <div class=" col-span-8">Valoración Media</div>
-      <div class=" col-span-2">Duracion</div>
-  </div>
-  <hr class="border-t-2 border-white my-2 ">  
-      <div *ngFor="let song of songs; trackBy: trackByFn" class="group grid grid-cols-41 gap-4 text-white items-center hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101" (dblclick)="addSongsToQueue(song)">
-          <div class="flex m-2 ml-0 col-span-12 "> 
-              <div class="relative w-[44px] h-[44px] mr-1 min-w-[44px]" (click)="addSongsToQueue(song)">                
-                  <!-- Capa oscura con icono de Play -->
-                  <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-[10px]">
-                      <img src="assets/play.png" alt="Play"
-                          class="w-6 h-6 cursor-pointer">
+              <!-- Popup (posicionado absolutamente respecto al contenedor padre) -->
+              <div *ngIf="isOpen" #popup  
+                  class="border-1 border-[var(--sponge)] absolute left-full top-0 ml-2 h-max max-w-lg w-80 p-4 bg-[var(--graybackground)] opacity-100 rounded-lg z-50 shadow-lg">
+                <div class="max-h-50 overflow-y-auto pr-1 w-full">
+                  <div *ngFor="let choice of choices" class="flex items-center gap-2">
+                    <input
+                        type="checkbox"
+                        [(ngModel)]="choice.selected"
+                        class="w-5 h-5 cursor-pointer"
+                        [ngStyle]="{ 'accent-color': choice.selected ? 'var(--sponge)' : 'white' }"
+                        (change)="choice.name === 'Crear nueva lista' ? toggleNewListInput(choice) : null"
+                      />
+                    <label class="text-white cursor-pointer">{{ choice.name }}</label>
                   </div>
-              </div>     
-              <div class="flex flex-col min-w-0">
-                  <p class="font-montserrat font-bold text-lg text-white">
-                      {{ song.titulo}}
-                  </p>
-                  <div class="flex flex-row w-full overflow-hidden whitespace-nowrap ">
-                      <p class="text-white text-sm hover:underline min-w-fill max-w-full " [routerLink]="['/inicio/artista/', encodeNombreArtista(song.nombre_artista)]">{{song.nombre_artista}}</p>
-                      <ng-container *ngIf="song.artistas_feat != null">
-                        <ng-container *ngFor="let ft of getArtistasFeat(song); trackByFn">
-                          <p class="text-white text-sm inline-block min-w-max">,&nbsp;</p>
-                          <p [routerLink]="['/inicio/artista/', encodeNombreArtista(ft)]" 
-                            class="text-white text-sm hover:underline inline-block min-w-max">
-                            {{ ft }}
-                          </p>
-                        </ng-container>
+                </div>
+
+                <div *ngIf="showNewListInput" class="mt-2">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="newListName" 
+                    placeholder=" Nombre" 
+                    class="w-full p-2 rounded text-white focus:ring-white-500 focus:outline-none focus:ring-2"/>
+                </div>
+
+                <button
+                  (click)="validateSelection()"
+                  class="mt-2 w-full bg-white text-black hover:bg-zinc-600 py-1 rounded transition duration-300"
+                >
+                  Añadir
+                </button>
+              </div>
+        </div>
+      </div>
+    </div>  
+  </div>
+
+  <div class = "relative">        
+    <!-- song list -->
+    <div class="grid grid-cols-43 text-left text-white mt-10">
+        <div class=" col-span-12">Título</div>
+        <div class=" col-span-8 ">Reproducciones</div>
+        <div class=" col-span-8">Tu valoración</div>
+        <div class=" col-span-8">Valoración Media</div>
+        <div class=" col-span-2">Duracion</div>
+        <div class=" col-span-2"></div>
+    </div>
+    <hr class="border-t-2 border-white my-2 ">  
+    <div *ngFor="let song of songs; trackBy: trackByFn" class="group grid grid-cols-43  text-white items-center hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101" (dblclick)="addSongsToQueue(song)">
+        <div class="flex m-2  col-span-12 "> 
+            <div class="relative w-[44px] h-[44px] mr-1 min-w-[44px]" (click)="addSongsToQueue(song)">                
+                <!-- Capa oscura con icono de Play -->
+                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-[10px]">
+                    <img src="assets/play.png" alt="Play"
+                        class="w-6 h-6 cursor-pointer">
+                </div>
+            </div>     
+            <div class="flex flex-col min-w-0">
+                <p class="font-montserrat font-bold text-lg text-white">
+                    {{ song.titulo}}
+                </p>
+                <div class="flex flex-row w-full overflow-hidden whitespace-nowrap ">
+                    <p class="text-white text-sm hover:underline min-w-fill max-w-full " [routerLink]="['/inicio/artista/', encodeNombreArtista(song.nombre_artista)]">{{song.nombre_artista}}</p>
+                    <ng-container *ngIf="song.artistas_feat != null">
+                      <ng-container *ngFor="let ft of getArtistasFeat(song); trackByFn">
+                        <p class="text-white text-sm inline-block min-w-max">,&nbsp;</p>
+                        <p [routerLink]="['/inicio/artista/', encodeNombreArtista(ft)]" 
+                          class="text-white text-sm hover:underline inline-block min-w-max">
+                          {{ ft }}
+                        </p>
                       </ng-container>
-                    </div>
-              </div> 
+                    </ng-container>
+                  </div>
+            </div> 
+        </div>
+        <div class="col-span-8">{{ song.n_repros | number:'1.0-0':'es-ES' }}</div>
+        <div class="col-span-8 flex"  >
+            <img *ngFor="let star of generateStars(song.tu_valoration);trackBy: trackByFn" [src]="star" alt="star" class="w-5 h-auto flex-col"/>
+          <script src="script.js"></script>
+        </div> 
+        <div class="col-span-8 flex"  >
+            <!-- change condition to agree with the database-->
+            <img *ngFor="let star of generateStars(song.valoration_media);trackBy: trackByFn" [src]="star" alt="star" class="w-5 h-auto flex-col"/>
+          <script src="script.js"></script>
+        </div> 
+        <div class="col-span-2 flex">{{ formatDurationSong(song.duracion) }}</div>
+        <div class="flex w-42 ml-10 items-center col-span-2"> 
+          <div class="relative">
+            <div class="p-2 rounded-full flex items-center justify-center cursor-pointer">
+              <img
+                src="assets/anyadirplaylist.png"
+                alt="anadir"
+                (click)="toggleBox('cancion', song)"
+                
+                class="h-[17px] w-auto object-contain z-10 cursor-pointer"
+              >
+            </div>
+
+            <!-- Popup solo si el ID coincide -->
+            <div *ngIf="openedCancionId === song.id_cancion" #popup2
+                class="h-max-70 w-80 border-1 border-[var(--sponge)] absolute right-10 bottom-0 ml-2 z-50  max-w-xs p-4 bg-[var(--graybackground)] opacity-100 rounded-lg shadow-lg">
+              <div class="overflow-y-auto pr-1 ">
+                <div *ngFor="let choice of choices" class="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="choice.selected"
+                    class="w-5 h-5 cursor-pointer"
+                    [ngStyle]="{ 'accent-color': choice.selected ? 'var(--sponge)' : 'white' }"
+                    (change)="choice.name === 'Crear nueva lista' ? toggleNewListInput(choice) : null"
+                  />
+                  <label class="text-white cursor-pointer">{{ choice.name }}</label>
+                </div>
+              </div>
+
+              <div *ngIf="showNewListInput" class="mt-2">
+                <input 
+                  type="text" 
+                  [(ngModel)]="newListName" 
+                  placeholder=" Nombre" 
+                  class="w-full p-2 rounded text-white focus:ring-white-500 focus:outline-none focus:ring-2"/>
+              </div>
+
+              <button
+                (click)="validateSelection_cancion(song)"
+                class="mt-2 w-full bg-white text-black hover:bg-zinc-600 py-1 rounded transition duration-300"
+              >
+                Añadir
+              </button>
+            </div>
           </div>
-          <div class="col-span-8">{{ song.n_repros | number:'1.0-0':'es-ES' }}</div>
-          <div class="col-span-8 flex"  >
-              <img *ngFor="let star of generateStars(song.tu_valoration);trackBy: trackByFn" [src]="star" alt="star" class="w-5 h-auto flex-col"/>
-           <script src="script.js"></script>
-          </div> 
-          <div class="col-span-8 flex"  >
-              <!-- change condition to agree with the database-->
-              <img *ngFor="let star of generateStars(song.valoration_media);trackBy: trackByFn" [src]="star" alt="star" class="w-5 h-auto flex-col"/>
-           <script src="script.js"></script>
-          </div> 
-          <div class="col-span-2 flex">{{ song.duracion }}</div>
           
-          <div class="flex items-center col-span-3 gap-1">
-            
-            <div class="relative p-2 rounded-full flex items-center justify-center
-                        before:absolute before:inset-0
-                        before:bg-gray-300 before:rounded-full before:opacity-50
-                        before:scale-0 hover:before:scale-100
-                        before:transition-transform before:duration-300
-                        before:transform before:origin-center">
-              <img src="assets\anyadirplaylist.png" alt="anadir" (click)="toggleBox('cancion', song)" class="h-[17px] w-auto object-contain z-10 cursor-pointer">
+          <div class="relative p-2 rounded-full flex items-center justify-center cursor-pointer">
+            <img src="assets/heart.png" alt="like" (click)="like(song.id_cancion)" class="cursor-pointer h-[17px] w-auto object-contain z-10">
+          </div>
+
+          <div class="relative">
+            <div class="p-2 rounded-full flex items-center justify-center w-[33px] h-[33px] cursor-pointer">
+              <p (click)="toggleBox('option', song)"
+                class="font-montserrat font-bold text-xl text-white cursor-pointer z-10 leading-none mt-[-5px]">...</p>
             </div>
-             
-            
-            <div class="relative p-2 rounded-full flex items-center justify-center
-                        before:absolute before:inset-0
-                        before:bg-gray-300 before:rounded-full before:opacity-50
-                        before:scale-0 hover:before:scale-100
-                        before:transition-transform before:duration-300
-                        before:transform before:origin-center">
-              <img src="assets\heart.png" alt="like" (click)="like(song.id_cancion)" class="cursor-pointer h-[17px] w-auto object-contain z-10">
-            </div>
-           
-            
-            <div class="relative p-2 rounded-full flex items-center justify-center w-[33px] h-[33px]
-                        before:absolute before:inset-0
-                        before:bg-gray-300 before:rounded-full before:opacity-50
-                        before:scale-0 hover:before:scale-100
-                        before:transition-transform before:duration-300
-                        before:transform before:origin-center">
-              <p (click)="option(song)" class="font-montserrat font-bold text-xl text-white cursor-pointer z-10 leading-none mt-[-5px]">...</p>
+
+            <div *ngIf="openedOptionId === song.id_cancion" #popup3
+                class="border-1 border-[var(--sponge)] absolute right-10 w-50 bottom-0 ml-2 z-50 h-max max-w-xs bg-[var(--graybackground)] opacity-100 rounded-lg shadow-lg">
+              <button class="flex flex-row text-left px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
+                (click)="anadirCola(song)">
+                <img class="w-5 h-5 mr-2" src="assets/queue.png">Añadir a la cola</button>
             </div>
           </div>
-          </div>
-      
-            <hr class="border-t-2 border-white my-4">  
-   
-      
-    <div *ngIf="isOpen_cancion" #popup2   class=" fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50  t-2 h-max-100 max-w-xs w-auto  p-4 bg-[var(--graybackground)] opacity-100 rounded-lg">
-        <div class="max-h-30 overflow-y-auto pr-1 w-full ">
-        <div *ngFor="let choice of choices" class="flex items-center gap-2">
-  
-          <input
-              type="checkbox"
-              [(ngModel)]="choice.selected"
-              class="w-5 h-5 cursor-pointer"
-              [ngStyle]="{ 'accent-color': choice.selected ? dominantColor : 'white' }"
-              (change)="choice.name === 'Crear nueva lista' ? toggleNewListInput(choice) : null"
-            />
-          <label class="text-white cursor-pointer">{{ choice.name }}</label>
         </div>
-        </div>
-  
-        <div *ngIf="showNewListInput" class="mt-2">
-          <input 
-            type="text" 
-            [(ngModel)]="newListName" 
-            placeholder=" nombre nueva lista" 
-            class="w-full p-2 rounded text-white focus:ring-white-500 focus:outline-none focus:ring-2"/>
-        </div>
-        <button
-      (click)="validateSelection_cancion()"
-      class="mt-2 w-full bg-white text-black hover:bg-zinc-600 py-1 rounded transition duration-300"
-    >
-      Valider
-    </button>
-    </div>
-
-    <div *ngIf="isOpen_option" #popup3   class=" fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50  t-2 h-max-100 max-w-xs w-auto  p-4 bg-[var(--graybackground)] opacity-100 rounded-lg">
-      <p class="text-white hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101 p-2"(click)="anadirCola()">anadir a la cola </p>
-    </div>
+      </div>
+      <hr class="border-t-2 border-white my-4">  
+    </div> 
   </div> 
-  </div> 
-      
-   
-  <p class="font-montserrat  text-l text-white ml-4 mb-5">{{fecha}}</p>  
-
-
-
-</div>`,
+  <p class="font-montserrat  text-l text-white ml-4 mb-5">{{fecha}}</p>   
+`,
 })
 
 export class AlbumComponent implements OnInit, AfterViewInit {
-  isPlaying = false;
   isPlayer = false;
   id_album: number = 0;
   album: any = null;
@@ -258,10 +236,7 @@ export class AlbumComponent implements OnInit, AfterViewInit {
   nombre_usuario:string = '';
   showPlaylistPopup = false;
   currentSong: any = null;
-   
-  //to anadir
-
-  
+ 
  
   constructor(
     private route: ActivatedRoute,
@@ -294,10 +269,7 @@ export class AlbumComponent implements OnInit, AfterViewInit {
     // Abonnement à l'état de lecture du player
     this.playerService.playState$.subscribe(isPlaying => {
       console.log("Événement playState$ reçu:", isPlaying);
-      
-      // Mise à jour directe de isPlaying
-      this.isPlaying = isPlaying;
-      
+     
       // Forcer la mise à jour de l'interface
       this.cdRef.detectChanges();
     });
@@ -500,10 +472,6 @@ export class AlbumComponent implements OnInit, AfterViewInit {
   random() { 
     console.log("i'm going to suffle the queue")
     this.nombre_usuario = this.usuarioService.getUsuario().getUsuario;
-
-    if (!this.isPlaying){
-      this.playAlbum()
-    }
   
     if (!this.nombre_usuario) {
       console.error("Error: Nombre de usuario no definido.");
@@ -549,50 +517,15 @@ export class AlbumComponent implements OnInit, AfterViewInit {
       }
     });
   }
-  playAlbum() {
-    console.log("playAlbum appelé");
-     
-    if (this.isPlaying){
-      console.log("mettre en pause");
-      this.playerService.togglePlay();
-       
-    }
-    else {
-      console.log("Démarrage de l'album");
-       
-      // Si on n'est pas en lecture, mettre isPlaying à true immédiatement pour feedback visuel
-      if (!this.isPlaying) {
-        this.isPlaying = true;
-        this.cdRef.detectChanges();
-      }
-       
-      const usuario = this.usuarioService.getUsuario()?.nombre_usuario;
-       
-      // Vider la queue et ajouter l'album
-      this.queueService.clearQueue(usuario).subscribe(() => {
-        // Ajouter la première chanson
-        this.queueService.addToQueue(usuario, this.songs[0].id_cancion).subscribe(() => {
-          // Démarrer la lecture
-          this.playerService.loadSongByPosition(0);
-           
-          // Ajouter les autres chansons
-          for (let i = 1; i < this.songs.length; i++) {
-            this.queueService.addToQueue(usuario, this.songs[i].id_cancion).subscribe();
-          }
-        });
-      });
-    }
-  }
-  
   isOpen = false;
-  isOpen_option = false;
   
   @ViewChild('popup') popupRef!: ElementRef;
   @ViewChild('popup2') popupRef2!: ElementRef;
   @ViewChild('popup3') popupRef3!: ElementRef;
   
   
-  isOpen_cancion = false;
+  openedCancionId: number | null = null;
+  openedOptionId: number | null = null;
 
   choices:any = [];
   playlists: any = [];
@@ -600,56 +533,23 @@ export class AlbumComponent implements OnInit, AfterViewInit {
   showNewListInput = false; 
   newListName = "";
   
-   color = "#A200F4";
-   typo = "canciones";
-   songToAdd:any = null;
+  color = "#A200F4";
+  type = "canciones";
+  songToAdd:any = null;
+  
 
 
-   @HostListener('document:mousedown', ['$event'])
+  @HostListener('document:mousedown', ['$event'])
   handleClickOutside(event: Event) {
     if (this.isOpen && this.popupRef && !this.popupRef.nativeElement.contains(event.target)) {
       this.isOpen = false;
     }
-    if (this.isOpen_cancion && this.popupRef2 && !this.popupRef2.nativeElement.contains(event.target)) {
-      this.isOpen_cancion = false;
+    if (this.openedCancionId && this.popupRef2 && !this.popupRef2.nativeElement.contains(event.target)) {
+      this.openedCancionId = null; // Cerrar el popup de esa canción
     }
-    if (this.isOpen_option && this.popupRef3 && !this.popupRef3.nativeElement.contains(event.target)) {
-      this.isOpen_option = false;
+    if (this.openedOptionId && this.popupRef3 && !this.popupRef3.nativeElement.contains(event.target)) {
+      this.openedOptionId = null; // Cerrar el popup de opciones
     }
-  }
-
-  openPopup(event?: MouseEvent) {
-    if (!event) return;
-    this.isOpen = true;
-    
-  }
-
-  openPopup2(event: MouseEvent,  song?:any): void {
-   
-    this.isOpen_cancion = true;
-    this.toggleBox('cancion',song);
-
-    
-  }
-
-  openPopup3(event: MouseEvent,  song?:any): void {
-   
-    this.isOpen_option = true;
-    
-
-    
-  }
-
-  closePopup() {
-    this.isOpen = false;
-  }
-
-  closePopup2() {
-    this.isOpen_cancion = false;
-  }
-
-  closePopup3() {
-    this.isOpen_option = false;
   }
 
   toggleNewListInput(choice: any) {
@@ -663,23 +563,21 @@ export class AlbumComponent implements OnInit, AfterViewInit {
 
  option(song: any){
   console.log("option open")
-  this.isOpen_option = !this.isOpen_option;
+  this.openedOptionId = song.id_cancion;
   this.songToAdd = song;
  }
     
-
-
-  
-
-  toggleBox(typo:string, song?:any) {
-    if (typo == "album"){
+  toggleBox(type:string, song?:any) {
+    if (type == "album"){
       this.isOpen = !this.isOpen;
     }
-    if (typo == "cancion"){
-      this.isOpen_cancion = !this.isOpen_cancion;
-      this.songToAdd = song;
+    if (type === 'cancion') {
+      this.openedCancionId = this.openedCancionId === song.id_cancion ? null : song.id_cancion;
+      this.songToAdd = song.id_cancion; // 👈 Aquí asignamos la canción actual
+    } else if (type === 'option') {
+      this.openedOptionId = this.openedOptionId === song.id_cancion ? null : song.id_cancion;
     }
-    
+
     this.nombre_usuario = this.usuarioService.getUsuario().nombre_usuario;
     
     if (!this.nombre_usuario) {
@@ -712,80 +610,17 @@ export class AlbumComponent implements OnInit, AfterViewInit {
 
 
 
-  validateSelection() {
-    this.isOpen = false
-    const selectedPlaylists = this.choices
-    .filter((choice: PlaylistChoice) => choice.selected && choice.name !== "Crear nueva lista")
-    .map((choice: PlaylistChoice) => ({
-      name: choice.name,
-      id: choice.id
-    }));
+    validateSelection() {
+      this.isOpen = false
+      const selectedPlaylists = this.choices
+      .filter((choice: PlaylistChoice) => choice.selected && choice.name !== "Crear nueva lista")
+      .map((choice: PlaylistChoice) => ({
+        name: choice.name,
+        id: choice.id
+      }));
 
-
-    if (this.showNewListInput && this.newListName.trim() !== "") {
-   
-    
-
-      this.authService.createPlaylist(this.newListName, this.nombre_usuario, this.color, this.typo).subscribe({
-        
-          next: (response) => {
-            console.log("Nueva lista creada:", response);
-            
-            this.authService.getUserPlaylists(this.usuarioService.getUsuario().nombre_usuario).subscribe(
-              (response: any) => {
-                this.playlists = response;
-                console.log("reponse", response);
-                
-                // Chercher la playlist avec le nom correspondant
-                let newPlaylistId;
-                for (let playlist of this.playlists) {
-                  if (this.newListName === playlist.nombre) {
-                    console.log("id_nueva_lista", playlist.id_lista);
-                    newPlaylistId = playlist.id_lista;
-                    break; // Sortir de la boucle une fois trouvé
-                  }
-                }
-                if (newPlaylistId) {
-                  // Ajouter la playlist à selectedPlaylists
-                  selectedPlaylists.push({
-                    name: this.newListName,
-                    id: newPlaylistId
-                  });
-         
-              }  
-      })},
-        error: (err) => console.error("Error lista no creada:", err)
-      });
-    }
-  
-  console.log("Playlists selected :", selectedPlaylists);
-  console.log("usuario :", this.nombre_usuario);
-  for(let selectedPlaylist of selectedPlaylists){
-    for (let cancion of this.songs){
-      
-      console.log("cancion:", cancion);
-      
-       this.addSongToPlaylist(cancion, selectedPlaylist);
-
-  }
-
-}
-  }
-
-  validateSelection_cancion() {
-    this.isOpen_cancion = false
-    const selectedPlaylists = this.choices
-    .filter((choice: PlaylistChoice) => choice.selected && choice.name !== "Crear nueva lista")
-    .map((choice: PlaylistChoice) => ({
-      name: choice.name,
-      id: choice.id
-    }));
-  if (this.showNewListInput && this.newListName.trim() !== "") {
-   
-    
-
-    this.authService.createPlaylist(this.newListName, this.nombre_usuario, this.color, this.typo).subscribe({
-      
+      if (this.showNewListInput && this.newListName.trim() !== "") {
+      this.authService.createPlaylist(this.newListName, this.nombre_usuario, this.color, this.type).subscribe({ 
         next: (response) => {
           console.log("Nueva lista creada:", response);
           
@@ -809,21 +644,78 @@ export class AlbumComponent implements OnInit, AfterViewInit {
                   name: this.newListName,
                   id: newPlaylistId
                 });
-       
-            }  
-    })},
+                console.log("Playlists selected :", selectedPlaylists);
+                console.log("usuario :", this.nombre_usuario);
+                
+                for(let selectedPlaylist of selectedPlaylists){
+                  for (let cancion of this.songs){    
+                    console.log("cancion:", cancion);                   
+                    this.addSongToPlaylist(cancion, selectedPlaylist);
+                  }
+                }         
+              }  
+            })
+        },
+        error: (err) => console.error("Error lista no creada:", err)
+        });
+      }
+      if (!(this.showNewListInput && this.newListName.trim() !== "")) {
+        console.log("Playlists selected :", selectedPlaylists);
+        console.log("usuario :", this.nombre_usuario);
+        for(let selectedPlaylist of selectedPlaylists){
+          for (let cancion of this.songs){
+            console.log("cancion:", cancion);
+            this.addSongToPlaylist(cancion, selectedPlaylist);
+          }
+        }
+      }
+    }
+
+  validateSelection_cancion(song: any) {
+    const selectedPlaylists = this.choices
+      .filter((choice: PlaylistChoice) => choice.selected && choice.name !== "Crear nueva lista")
+      .map((choice: PlaylistChoice) => ({
+        name: choice.name,
+        id: choice.id
+      }));
+  
+    if (this.showNewListInput && this.newListName.trim() !== "") {
+      this.authService.createPlaylist(this.newListName, this.nombre_usuario, this.color, this.type).subscribe({
+        next: (response) => {
+          console.log("Nueva lista creada:", response);
+          this.authService.getUserPlaylists(this.usuarioService.getUsuario().nombre_usuario).subscribe(
+            (response: any) => {
+              this.playlists = response;
+              console.log("response", response);
+              let newPlaylistId;
+              for (let playlist of this.playlists) {
+                if (this.newListName === playlist.nombre) {
+                  console.log("id_nueva_lista", playlist.id_lista);
+                  newPlaylistId = playlist.id_lista;
+                  break; // Salir del bucle una vez encontrado
+                }
+              }
+              if (newPlaylistId) {
+                selectedPlaylists.push({
+                  name: this.newListName,
+                  id: newPlaylistId
+                });
+              }  
+            });
+        },
         error: (err) => console.error("Error lista no creada:", err)
       });
     }
   
-  console.log("Playlists selected :", selectedPlaylists);
-  console.log("usuario :", this.nombre_usuario);
-  for(let selectedPlaylist of selectedPlaylists){
-      console.log("cancion:", this.songToAdd);
+    console.log("Playlists selected :", selectedPlaylists);
+    console.log("usuario :", this.nombre_usuario);
+    for (let selectedPlaylist of selectedPlaylists) {
+      console.log("cancion:", song);
       console.log("selectedPlaylist:", selectedPlaylist);
-       this.addSongToPlaylist(this.songToAdd, selectedPlaylist);
+      this.addSongToPlaylist(song, selectedPlaylist);
+    }
   }
-  }
+  
 
   
 
@@ -862,86 +754,42 @@ export class AlbumComponent implements OnInit, AfterViewInit {
     }
 
 
-addSongToPlaylist(song:any,playlist: any) {
-  console.log("song.id_cm:", song.id_cancion);
-  console.log(" playlist.id_lista", playlist.id);
-  this.authService.addSongToPlaylist(song.id_cancion, playlist.id).subscribe({
-    next: () => {  // No necesitamos la respuesta si no la vamos a usar
-      // Mostrar alerta con el mensaje de éxito
-      alert('cancion anadida en la playlist');
+  addSongToPlaylist(song:any, playlist: any) {
+    console.log("song.id_cm:", song.id_cancion);
+    console.log(" playlist.id_lista", playlist.id);
+    this.authService.addSongToPlaylist(song.id_cancion, playlist.id).subscribe({
+      next: () => {  // No necesitamos la respuesta si no la vamos a usar
+        
       
-     
-    },
-    error: (error) => {
-      // Mostrar alerta con el mensaje de error
-      alert('Error al añadir la canción a la playlist');
-      console.error('Error al añadir la canción:', error);
-    }
-  });
-}
-
-togglePlaylistPopup(){
-  this.isOpen_cancion = !this.isOpen_cancion;
-  this.nombre_usuario = this.usuarioService.getUsuario();
-  
-  if (!this.nombre_usuario) {
-    console.warn("Usuario no conectado. Error recuperación listas.");
-    return;
+      },
+      error: (error) => {
+        // Mostrar alerta con el mensaje de error
+        alert('Error al añadir la canción a la playlist');
+        console.error('Error al añadir la canción:', error);
+      }
+    });
   }
 
-  this.authService.getUserPlaylists(this.usuarioService.getUsuario().nombre_usuario).subscribe(
-    (response:any) => {
-      this.playlists = response;
-      console.log("reponse", response);
-      
-      // Transformer playlists en choices avec l'attribut selected
-      this.choices = this.playlists.map((playlist: Playlist): PlaylistChoice => ({
-        name: playlist.nombre,
-        id: playlist.id_lista,
-        selected: false  // Tous initialisés à false
-      }));
-      this.choices.push({
-        name: "Crear nueva lista",
-        selected: false
-      });
-      console.log("choix", this.choices);
-    },
-    (error) => {
-      console.error('Error al obtener las playlists:', error);
-    }
-  );
-}
-
-anadirCola(){
-  console.log("anadir a la cola");
-  this.nombre_usuario = this.usuarioService.getUsuario().nombre_usuario;
-  
-  if (!this.nombre_usuario) {
-    console.warn("Usuario no conectado. Error recuperación listas.");
-    return;
-  }
-  this.queueService.addToQueue(this.nombre_usuario,this.songToAdd.id_cancion ).subscribe({
-    next: () => {  
+  anadirCola(song: any) {
+    console.log("anadir a la cola");
+    this.nombre_usuario = this.usuarioService.getUsuario().nombre_usuario;
     
-      alert('cancion anadida en la queue');
-      
-     
-    },
-    error: (error) => {
-     
-      alert('Error al añadir la canción a la playlist');
-      console.error('Error al añadir la canción:', error);
+    if (!this.nombre_usuario) {
+      console.warn("Usuario no conectado. Error recuperación listas.");
+      return;
     }
-  });
+    this.queueService.addToQueue(this.nombre_usuario,song.id_cancion).subscribe({
+      next: () => {  
+        this.playerService.getQueue(this.nombre_usuario);
+        alert('Cancion anadida en la cola');
+      
+      },
+      error: (error) => {
+        alert('Error al añadir la canción a la playlist');
+        console.error('Error al añadir la canción:', error);
+      }
+    });
 
-  this.isOpen_option = !this.isOpen_option;
+    this.openedOptionId = null;
+  }
 }
-
-}
-
-
-
-
-
-
-
