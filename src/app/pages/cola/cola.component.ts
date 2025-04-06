@@ -83,7 +83,7 @@ export class ColaComponent {
         this.contenido = currentQueue.cola;
         console.log('Cola actual:', this.contenido);
       } else {
-        this.contenido = null;
+        this.contenido = [];
       }
     });
   }

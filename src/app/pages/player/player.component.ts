@@ -232,10 +232,22 @@ export class PlayerComponent implements OnInit {
         this.cantantes = [song.autor, ...(song.artistas_featuring ? song.artistas_featuring.split(', ') : [])];
         this.loadAndPlaySong();
       } else {
-        this.currentSong = null;
-        this.loadAndPlaySong();
+        this.stopAndResetAudio();
       } 
     });
+  }
+
+  stopAndResetAudio() {
+    if (this.audioPlayer?.nativeElement) {
+      const audio = this.audioPlayer.nativeElement;
+      audio.pause(); // Detiene el audio
+      audio.src = ''; // Anula la fuente
+      this.isPlaying = false;
+      this.currentTime = 0;
+      this.duration = 0;
+      this.currentSong = null;
+      this.cantantes = [];
+    }
   }
 
   /** 🔹 Carga una canción específica de la cola */

@@ -46,7 +46,7 @@ import { forkJoin } from 'rxjs';
                 <img src="assets/heart.png" alt="Corazón" 
                     class="absolute top-[25%] left-[25%] w-22">
               </div>
-              <div class="text-white pt-3 font-semibold">{{cantante.nombre}}</div>
+              <div class="w-[170px] truncate overflow-hidden whitespace-nowrap text-white pt-3 font-semibold">{{cantante.nombre}}</div>
             </div>
           }
         } @else {
@@ -239,7 +239,7 @@ import { forkJoin } from 'rxjs';
                   <img src="assets/heart.png" alt="Corazón" 
                       class="absolute top-[25%] left-[25%] w-22">
                 </div>
-                <div class="text-white pt-3 font-semibold">{{cantante.nombre}}</div>
+                <div class="w-[170px] truncate overflow-hidden whitespace-nowrap text-white pt-3 font-semibold">{{cantante.nombre}}</div>
               </div>
             }
           } @else {
@@ -295,14 +295,14 @@ import { forkJoin } from 'rxjs';
         <div class="flex gap-[42px] pt-2 overflow-visible whitespace-nowrap flex-nowrap">
         @if (podcastData) {
           @for (podcaster of podcastData.listas_podcasters_info.slice(0, getVisibleLarge10()); track podcaster) {
-            <div class="flex flex-col overflow-visible transition-transform duration-300 hover:scale-110 cursor-pointer" [routerLink]="['/inicio/lista_reproduccion/', (podcaster.id_lista)]">
-              <div class="relative w-[170px] h-[170px] min-w-[170px] min-h-[170px]">
+            <div class="flex flex-col text-ellipsis transition-transform duration-300 hover:scale-110 cursor-pointer" [routerLink]="['/inicio/lista_reproduccion/', (podcaster.id_lista)]">
+              <div class="relative w-[170px] h-[170px] min-w-[170px] min-h-[170px] ">
                   <img src="{{podcaster.link_imagen}}" alt="Imagen del artista" 
                       class="w-[170px] h-[170px] rounded-[40px] object-cover opacity-70">
                   <img src="assets/heart.png" alt="Corazón" 
                       class="absolute top-[25%] left-[25%] w-22">
                 </div>
-              <div class="text-white pt-3 font-semibold">{{podcaster.nombre}}</div>
+              <div class="w-[170px] truncate overflow-hidden whitespace-nowrap text-white pt-3 font-semibold">{{podcaster.nombre}}</div>
             </div>
           }
         } @else {
@@ -322,7 +322,7 @@ import { forkJoin } from 'rxjs';
               <div class="w-[170px] h-[170px] overflow-hidden rounded-[20px]">
                 <img src="{{podcast.link_imagen}}" class="w-full h-full object-cover">
               </div>
-              <div class="text-white pt-2 font-semibold">{{podcast.nombre}}</div>
+              <div class="w-[170px] truncate overflow-hidden whitespace-nowrap text-white pt-2 font-semibold">{{podcast.nombre}}</div>
             </div>
           }
         } @else {

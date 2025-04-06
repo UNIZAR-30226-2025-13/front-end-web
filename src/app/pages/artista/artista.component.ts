@@ -7,7 +7,6 @@ import { RouterModule, Router } from '@angular/router'
 import localeEs from '@angular/common/locales/es';
 import { PlayerService } from '../../services/player.service';
 import { UsuarioService } from '../../services/usuario.service';
-
 registerLocaleData(localeEs, 'es-ES');
 
 // @ts-ignore
@@ -54,11 +53,11 @@ import { QueueService } from '../../services/queue.service';
               Las más reproducidas
           </h2>
           <div>
-            <div *ngFor="let song of this.max_rep" class="grid grid-cols-12 gap-4 items-center hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101 p-2" (dblclick)="addSongToQueue(song)">
+            <div *ngFor="let song of this.max_rep" class="grid grid-cols-12 gap-4 items-center hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101 p-2" (dblclick)="addSongToQueue(song, $event)">
               
               <!-- Contenedor de la imagen, título y artista -->
               <div class="col-span-8 flex items-center">
-                <div class="relative w-[44px] h-[44px] group mr-5 min-w-[44px]" (click)="addSongToQueue(song)">
+                <div class="relative w-[44px] h-[44px] group mr-5 min-w-[44px]" (click)="addSongToQueue(song, $event)">
                     <!-- Imagen de la canción -->
                     <img [src]="song.link_imagen" alt="Icono de la canción"
                         class="w-full h-full rounded-[10px] object-cover flex-shrink-0">
@@ -156,7 +155,7 @@ import { QueueService } from '../../services/queue.service';
         class="h-60 flex overflow-x-auto whitespace-nowrap scrollbar-hide space-x-4 pb-4">
         
           <div *ngFor="let cancion of this.artista.canciones" 
-              class="group flex flex-col items-center flex-none max-w-44 cursor-pointer">
+              class="group flex flex-col items-center flex-none max-w-44 cursor-pointer transition-transform duration-300 hover:scale-97"  [routerLink]="['/inicio/cancion/', encodeNombreArtista(cancion.id_cancion)]">
               
               <!-- Contenedor de la imagen con relative -->
               <div class="relative">
@@ -171,7 +170,7 @@ import { QueueService } from '../../services/queue.service';
                       class="hover:block none absolute bottom-4 right-4 h-11 w-11 bg-[var(--sponge)] p-1 rounded-full 
                       opacity-0 transform rotate-[-45deg] group-hover:opacity-100 group-hover:rotate-0
                       transition-all duration-300"
-                      (click)="addSongToQueue(cancion)">
+                      (click)="addSongToQueue(cancion, $event);">
               </div>
 
               <!-- Información de la canción -->
@@ -184,7 +183,7 @@ import { QueueService } from '../../services/queue.service';
           </div>
         </div>
       </div>
-      </div>
+    </div>
     } @else {
       <div class="bg-black pt-4 px-[34px] h-full">
         <div class="text-center py-20">
@@ -250,6 +249,7 @@ export class ArtistaComponent implements OnInit, AfterViewInit, OnDestroy {
                 imgElement.onload = () => this.extractColor(imgElement);
               }
             }
+            
             this.authService.isFollowerCreator(this.userService.getUsuario()?.nombre_usuario, this.artista.nombre_artista).subscribe({
               next: (response) => {
                 console.log('Respuesta de isFollowerCreator:', response);
@@ -403,8 +403,9 @@ export class ArtistaComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  addSongToQueue(selectedSong: any) {
+  addSongToQueue(selectedSong: any, event: Event) {
     const usuario = this.userService.getUsuario()?.nombre_usuario;
+    event.stopPropagation();
     console.log('Cancion seleccionada:', selectedSong);
     this.queueService.clearQueue(this.userService.getUsuario()?.nombre_usuario).subscribe(() => {
     });

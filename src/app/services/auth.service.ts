@@ -42,8 +42,8 @@ export class AuthService {
     return this.http.get<any[]>(`${this.apiUrl}/get-playlists?nombre_usuario=${nombre_usuario}`);
   }
 
-  getList(id_lista: string){
-    return this.http.get<any>(`${this.apiUrl}/get-list-data?id_lista=${id_lista}`);
+  getList(id_lista: string, nombre_usuario: string) {
+    return this.http.get<any>(`${this.apiUrl}/get-list-data?id_lista=${id_lista}&nombre_usuario=${nombre_usuario}`);
   }
 
   getFolder(id_carpeta: string){
@@ -216,4 +216,21 @@ export class AuthService {
     }
     return this.http.post<any>(`${this.apiUrl}/add-to-favourites`, fav);
   }
+
+  showSong(id_cancion: number) {
+    return this.http.get<any>(`${this.apiUrl}/song/show?id_cancion=${id_cancion}`);
+  }
+
+  getRate(id_cm: number, nombre_usuario: string) {
+    return this.http.get<any>(`${this.apiUrl}/get-rate?id_cm=${id_cm}&nombre_usuario=${nombre_usuario}`);
+  }
+
+  getAverageRate(id_cm: number) {
+    return this.http.get<any>(`${this.apiUrl}/get-average-rate?id_cm=${id_cm}`);
+  }
+
+  getPodcast(id_podcast: number, nombre_usuario: string) {
+    return this.http.get<any>(`${this.apiUrl}/get-podcast?id_podcast=${id_podcast}&nombre_usuario=${nombre_usuario}`);
+  }
+
 }

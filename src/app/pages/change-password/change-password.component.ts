@@ -93,6 +93,12 @@ export class ChangePasswordComponent {
       return;
     }
 
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordPattern.test(this.password)) {
+      window.alert('La contraseña debe tener al menos 8 caracteres, con mayúsculas, minúsculas, números y símbolos especiales.');
+      return;
+    }
+
     const userData = {
       nombre_usuario: this.username,
       token: this.token,

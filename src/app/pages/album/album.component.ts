@@ -5,7 +5,6 @@ import { CommonModule, registerLocaleData } from '@angular/common';
   selector: 'app-album',
   imports: [CommonModule],
   templateUrl: './album.component.html',
-  styleUrl: './album.component.css'
 })
 export class AlbumComponent {
 

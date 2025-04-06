@@ -202,13 +202,10 @@ import ColorThief from 'colorthief';
              </div>
              <div class="col-span-4"> {{cm.nombre_grupo}}</div>
              <div class="col-span-4 flex"  >
-             <ng-container *ngIf="cm.valoration_media === 0; else rated_media"> 
-                 <img src="assets/star_no_rate.png" alt="star" class="w-5 h-auto flex-col" />
-               </ng-container>
-             <ng-template #rated_media>
-             <img *ngFor="let star of generateStars(cm.valoration_media)" [src]="star" alt="star" class="w-5 h-auto flex-col"/>
+             <ng-container> 
+             <img *ngFor="let star of generateStars(cm.valoracion_del_usuario)" [src]="star" alt="star" class="w-5 h-auto flex-col"/>
              <script src="script.js"></script>
-               </ng-template>          
+              </ng-container>          
              </div> 
              <div class="col-span-4">{{ formatFecha(cm.fecha_pub) }}</div> 
              <div class="col-span-1">{{ formatDurationSong(cm.duracion) }}</div>
@@ -264,7 +261,7 @@ export class ListaReproducionesComponent implements OnInit {
   }
  
   getPlaylistData(id_lista: string) {
-    this.authService.getList(id_lista).subscribe({
+    this.authService.getList(id_lista, this.userService.getUsuario()?.nombre_usuario).subscribe({
       next: (data) => {
         if (data) {
           this.list = data;
@@ -379,10 +376,11 @@ export class ListaReproducionesComponent implements OnInit {
     })
   }
 
-  generateStars(rating: any): string[] {
+  generateStars(rating: string): string[] {
+    const r = parseFloat(rating);
     const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
+    const fullStars = Math.floor(r);
+    const hasHalfStar = r % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
   
     if (rating != null) {
