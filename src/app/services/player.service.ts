@@ -21,7 +21,10 @@ export class PlayerService {
   // Método para reproducir una canción dada
   playSong(song: any) {
     console.log(song);
-    this.currentSongSubject.next(song);  // Actualiza la canción actual
+      // Actualiza la canción actual
+    this.playStateSubject.next(song);
+    this._isPlaying = true;
+    this.playStateSubject.next(true);
   }
 
   // Método para cargar una canción de la cola por su posición
@@ -50,7 +53,9 @@ export class PlayerService {
     });
     
   }
-
+  getCurrentSongId(): number | null {
+    return this.currentSongSubject.getValue()?.id_cm || null;
+  }
   nextSong(loop: boolean) {
     if (loop) {
       this.loadSongByPosition(this.posicionActual);
@@ -78,4 +83,24 @@ export class PlayerService {
       this.posicionActual = 0; // Reinicia la posición actual
     });
   }
+
+  private _isPlaying = false;
+// Créer un BehaviorSubject pour l'état de lecture
+private playStateSubject = new BehaviorSubject<boolean>(false);
+public playState$ = this.playStateSubject.asObservable();
+
+
+
+// Méthode pour vérifier si la lecture est en cours
+isPlaying(): boolean {
+  return this._isPlaying;
+}
+
+// Méthode pour basculer entre lecture et pause
+togglePlay(): void {
+  this._isPlaying = !this._isPlaying;
+  this.playStateSubject.next(this._isPlaying);
+}
+
+
 }

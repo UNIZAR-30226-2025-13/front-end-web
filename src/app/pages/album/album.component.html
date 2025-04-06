@@ -1,117 +1,207 @@
 <div class="bg-black pt-4 px-[34px] min-h-screen">
-
     <!-- upper box -->
     <div class="flex bg-opacity-60 p-4 rounded-[40px] items-end" [ngStyle]="{'background-color': dominantColor}">
-        
-            <div class="flex-row  items-center justify-center">
-                <div class="flex flex-row items-center justify-center space-x-4"> <!-- flex-row pour aligner horizontalement -->
-                    
-                    <img src= {{album_icone}} class=" rounded-[20px] h-[200px] w-[200px] flex items-center justify-center p-4">
-                       
-                    
-                    
-                    <!-- lista information-->
-                    <div class="flex flex-col items-start pt-20">
-                        <p class="text-white">Álbum</p>
-                        <h1 class="font-montserrat font-bold text-4xl ml-[-2px] text-white">{{ album_name }}</h1>
-                        <p class="text-white">{{artista}} | {{ano}} | {{nb_cancione}} canciones | {{tiempo}}</p>
-                    </div>
+        <div class="flex-row  items-center justify-center">
+            <div class="flex flex-row items-center justify-center space-x-4"> 
+              
+                <img [src]="album_icone" id="albumImage" class="rounded-[40px] h-[200px] w-[200px] flex items-center justify-center">
+
+                <!-- lista information-->
+                <div class="flex flex-col items-start pt-20">
+                    <p class="text-white">Álbum</p>
+                    <h1 class="font-montserrat font-bold text-4xl ml-[-2px] text-white">{{ album_name }}</h1>
+                    <p class="text-white">{{artista}} | {{ano}} | {{nb_cancione}} canciones | {{tiempo}}</p>
                 </div>
-            <div class=" flex mt-4">
-                <img src="assets\play.png" alt="play" (click)="playSong(songs[0])" class=" h-[52px] w-[52px]">
-                <img src="assets\aleatorio.png" alt="aleatorio" (click)="random()" class=" h-[52px] w-[52px]">
-                <img src="assets\anyadirplaylist.png" alt="anadir" (click)="add()" class=" h-[52px] w-[52px]">
-                <p (click)="option()" class="font-montserrat font-bold text-4xl text-white h-[58px] w-[31px]">...</p> 
             </div>
-    </div>
-</div >
-    
-    
-    <div class="m-4">       
-    <!-- song list -->
-    <div class="grid grid-cols-20 gap-4 text-left text-white mt-20">
-    
-        <div class=" col-span-6 ">Título</div>
-        <div class=" col-span-4 ">Reproducciones</div>
-        <div class=" col-span-4">Tu valoración</div>
-        <div class=" col-span-4">valoración Media</div>
-        <div class=" col-span-1">Duracion</div>
-    </div>
-    <hr class="border-t-2 border-white my-4 ">  
-        <div *ngFor="let song of songs" class="grid grid-cols-20 gap-4  text-white items-center ">
-            <div class="flex m-4 ml-0 col-span-6 ">
+            <div class=" flex mt-4">
+              <div 
+                class="h-[52px] w-[52px] mt-2 flex items-center justify-center transition-transform duration-200 cursor-pointer"
+                [style.transform]="isPlaying ? 'rotate(45deg)' : 'rotate(0deg)'"
+                (click)="playAlbum()">
+                <img 
+                class="w-full h-full transition-transform duration-200"
+                [src]="isPlaying ? 'assets/pause.png' : 'assets/play.png'">
+             </div>
+             <div class="relative p-2 rounded-full flex items-center justify-center
+                          before:absolute before:inset-0
+                          before:bg-gray-300 before:rounded-full before:opacity-50
+                          before:scale-0 hover:before:scale-100
+                          before:transition-transform before:duration-300
+                          before:transform before:origin-center
+                          cursor-pointer">
+                <img src="assets\aleatorio.png" alt="aleatorio" (click)="random()" class=" items-center justify-center h-[52px] w-[52px] cursor-pointer z-10">
+             </div> 
+                <div [style.transform]="isOpen ? 'rotate(45deg)' : 'rotate(0deg)'" class="h-[52px] w-[52px] flex items-center justify-center transition-transform duration-200 cursor-pointer">
                 
+                    <img src="assets\anyadirplaylist.png" alt="anadir" (click)="toggleBox('album')" class="mt-2 w-full h-full transition-transform duration-200">
+                </div>
+            </div>
+        </div>
+    
+     <!-- bloc anadir lista-->
+    <div *ngIf="isOpen" #popup  class="   t-2 h-max-100 max-w-xs w-auto  p-4 bg-[var(--graybackground)] opacity-100 rounded-lg">
+      <div class="max-h-30 overflow-y-auto pr-1 w-full ">
+      <div *ngFor="let choice of choices" class="flex items-center gap-2">
+
+        <input
+            type="checkbox"
+            [(ngModel)]="choice.selected"
+            class="w-5 h-5 cursor-pointer"
+            [ngStyle]="{ 'accent-color': choice.selected ? dominantColor : 'white' }"
+            (change)="choice.name === 'Crear nueva lista' ? toggleNewListInput(choice) : null"
+          />
+        <label class="text-white cursor-pointer">{{ choice.name }}</label>
+      </div>
+      </div>
+
+      <div *ngIf="showNewListInput" class="mt-2">
+        <input 
+          type="text" 
+          [(ngModel)]="newListName" 
+          placeholder=" nombre nueva lista" 
+          class="w-full p-2 rounded text-white focus:ring-white-500 focus:outline-none focus:ring-2"/>
+      </div>
+
+
+
+
+      <!-- Bouton de validation -->
+      <button
+        (click)="validateSelection()"
+        class="mt-2 w-full bg-white text-black hover:bg-zinc-600 py-1 rounded transition duration-300"
+      >
+        Valider
+      </button>
+    </div>
+  </div>
+
+ 
+    
+    <div class="m-1">  
+      <div class = "relative">        
+    <!-- song list -->
+    <div class="grid grid-cols-41 gap-4 text-left text-white mt-20">
+        <div class=" col-span-12 ">Título</div>
+        <div class=" col-span-8 ">Reproducciones</div>
+        <div class=" col-span-8">Tu valoración</div>
+        <div class=" col-span-8">Valoración Media</div>
+        <div class=" col-span-2">Duracion</div>
+    </div>
+    <hr class="border-t-2 border-white my-2 ">  
+        <div *ngFor="let song of songs; trackBy: trackByFn" class="group grid grid-cols-41 gap-4 text-white items-center hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101" (dblclick)="addSongsToQueue(song)">
+            <div class="flex m-2 ml-0 col-span-12 "> 
+                <div class="relative w-[44px] h-[44px] mr-1 min-w-[44px]" (click)="addSongsToQueue(song)">                
+                    <!-- Capa oscura con icono de Play -->
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-[10px]">
+                        <img src="assets/play.png" alt="Play"
+                            class="w-6 h-6 cursor-pointer">
+                    </div>
+                </div>     
                 <div class="flex flex-col min-w-0">
-                    <p class="font-montserrat font-bold text-lg text-white"(dblclick)="playSong(song)">
+                    <p class="font-montserrat font-bold text-lg text-white">
                         {{ song.titulo}}
                     </p>
-                    <a  class="text-white text-sm hover:underline" [routerLink]="['/inicio/artista/', encodeNombreArtista(song.nombre_artista)]">
- 
-                        {{ song.nombre_artista }}
-                    </a>
-
+                    <div class="flex flex-row w-full overflow-hidden whitespace-nowrap ">
+                        <p class="text-white text-sm hover:underline min-w-fill max-w-full " [routerLink]="['/inicio/artista/', encodeNombreArtista(song.nombre_artista)]">{{song.nombre_artista}}</p>
                         <ng-container *ngIf="song.artistas_feat != null">
-
-                          <ng-container *ngFor="let ft of getArtistasFeat(song); track by ft">
-
-                            
-
+                          <ng-container *ngFor="let ft of getArtistasFeat(song); trackByFn">
+                            <p class="text-white text-sm inline-block min-w-max">,&nbsp;</p>
                             <p [routerLink]="['/inicio/artista/', encodeNombreArtista(ft)]" 
-
                               class="text-white text-sm hover:underline inline-block min-w-max">
-
                               {{ ft }}
-
                             </p>
-
                           </ng-container>
                         </ng-container>
-
-                </div>
-
-               
+                      </div>
+                </div> 
             </div>
-            <div class="col-span-4">{{ song.n_repros}}</div>
-            <div class="col-span-4 flex"  >
-                 <!-- change condition to agree with the database-->
-                <ng-container *ngIf="song.tu_valoration === 0; else rated"> 
-                    <img src="assets/star_no_rate.png" alt="star" class="w-5 h-auto flex-col" />
-                  </ng-container>
-                  <ng-template #rated>
-               
-                <img *ngFor="let star of generateStars(song.tu_valoration)" src="assets/star.png" alt="star" class="w-5 h-auto flex-col"/>
-                <script src="script.js"></script>
-                  </ng-template>
-              
+            <div class="col-span-8">{{ song.n_repros | number:'1.0-0':'es-ES' }}</div>
+            <div class="col-span-8 flex"  >
+                <img *ngFor="let star of generateStars(song.tu_valoration);trackBy: trackByFn" [src]="star" alt="star" class="w-5 h-auto flex-col"/>
+             <script src="script.js"></script>
             </div> 
-            <div class="col-span-4 flex"  >
+            <div class="col-span-8 flex"  >
                 <!-- change condition to agree with the database-->
-                <ng-container *ngIf="song.valoration_media === 0; else rated_media"> 
-                    <img src="assets/star_no_rate.png" alt="star" class="w-5 h-auto flex-col" />
-                  </ng-container>
-                
-                <ng-template #rated_media>
-                <img *ngFor="let star of generateStars(song.valoration_media)" src="assets/star.png" alt="star" class="w-5 h-auto flex-col"/>
-                <script src="script.js"></script>
-                  </ng-template>
-              
-                
+                <img *ngFor="let star of generateStars(song.valoration_media);trackBy: trackByFn" [src]="star" alt="star" class="w-5 h-auto flex-col"/>
+             <script src="script.js"></script>
             </div> 
-            <div class="col-span-1">{{ song.duracion }}</div>
-            <div class=" flex items-center space-x-3   col-span-1">
-                <img src="assets\anyadirplaylist.png" alt="anadir" (click)="add()" class=" h-[17px] w-[18px]">
-                <img src="assets\heart.png" alt="like" (click)="like(song.id_cancion)" class=" h-[17px] w-[18px]">
-                <p (click)="option()" class="font-montserrat font-bold text-xl text-white pb-3 ">...</p> 
-        
+            <div class="col-span-2 flex">{{ song.duracion }}</div>
+            
+            <div class="flex items-center col-span-3 gap-1">
+              
+              <div class="relative p-2 rounded-full flex items-center justify-center
+                          before:absolute before:inset-0
+                          before:bg-gray-300 before:rounded-full before:opacity-50
+                          before:scale-0 hover:before:scale-100
+                          before:transition-transform before:duration-300
+                          before:transform before:origin-center">
+                <img src="assets\anyadirplaylist.png" alt="anadir" (click)="toggleBox('cancion', song)" class="h-[17px] w-auto object-contain z-10 cursor-pointer">
+              </div>
+               
+              
+              <div class="relative p-2 rounded-full flex items-center justify-center
+                          before:absolute before:inset-0
+                          before:bg-gray-300 before:rounded-full before:opacity-50
+                          before:scale-0 hover:before:scale-100
+                          before:transition-transform before:duration-300
+                          before:transform before:origin-center">
+                <img src="assets\heart.png" alt="like" (click)="like(song.id_cancion)" class="cursor-pointer h-[17px] w-auto object-contain z-10">
+              </div>
+             
+              
+              <div class="relative p-2 rounded-full flex items-center justify-center w-[33px] h-[33px]
+                          before:absolute before:inset-0
+                          before:bg-gray-300 before:rounded-full before:opacity-50
+                          before:scale-0 hover:before:scale-100
+                          before:transition-transform before:duration-300
+                          before:transform before:origin-center">
+                <p (click)="option(song)" class="font-montserrat font-bold text-xl text-white cursor-pointer z-10 leading-none mt-[-5px]">...</p>
+              </div>
+            </div>
             </div>
         
-        </div>
-        <hr class="border-t-2 border-white my-4">  
-   
-       
-  
+              <hr class="border-t-2 border-white my-4">  
+     
+        
+      <div *ngIf="isOpen_cancion" #popup2   class=" fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50  t-2 h-max-100 max-w-xs w-auto  p-4 bg-[var(--graybackground)] opacity-100 rounded-lg">
+          <div class="max-h-30 overflow-y-auto pr-1 w-full ">
+          <div *ngFor="let choice of choices" class="flex items-center gap-2">
     
-    </div>  
-    <p class="font-montserrat  text-l text-white ml-4">{{fecha}}</p>
-   
+            <input
+                type="checkbox"
+                [(ngModel)]="choice.selected"
+                class="w-5 h-5 cursor-pointer"
+                [ngStyle]="{ 'accent-color': choice.selected ? dominantColor : 'white' }"
+                (change)="choice.name === 'Crear nueva lista' ? toggleNewListInput(choice) : null"
+              />
+            <label class="text-white cursor-pointer">{{ choice.name }}</label>
+          </div>
+          </div>
+    
+          <div *ngIf="showNewListInput" class="mt-2">
+            <input 
+              type="text" 
+              [(ngModel)]="newListName" 
+              placeholder=" nombre nueva lista" 
+              class="w-full p-2 rounded text-white focus:ring-white-500 focus:outline-none focus:ring-2"/>
+          </div>
+          <button
+        (click)="validateSelection_cancion()"
+        class="mt-2 w-full bg-white text-black hover:bg-zinc-600 py-1 rounded transition duration-300"
+      >
+        Valider
+      </button>
+      </div>
+
+      <div *ngIf="isOpen_option" #popup3   class=" fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50  t-2 h-max-100 max-w-xs w-auto  p-4 bg-[var(--graybackground)] opacity-100 rounded-lg">
+        <p class="text-white hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101 p-2"(click)="anadirCola()">anadir a la cola </p>
+      </div>
+    </div> 
+    </div> 
+        
+     
+    <p class="font-montserrat  text-l text-white ml-4 mb-5">{{fecha}}</p>  
+
+
+
 </div>

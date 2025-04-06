@@ -235,8 +235,23 @@ export class PlayerComponent implements OnInit {
         this.currentSong = null;
         this.loadAndPlaySong();
       } 
+    
     });
+  
+  
+  this.playerService.playState$.subscribe(isPlaying => {
+    this.isPlaying = isPlaying;
+    if (this.audioPlayer?.nativeElement) {
+      if (isPlaying) {
+        this.audioPlayer.nativeElement.play().catch(err => console.error('Error al reproducir:', err));
+      } else {
+        this.audioPlayer.nativeElement.pause();
+      }
+    }
+  });
   }
+
+
 
   /** 🔹 Carga una canción específica de la cola */
   loadSongByPosition(position: number) {

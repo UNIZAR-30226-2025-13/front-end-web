@@ -6,7 +6,7 @@ import { CommonModule, registerLocaleData } from '@angular/common';
   selector: 'app-lista-podcasts',
   imports: [CommonModule],
   templateUrl: './lista-podcasts.component.html',
-  styleUrl: './lista-podcasts.component.css'
+  
 })
 export class ListaPodcastsComponent {
   dominantColor: string = 'rgba(25, 152, 152, 4)'; //TODO
