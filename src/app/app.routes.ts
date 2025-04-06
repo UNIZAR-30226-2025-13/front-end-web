@@ -14,6 +14,7 @@ import { ListaReproducionesComponent } from './pages/lista-reproduciones/lista-r
 import { CarpetasComponent } from './pages/carpetas/carpetas.component';
 import { BuscadorComponent } from './pages/buscador/buscador.component';
 import { PerfilUsuarioComponent } from './pages/perfil-usuario/perfil-usuario.component';
+import { DatospersonalesComponent } from './pages/datospersonales/datospersonales.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -33,7 +34,8 @@ export const routes: Routes = [
       { path: 'lista_reproduccion/:id_lista', component: ListaReproducionesComponent},
       { path: 'carpeta/:id_carpeta', component: CarpetasComponent},
       { path: 'buscador', component: BuscadorComponent},
-      { path: 'usuario/:nombre_usuario', component: PerfilUsuarioComponent}
+      { path: 'usuario/:nombre_usuario', component: PerfilUsuarioComponent},
+      { path: 'datospersonales/:nombre_usuario', component: DatospersonalesComponent},
     ]
   },
 

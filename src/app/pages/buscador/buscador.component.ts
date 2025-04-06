@@ -21,7 +21,7 @@ import { RouterModule } from '@angular/router';
         <div class="flex flex-col items-start gap-4 bg-[var(--graybackground)] rounded-xl p-10 h-[460px]" >
 
           @if (principalCreator.tipo === 'Artista') {
-            <img [src]="principalCreator.image" alt="Creador" class="w-74 h-74 rounded-lg object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
+            <img [src]="principalCreator.image" alt="Creador" class="w-74 h-74 rounded-2xl object-cover transition-transform duration-300 hover:scale-105 cursor-pointer"
             [routerLink]="['/inicio/artista/', encodeNombreArtista(principalCreator.name)]">
           }
         
@@ -53,7 +53,7 @@ import { RouterModule } from '@angular/router';
                   <!-- Contenedor en fila para título y tipo -->
                   <div class="flex flex-col items-start gap-1">
                     <div class="flex items-center"> 
-                      <p class="text-xl font-semibold">{{ contenido.title }}</p>
+                      <p class="text-xl font-semibold line-clamp-1">{{ contenido.title }}</p>
                       <p class="text-lg text-gray-400 ml-3">{{ contenido.tipo }}</p>
                     </div>
                     <p class="text-lg text-white">{{ contenido.artist }}</p>
@@ -76,9 +76,9 @@ import { RouterModule } from '@angular/router';
     @if (artists.length > 0) {
       <div>
         <h2 class="text-2xl font-semibold mb-4">Artistas</h2>
-        <div class="flex gap-10 pb-2 overflow-visible scrollbar-hide">
+        <div class="flex gap-10 pb-2 overflow-x-scroll scrollbar-hide">
           @for (artist of artists; track artist.name) {
-            <div class="flex flex-col items-center space-y-2 max-w-xs transition-transform duration-300 hover:scale-110 cursor-pointer">
+            <div class="flex flex-col items-center space-y-2 max-w-xs transition-transform duration-300 hover:scale-97 cursor-pointer">
               
               <div class="relative w-30 h-30 min-w-30 min-h-30">
                 <img [src]="artist.image" alt="{{ artist.name }}" class="w-full h-full rounded-lg object-cover" 
@@ -100,9 +100,9 @@ import { RouterModule } from '@angular/router';
     @if (podcasters.length > 0) {
     <div>
       <h2 class="text-2xl font-semibold mb-4">Podcasters</h2>
-      <div class="flex gap-10 pb-2 overflow-visible scrollbar-hide">
+      <div class="flex gap-10 pb-2 overflow-x-scroll scrollbar-hide">
         @for (podcaster of podcasters; track podcaster.name) {
-          <div class="flex flex-col items-center space-y-2 max-w-xs transition-transform duration-300 hover:scale-110 cursor-pointer">
+          <div class="flex flex-col items-center space-y-2 max-w-xs transition-transform duration-300 hover:scale-97 cursor-pointer">
             <img [src]="podcaster.image" alt="{{ podcaster.name }}" class="w-30 h-30 rounded-lg object-cover"
             [routerLink]="['/inicio/podcaster/', encodeNombreArtista(podcaster.name)]">
 
@@ -117,9 +117,9 @@ import { RouterModule } from '@angular/router';
     @if (albums.length > 0) {
       <div>
         <h2 class="text-2xl font-semibold mb-4">Álbumes</h2>
-        <div class="flex gap-10 pb-2 overflow-visible scrollbar-hide">
+        <div class="flex gap-10 pb-2 overflow-x-scroll scrollbar-hide">
           @for (album of albums; track album.name) {
-            <div class="flex flex-col items-center space-y-2 max-w-xs transition-transform duration-300 hover:scale-110 cursor-pointer">
+            <div class="flex flex-col items-center space-y-2 max-w-xs transition-transform duration-300 hover:scale-97 cursor-pointer">
               <img [src]="album.image" alt="{{ album.name }}" class="w-30 h-30 rounded-lg object-cover"
               [routerLink]="['/inicio/album/', album.id]">
               
@@ -139,9 +139,9 @@ import { RouterModule } from '@angular/router';
     @if (podcasts.length > 0) {
     <div>
       <h2 class="text-2xl font-semibold mb-4">Podcasts</h2>
-      <div class="flex gap-10 pb-2 overflow-visible scrollbar-hide">
+      <div class="flex gap-10 pb-2 overflow-x-scroll scrollbar-hide">
         @for (podcast of podcasts; track podcast.id) {
-          <div class="flex flex-col items-center space-y-2 max-w-xs transition-transform duration-300 hover:scale-110 cursor-pointer">
+          <div class="flex flex-col items-center space-y-2 max-w-xs transition-transform duration-300 hover:scale-97 cursor-pointer">
             <img [src]="podcast.image" alt="{{ podcast.name }}" class="w-30 h-30 rounded-lg object-cover"
             [routerLink]="['/inicio/podcast/', podcast.id]">
 
@@ -157,9 +157,9 @@ import { RouterModule } from '@angular/router';
     @if (songs.length > 0) {
     <div>
       <h2 class="text-2xl font-semibold mb-4">Canciones</h2>
-      <div class="flex gap-10 pb-2 overflow-visible scrollbar-hide">
+      <div class="flex gap-10 pb-2 overflow-x-scroll scrollbar-hide">
         @for (song of songs; track song.title) {
-          <div class="flex flex-col items-center space-y-2 max-w-xs transition-transform duration-300 hover:scale-110 cursor-pointer">
+          <div class="flex flex-col items-center space-y-2 max-w-xs transition-transform duration-300 hover:scale-97 cursor-pointer">
             <img [src]="song.image" alt="{{ song.title }}" class="w-30 h-30 rounded-lg object-cover"
             [routerLink]="['/inicio/cancion/', song.id]">
             <span class="text-center font-semibold text-sm break-words w-30">{{ song.title }}</span>
@@ -174,11 +174,11 @@ import { RouterModule } from '@angular/router';
     @if (episodes.length > 0) {
     <div>
       <h2 class="text-2xl font-semibold mb-4">Episodios</h2>
-      <div class="flex gap-10 pb-2 overflow-visible scrollbar-hide">
+      <div class="flex gap-10 pb-2 overflow-x-scroll scrollbar-hide">
         @for (episode of episodes; track episode.title) {
-          <div class="flex flex-col items-center space-y-2 max-w-xs transition-transform duration-300 hover:scale-110 cursor-pointer">
+          <div class="flex flex-col items-center space-y-2 max-w-xs transition-transform duration-300 hover:scale-97 cursor-pointer">
             <img [src]="episode.image" alt="{{ episode.title }}" class="w-30 h-30 rounded-lg object-cover">
-            <span class="text-center font-semibold text-sm break-words w-30">{{ episode.title }}</span>
+            <span class="text-center font-semibold text-sm break-words w-30 line-clamp-2">{{ episode.title }}</span>
             <span class="text-center text-sm">{{ episode.podcast }}</span>
           </div>
         }
@@ -186,15 +186,42 @@ import { RouterModule } from '@angular/router';
     </div>
     }
 
+            
+
+    <!-- Listas -->
+    @if (listas.length > 0) {
+      <div>
+        <h2 class="text-2xl font-semibold mb-4">Listas públicas</h2>
+        <div class="flex gap-10 pb-2 overflow-x-scroll scrollbar-hide">
+          @for (lista of listas; track lista.name) {
+ 
+            <div 
+            class="w-30 h-30 rounded-lg flex-none flex items-end justify-start overflow-visible transition-transform duration-300 hover:scale-97 cursor-pointer" 
+                [style.background-color]="lista.color" [routerLink]="['/inicio/lista_reproduccion/', (lista.id_lista)]"
+            >
+                <p 
+                  class="text-black font-extrabold text-left text-[24px] mb-4 ml-[-4px] p-0 leading-none"
+                  style="word-break: break-word; white-space: normal;"
+                >
+                  {{ lista.name }}
+                </p>
+              </div>
+
+          }
+        </div>
+      </div>
+    }
+
+
 
     <!-- Usuarios -->
     @if (usuarios.length > 0) {
     <div>
       <h2 class="text-2xl font-semibold mb-4">Usuarios</h2>
-      <div class="flex gap-10 pb-2 overflow-visible scrollbar-hide"> 
+      <div class="flex gap-10 pb-2 overflow-x-scroll scrollbar-hide"> 
         @for (usuario of usuarios; track usuario.email) {
           <!-- Cuadrado gris -->
-          <div class="w-30 h-30 bg-[var(--graybackground)] flex items-center justify-center rounded-lg transition-transform duration-300 hover:scale-110 cursor-pointer"
+          <div class="w-30 h-30 bg-[var(--graybackground)] flex items-center justify-center rounded-lg transition-transform duration-300 hover:scale-97 cursor-pointer"
           [routerLink]="['/inicio/usuario/', usuario.name]">
             <p class="text-md text-white text-center">{{ usuario.name }}</p>
           </div>
@@ -233,6 +260,7 @@ export class BuscadorComponent implements OnInit {
   podcasts: any[] = [];
   songs: any[] = [];
   episodes: any[] = [];
+  listas: any[] = [];
   usuarios: any[] = [];
 
   subscription!: Subscription;
@@ -256,6 +284,7 @@ export class BuscadorComponent implements OnInit {
           podcasts: this.getPodcasts(nuevaCadena),
           canciones: this.getCanciones(nuevaCadena),
           episodios: this.getEpisodios(nuevaCadena),
+          listas: this.getListas(nuevaCadena),
           usuarios: this.getUsuarios(nuevaCadena)
         }).subscribe(resultados => {
           // Aquí se actualizan los valores después de recibir todos los datos
@@ -267,6 +296,7 @@ export class BuscadorComponent implements OnInit {
           this.podcasts = resultados.podcasts;
           this.songs = resultados.canciones;
           this.episodes = resultados.episodios;
+          this.listas = resultados.listas;
           this.usuarios = resultados.usuarios;
   
           console.log('Todos los resultados obtenidos:', resultados);
@@ -318,12 +348,11 @@ export class BuscadorComponent implements OnInit {
       }),
       catchError(err => {
         console.error('Error al obtener contenido multimedia:', err);
-        return of([]); // Retornar observable con un array vacío
+        return of([]); 
       })
     );
   }
   
-  // Repite el mismo patrón para las demás funciones:
   
   getArtistas(name: string) {
     return this.authService.searchCreator(name).pipe(
@@ -367,7 +396,6 @@ export class BuscadorComponent implements OnInit {
     );
   }
   
-  // Repite lo mismo para el resto de funciones:
   getAlbums(name: string) {
     return this.authService.searchAlbum(name).pipe(
       map((response: any) => response.length > 0 ? response.map((album: any) => ({
@@ -435,6 +463,38 @@ export class BuscadorComponent implements OnInit {
       })
     );
   }
+
+
+  getListas(name: string) {
+    return this.authService.searchListas(name).pipe(
+      map((response: any) => {
+        if (response.listas && response.listas.length > 0) {
+          return response.listas
+            .filter((lista: any) => 
+              !/^this is/i.test(lista.nombre) && //Excluir listas que empiecen con "This is"
+              lista.nombre !== "Tus canciones favoritas" && //Excluir "Tus canciones favoritas"
+              lista.nombre !== "Tus episodios favoritos" //Excluir "Tus episodios favoritos"
+            )
+            .map((lista: any) => ({
+              id: lista.id_lista,
+              name: lista.nombre,
+              color: lista.color,
+              shareLink: lista.link_compartir,
+              similarity: lista.similitud,
+              type: lista.tipo
+            }));
+        } else {
+          return [];
+        }
+      }),
+      catchError(err => {
+        console.error('Error al obtener listas:', err);
+        return of([]);
+      })
+    );
+  }
+  
+  
   
   getUsuarios(name: string) {
     return this.authService.searchUsuarios(name).pipe(

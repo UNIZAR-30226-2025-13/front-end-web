@@ -92,6 +92,20 @@ export class AuthService {
     };
     return this.http.post(`${this.apiUrl}/create-list`, playlistData);
   }
+
+  getInfoAlbum(id: number)
+  {return this.http.get(`${this.apiUrl}/album?id_album=${id}`)}
+
+  shuffle(nombre_usuario: string, posicion: number) {
+    const body = {
+      nombre_usuario: nombre_usuario,
+      posicion: posicion
+    };
+  
+    return this.http.post(`${this.apiUrl}/queue/shuffle`, body);
+  }
+
+  
   
   addSongToPlaylist(id_cancion: number, id_playlist: number) {
     return this.http.post(`${this.apiUrl}/add-song-playlist`, { id_cancion, id_playlist });
@@ -150,6 +164,16 @@ export class AuthService {
   searchUsuarios(name: string) {
     return this.http.get<any>(`${this.apiUrl}/search-usuario?cadena=${name}`);
   }
+
+  searchListas(name: string) {
+    return this.http.get<any>(`${this.apiUrl}/search-lista?cadena=${name}`);
+  }
+
+  getPublicLists(nombre: string) {
+    return this.http.get<any>(`${this.apiUrl}/get-public-lists?nombre_usuario=${nombre}`);
+  }
+
+
   
   changeListPrivacy (id_lista: number, nombre_usuario: string) {
     const listData = {

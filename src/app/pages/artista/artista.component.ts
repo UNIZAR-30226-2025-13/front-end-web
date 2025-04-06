@@ -144,7 +144,7 @@ import { QueueService } from '../../services/queue.service';
         <!-- Vista de Álbumes (Fila larga con scroll horizontal) -->
         <div *ngIf="selectedTab === 'album'" 
             class="h-60 flex overflow-x-auto whitespace-nowrap scrollbar-hide space-x-4 pb-4">
-            <div *ngFor="let album of this.artista.albumes" class="flex flex-col items-center flex-none max-w-44">
+            <div *ngFor="let album of this.artista.albumes" class="flex flex-col items-center cursor-pointer flex-none max-w-44 transition-transform duration-300 hover:scale-97" [routerLink]="['/inicio/album/', encodeNombreArtista(album.id_album)]" >
                 <img [src]="album.link_imagen" [alt]="album.nombre_album" class="h-44 w-44 rounded-[40px] object-cover">
                 <p class="text-white mt-2 font-bold line-clamp-2 max-w-44">{{ album.nombre_album }}</p>
             </div>
@@ -304,44 +304,39 @@ export class ArtistaComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   extractColor(imgElement: HTMLImageElement) {
-    try {
-        const colorThief = new ColorThief();
-
-        if (imgElement.naturalWidth > 0) {
+      try {
+          const colorThief = new ColorThief();
+          if (imgElement.naturalWidth > 0) {
             const palette = colorThief.getPalette(imgElement, 10); // Extrae hasta 10 colores
-            
             if (!palette || palette.length === 0) {
-                console.error("No se pudo extraer la paleta de colores.");
-                return;
+              console.error("No se pudo extraer la paleta de colores.");
+              return;
             }
-
             let bestColor = null;
             let maxSaturation = -1;
-
             for (const color of palette) {
-                const [r, g, b] = color;
-                const { h, s, l } = this.rgbToHsl(r, g, b);
-
-                // Filtrar solo colores grises y blancos, pero mantener oscuros
-                if (s > maxSaturation && s > 0.2) {
-                    maxSaturation = s;
-                    bestColor = color;
-                }
+              const [r, g, b] = color;
+              const { h, s, l } = this.rgbToHsl(r, g, b);
+              // Filtrar solo colores grises y blancos, pero mantener oscuros
+              if (s > maxSaturation && s > 0.2) {
+                maxSaturation = s;
+                bestColor = color;
+              }
             }
-
             if (bestColor) {
-                this.dominantColor = `rgba(${bestColor[0]}, ${bestColor[1]}, ${bestColor[2]}, 0.5)`;
+              this.dominantColor = `rgba(${bestColor[0]}, ${bestColor[1]}, ${bestColor[2]}, 0.5)`;
             } else {
-                this.dominantColor = "rgba(255, 255, 255, 0.5)"; // Blanco como fallback
+              this.dominantColor = "rgba(255, 255, 255, 0.5)"; // Blanco como fallback
             }
-        }
-    } catch (error) {
+          }
+      } catch (error) {
         console.error("Error al extraer el color más saturado y brillante:", error);
+      }
     }
-}
 
-// 🔹 Función para convertir RGB a HSL
- rgbToHsl(r: number, g: number, b: number) {
+
+  // 🔹 Función para convertir RGB a HSL
+  rgbToHsl(r: number, g: number, b: number) {
     r /= 255, g /= 255, b /= 255;
     const max = Math.max(r, g, b), min = Math.min(r, g, b);
     let h = 0, s = 0, l = (max + min) / 2;
@@ -356,9 +351,8 @@ export class ArtistaComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         h /= 6;
     }
-
     return { h, s, l };
-}
+  }
 
   transformCloudinaryUrl(url: string): string {
     return url.includes('cloudinary.com') ? url.replace('/upload/', '/upload/f_auto,fl_lossy,fl_any_format/') : url;

@@ -172,34 +172,34 @@ import ColorThief from 'colorthief';
             class="grid grid-cols-20 gap-4 text-white items-center hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101" (dblclick)="addSongsToQueue(cm)">
             <div class="flex m-2 col-span-6 ">
               <div class="relative w-[44px] h-[44px] group mr-5 min-w-[44px]" (click)="addSongsToQueue(cm)">
-                    <!-- Imagen de la canción -->
-                    <img [src]="cm.link_imagen" alt="Icono de la canción"
-                        class="w-full h-full rounded-[10px] object-cover flex-shrink-0"> 
-                    
-                    <!-- Capa oscura con icono de Play -->
-                    <div class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-[10px]">
-                         <img src="assets/play.png" alt="Play"
-                             class="w-6 h-6 cursor-pointer">
-                     </div>
-                 </div>
-                 <div class="flex flex-col min-w-0">
-                     <p class="font-montserrat font-bold text-lg text-white">
-                         {{ cm.titulo  }}
-                     </p>
-                     <div class="flex flex-row w-full overflow-hidden whitespace-nowrap ">
-                       <p  class="text-white text-sm hover:underline min-w-fill max-w-full " [routerLink]="['/inicio/artista/', encodeNombreArtista(cm.nombre_creador)]">{{cm.nombre_creador}}</p>
-                           <ng-container *ngIf="cm.artistas_feat != null">
-                             <ng-container *ngFor="let ft of getArtistasFeat(cm); track by ft">
-                               <p class="text-white text-sm inline-block min-w-max">,&nbsp;</p>
-                               <p [routerLink]="['/inicio/artista/', encodeNombreArtista(ft)]" 
-                                 class="text-white text-sm hover:underline inline-block min-w-max">
-                                 {{ ft }}
-                               </p>
-                             </ng-container>
-                           </ng-container>
-                      </div>
-                 </div>
-             </div>
+                <!-- Imagen de la canción -->
+                <img [src]="cm.link_imagen" alt="Icono de la canción"
+                    class="w-full h-full rounded-[10px] object-cover flex-shrink-0"> 
+                
+                <!-- Capa oscura con icono de Play -->
+                <div class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-[10px]">
+                    <img src="assets/play.png" alt="Play"
+                        class="w-6 h-6 cursor-pointer">
+                </div>
+              </div>
+              <div class="flex flex-col min-w-0">
+                <p class="font-montserrat font-bold text-lg text-white">
+                    {{ cm.titulo  }}
+                </p>
+                <div class="flex flex-row w-full overflow-hidden whitespace-nowrap ">
+                  <p class="text-white text-sm hover:underline min-w-fill max-w-full " [routerLink]="['/inicio/artista/', encodeNombreArtista(cm.nombre_creador)]">{{cm.nombre_creador}}</p>
+                  <ng-container *ngIf="cm.artistas_feat != null">
+                    <ng-container *ngFor="let ft of getArtistasFeat(cm); track by ft">
+                      <p class="text-white text-sm inline-block min-w-max">,&nbsp;</p>
+                      <p [routerLink]="['/inicio/artista/', encodeNombreArtista(ft)]" 
+                        class="text-white text-sm hover:underline inline-block min-w-max">
+                        {{ ft }}
+                      </p>
+                    </ng-container>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
              <div class="col-span-4"> {{cm.nombre_grupo}}</div>
              <div class="col-span-4 flex"  >
              <ng-container> 
@@ -547,9 +547,11 @@ export class ListaReproducionesComponent implements OnInit {
     return { h, s, l };
   }
  
+
   rgbToHex(r: number, g: number, b: number): string {
     return `#${((1 << 24) | (r << 16) | (g << 8) | b).toString(16).slice(1).toUpperCase()}`;
   }
+
 
   sortCMs(event: Event) {
     const selectElement = event.target as HTMLSelectElement;
@@ -607,6 +609,7 @@ export class ListaReproducionesComponent implements OnInit {
     event.stopPropagation();
     this.menuAbierto = !this.menuAbierto;
     this.carpetasVisibles = false; // Ocultar carpetas si el menú se cierra
+
 
     // Cierra el menú si se hace clic fuera de él
     setTimeout(() => {
