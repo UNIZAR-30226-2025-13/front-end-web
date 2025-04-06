@@ -234,7 +234,20 @@ export class PlayerComponent implements OnInit {
       } else {
         this.stopAndResetAudio();
       } 
+    
     });
+  
+  
+  this.playerService.playState$.subscribe(isPlaying => {
+    this.isPlaying = isPlaying;
+    if (this.audioPlayer?.nativeElement) {
+      if (isPlaying) {
+        this.audioPlayer.nativeElement.play().catch(err => console.error('Error al reproducir:', err));
+      } else {
+        this.audioPlayer.nativeElement.pause();
+      }
+    }
+  });
   }
 
   stopAndResetAudio() {
