@@ -85,7 +85,7 @@ import ColorThief from 'colorthief';
 </div>
   `,
 })
-export class PodcastComponent implements OnInit, AfterViewInit {
+export class ListaPodcastComponent implements OnInit, AfterViewInit {
     dominantColor: string = 'rgba(75, 85, 99, 0.5)'; //TODO
     podcast_name :string = '';//TODO
     podcast_icone:string ='';//TODO

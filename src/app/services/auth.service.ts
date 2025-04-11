@@ -257,4 +257,13 @@ export class AuthService {
     return this.http.get<any>(`${this.apiUrl}/get-podcast?id_podcast=${id_podcast}&nombre_usuario=${nombre_usuario}`);
   }
 
+  getEpisode(id_ep:number){
+     return this.http.get<any>(`${this.apiUrl}/get-episode?id_ep=${id_ep}`);
+
+  }
+
+  getEpisodeList( nombre_usuario: string){
+    return this.http.get<any>(`${this.apiUrl}/get-episode-lists?nombre_usuario=${nombre_usuario}`);
+  }
+
 }

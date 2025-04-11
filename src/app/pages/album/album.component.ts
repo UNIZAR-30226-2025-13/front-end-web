@@ -30,7 +30,8 @@ interface Playlist {
   
   selector: 'app-album',
   imports: [CommonModule, RouterModule, FormsModule],
-  template: `<div class="bg-black pt-4 px-[34px] min-h-screen">
+  template: `
+  <div class="bg-black pt-4 px-[34px] min-h-screen">
   <!-- upper box -->
   <div class="flex bg-opacity-60 p-4 rounded-[40px] items-end" [ngStyle]="{'background-color': dominantColor}">
       <div class="flex-row  items-center justify-center">

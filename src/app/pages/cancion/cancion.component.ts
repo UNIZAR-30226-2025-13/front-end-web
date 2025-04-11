@@ -1,10 +1,10 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { CommonModule, registerLocaleData } from '@angular/common';
+import { CommonModule} from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { RouterModule, Router } from '@angular/router'
-import localeEs from '@angular/common/locales/es';
+
 import { PlayerService } from '../../services/player.service';
 
 // @ts-ignore
