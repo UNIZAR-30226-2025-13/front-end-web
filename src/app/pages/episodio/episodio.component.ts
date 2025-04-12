@@ -322,7 +322,7 @@ export class EpisodioComponent {
           return;
         }
       
-        this.authService.getUserPlaylists(this.userService.getUsuario().nombre_usuario).subscribe(
+        this.authService.getEpisodeList(this.userService.getUsuario().nombre_usuario).subscribe(
           (response:any) => {
             this.playlists = response;
             console.log("reponse", response);
@@ -394,6 +394,7 @@ export class EpisodioComponent {
       console.log(" playlist_id", playlist.id);
       this.authService.addSongToPlaylist( parseInt(this.id_ep), playlist.id).subscribe({
         next: () => {  // No necesitamos la respuesta si no la vamos a usar
+          console.log('episodio anadido');
           
         
         },
