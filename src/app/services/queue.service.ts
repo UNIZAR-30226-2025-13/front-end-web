@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class QueueService {
-  private apiUrl = 'https://spongefy-back-end.onrender.com'; // 🔹 Cambia esto por la URL real de tu API
+  private apiUrl = 'https://spongefy-back-end.onrender.com';
 
   constructor(private http: HttpClient) {}
 

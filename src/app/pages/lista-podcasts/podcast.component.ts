@@ -9,6 +9,7 @@ import { QueueService } from '../../services/queue.service';
 
 // @ts-ignore
 import ColorThief from 'colorthief';
+import { concatMap, concatWith, from, tap } from 'rxjs';
 
 @Component({
   selector: 'app-lista-podcasts',
@@ -34,9 +35,9 @@ import ColorThief from 'colorthief';
             </div>
         </div>
         <div class=" flex mt-4">
-          <img src="assets/play.png" alt="play" (click)="playSong(episodios[0])" class=" h-[52px] w-[52px]">
-          <img src="assets/aleatorio.png" alt="aleatorio" (click)="random()" class=" h-[52px] w-[52px]">
-          <img src="assets/anyadirplaylist.png" alt="anadir" (click)="add()" class=" h-[52px] w-[52px]">
+          <img src="assets/play.png" alt="play" (click)="addSongsToQueue(episodios[0])" class=" h-[52px] w-[52px] cursor-pointer">
+          <img src="assets/aleatorio.png" alt="aleatorio" (click)="random()" class=" h-[52px] w-[52px] cursor-pointer" >
+          <img src="assets/anyadirplaylist.png" alt="anadir" (click)="add()" class=" h-[52px] w-[52px] cursor-pointer">
         </div>
       </div>
     </div>
@@ -52,9 +53,15 @@ import ColorThief from 'colorthief';
     <div class="col-span-1 text-center"></div>
 </div>
 <hr class="border-t-2 border-white my-4">  
-
-<div *ngFor="let episodio of episodios" class="grid grid-cols-16 gap-4 text-white items-center rounded-[10px] transition-transform duration-300 hover:scale-101">
-    <div class="flex m-3 ml-0 col-span-7">
+<div *ngFor="let episodio of episodios" class="grid grid-cols-16 gap-4 text-white items-center rounded-[10px] transition-transform duration-300 hover:scale-101" (dblclick)="addSongsToQueue(episodio)">
+    <div class="flex flex-row m-3 ml-0 col-span-7 group">
+      <div class=" relative w-[44px] h-[44px] mr-1 min-w-[44px]">                
+          <!-- Capa oscura con icono de Play -->
+          <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-[10px]" (click)="addSongsToQueue(episodio)">
+              <img src="assets/play.png" alt="Play"
+                  class="w-6 h-6 cursor-pointer">
+          </div>
+        </div>    
         <div class="flex flex-col min-w-0 max-w-md">
             <p class="font-montserrat font-bold text-lg text-white line-clamp-1">
                 {{ episodio.nombre_ep }}
@@ -249,6 +256,40 @@ export class PodcastComponent implements OnInit, AfterViewInit {
       const parts = duration.split(':');
       return parts.length === 3 && parts[0] === '00' ? `${parts[1]}:${parts[2]}` : duration;
     }
+
+    // Aquí viene el método addSongsToQueue
+        addSongsToQueue(selectedSong: any) {
+          this.queueService.clearQueue(this.userService.getUsuario()?.nombre_usuario).subscribe(() => {
+          });
+      
+          const startIndex = this.episodios.indexOf(selectedSong);
+          if (startIndex === -1) return;
+      
+          const songsToAdd = this.episodios.slice(startIndex);
+          if (songsToAdd.length === 0) return;
+      
+          const usuario = this.userService.getUsuario()?.nombre_usuario;
+      
+          // Crear un observable para la primera canción
+          const firstSong$ = this.queueService.addToQueue(usuario, songsToAdd[0].id_ep).pipe(
+              tap(() => {
+                  this.playerService.loadSongByPosition(0); // Cargar la primera canción
+              })
+          );
+      
+          // Crear observables para las demás canciones (con concurrencia limitada)
+          const remainingSongs$ = from(songsToAdd.slice(1)).pipe(
+              concatMap((episodio: any) => this.queueService.addToQueue(usuario, episodio.id_cancion).pipe()) // Delay opcional
+          );
+      
+          // Ejecutar la primera canción de inmediato y luego las demás en secuencia controlada
+          firstSong$.pipe(concatWith(remainingSongs$)).subscribe({
+              complete: () => {
+                this.playerService.getQueue(usuario)
+              },
+              error: err => console.error('Error al añadir canciones:', err)
+          });
+        }
   
 
 }

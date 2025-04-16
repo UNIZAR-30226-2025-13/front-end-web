@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { QueueService } from './queue.service';
 import { UsuarioService } from './usuario.service';  // Asegúrate de importar tu servicio de usuario
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,8 +16,8 @@ export class PlayerService {
 
   constructor(
     private queueService: QueueService, 
-    private usuarioService: UsuarioService  // Asegúrate de inyectar el servicio de usuario
-  ) {}
+    private usuarioService: UsuarioService,  // Asegúrate de inyectar el servicio de usuario
+  ) {}  
 
   // Método para reproducir una canción dada
   playSong(song: any) {
@@ -67,12 +68,15 @@ export class PlayerService {
   }
 
   /** 🔹 Retrocede a la canción anterior en la cola */
-  previousSong() {
-    if (this.posicionActual > 0) {
+  previousSong(loop: boolean) {
+    if (loop) {
+      this.loadSongByPosition(this.posicionActual);
+    } else if (this.posicionActual > 0) {
       this.posicionActual--;
       this.loadSongByPosition(this.posicionActual);
-      this.getQueue(this.usuarioService.getUsuario()?.nombre_usuario);
     }
+    this.getQueue(this.usuarioService.getUsuario()?.nombre_usuario);
+
   }
 
   clearQueue(nombre_usuario: string) {
@@ -85,22 +89,19 @@ export class PlayerService {
   }
 
   private _isPlaying = false;
-// Créer un BehaviorSubject pour l'état de lecture
-private playStateSubject = new BehaviorSubject<boolean>(false);
-public playState$ = this.playStateSubject.asObservable();
+  private playStateSubject = new BehaviorSubject<boolean>(false);
+  public playState$ = this.playStateSubject.asObservable();
 
 
 
-// Méthode pour vérifier si la lecture est en cours
-isPlaying(): boolean {
-  return this._isPlaying;
-}
+  // Méthode pour vérifier si la lecture est en cours
+  isPlaying(): boolean {
+    return this._isPlaying;
+  }
 
-// Méthode pour basculer entre lecture et pause
-togglePlay(): void {
-  this._isPlaying = !this._isPlaying;
-  this.playStateSubject.next(this._isPlaying);
-}
-
-
+  // Méthode pour basculer entre lecture et pause
+  togglePlay(): void {
+    this._isPlaying = !this._isPlaying;
+    this.playStateSubject.next(this._isPlaying);
+  }
 }

@@ -715,9 +715,6 @@ export class AlbumComponent implements OnInit, AfterViewInit {
       this.addSongToPlaylist(song, selectedPlaylist);
     }
   }
-  
-
-  
 
   // Aquí viene el método addSongsToQueue
     addSongsToQueue(selectedSong: any) {

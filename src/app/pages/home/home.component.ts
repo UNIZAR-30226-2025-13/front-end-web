@@ -4,6 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { BusquedaService } from '../../services/busqueda.service';
+import { io } from 'socket.io-client';
+import { SocketService } from '../../services/socket.service';
 
 @Component({
   selector: 'app-home',
@@ -147,6 +149,8 @@ export class HomeComponent {
   usuarioConfirm = '';
   passwordConfirm = '';
 
+  socket = io('http://localhost:8080', {withCredentials: true});
+
   //Cadena del Input de búsqueda
   cadena: string = '';
   showBuscador: boolean = false; // Para controlar si se muestra el buscador
@@ -155,17 +159,17 @@ export class HomeComponent {
     private usuarioService: UsuarioService,
     private authService: AuthService,
     public router: Router,
-    private busquedaService: BusquedaService 
+    private busquedaService: BusquedaService,
+    private socketService: SocketService
   ) {}
 
   ngOnInit() {
     this.usuarioInfo = this.usuarioService.getUsuario();
-    /*if (!this.usuarioInfo) {
+    if (!this.usuarioInfo) {
       alert('No has iniciado sesión.');
-      this.router.navigate(['/login']);
-    }*/
+        this.router.navigate(['/login']);    
+    }   
   }
-
 
   // Método para actualizar la búsqueda, emitir el nuevo valor al servicio busqueda
   actualizarBusqueda(event: any) {
@@ -204,7 +208,6 @@ export class HomeComponent {
 
   cerrarSesion() {
     this.closeDropdown();
-    this.usuarioService.limpiarUsuario();
     this.router.navigate(['/login']);
   }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, Renderer2, ViewChild, NgZone } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ElementRef, Renderer2, ViewChild, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, registerLocaleData } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { Title } from '@angular/platform-browser';
@@ -42,7 +42,7 @@ import { UsuarioService } from '../../services/usuario.service';
                 {{ isFollowing ? 'Seguido' : 'Seguir' }}
               </p>
             </button>
-            <p class="text-white text-base">{{ podcaster.seguidores | number:'1.0-0':'es-ES' }} seguidores</p>
+            <p class="text-white text-base">{{ this.seguidores | number:'1.0-0':'es-ES' }} seguidores</p>
           </div>
         </div>
       </div>
@@ -175,6 +175,7 @@ export class PodcasterComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedTab: 'podcast' | 'episodios' = 'podcast';
   anchoReal: number = 0;
   isFollowing: boolean = false;
+  seguidores: number = 0;
   private resizeObserver!: ResizeObserver;
 
   constructor(
@@ -186,13 +187,15 @@ export class PodcasterComponent implements OnInit, AfterViewInit, OnDestroy {
     private renderer: Renderer2,
     private ngZone: NgZone,
     private queueService: QueueService,
-    private userService: UsuarioService
+    private userService: UsuarioService,
+    private cd: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe((params) => {
       const nombre_podcaster_encoded = this.route.snapshot.paramMap.get('nombre_podcaster') ?? '';
       this.nombre_podcaster = decodeURIComponent(nombre_podcaster_encoded);
+      console.log('Nombre del podcaster:', this.nombre_podcaster);
       this.titleService.setTitle(`${this.nombre_podcaster} | Spongefy`);
 
       this.authService.getPodcaster(nombre_podcaster_encoded).subscribe({
@@ -204,6 +207,14 @@ export class PodcasterComponent implements OnInit, AfterViewInit, OnDestroy {
             this.max_rep = this.podcaster.episodios
               .sort((a: any, b: any) => b.n_repros - a.n_repros)
               .slice(0, 5);
+
+            this.authService.isFollowerCreator(this.userService.getUsuario()?.nombre_usuario, nombre_podcaster_encoded).subscribe({
+              next: (response) => {
+                console.log('Respuesta de isFollowerCreator:', response);
+                this.isFollowing = response.es_seguidor;
+                this.cd.detectChanges();
+              }
+            });
 
             // Extraer color dominante
             const imgElement = document.getElementById('artistImage') as HTMLImageElement;
@@ -325,7 +336,29 @@ export class PodcasterComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   follow() {
-    this.isFollowing = !this.isFollowing;
+    if (!this.isFollowing) {
+      this.authService.followCreator(this.userService.getUsuario()?.nombre_usuario, this.podcaster.nombre_podcaster).subscribe({
+        next: () => {
+          console.log('Seguido correctamente');
+          this.isFollowing = !this.isFollowing;
+          this.seguidores += this.isFollowing ? 1 : -1;
+        },
+        error: (err) => {
+          console.error('Error al seguir al artista:', err);
+        }
+      });
+    } else {
+      this.authService.unfollowCreator(this.userService.getUsuario()?.nombre_usuario, this.podcaster.nombre_podcaster).subscribe({
+        next: () => {
+          console.log('Dejado de seguir correctamente');
+          this.isFollowing = !this.isFollowing;
+          this.seguidores += this.isFollowing ? 1 : -1;
+        },
+        error: (err) => { 
+          console.error('Error al dejar de seguir al artista:', err);
+        }
+      });
+    }
   }
 
 

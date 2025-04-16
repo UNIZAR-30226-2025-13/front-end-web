@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { UsuarioService } from '../../services/usuario.service';
 import { HttpClient } from '@angular/common/http';
+import { io } from 'socket.io-client';
+import { SocketService } from '../../services/socket.service';
 
 @Component({
   selector: 'app-login',
@@ -87,14 +89,18 @@ export class LoginComponent {
   contrasena: string = '';
   passwordVisible = false;
 
+  socket = io('http://localhost:8080', {withCredentials: true});
+
   constructor(
     private authService: AuthService,
     private usuarioService: UsuarioService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private socketService: SocketService
+  ) {} 
 
   onLogin() {
     const loginData = { nombre_usuario: this.nombre_usuario, contrasena: this.contrasena };
+
 
     this.authService.login(loginData).subscribe({
       next: (response: any) => {
@@ -102,6 +108,8 @@ export class LoginComponent {
         
         localStorage.setItem('token', response.token);
         this.usuarioService.guardarUsuario(response.usuario);
+        console.log(this.nombre_usuario);
+        this.socketService.login(this.nombre_usuario);
 
         this.router.navigate(['/inicio']);
       },

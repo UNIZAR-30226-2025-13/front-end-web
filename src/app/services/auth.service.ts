@@ -257,4 +257,17 @@ export class AuthService {
     return this.http.get<any>(`${this.apiUrl}/get-podcast?id_podcast=${id_podcast}&nombre_usuario=${nombre_usuario}`);
   }
 
+  saveLastPlaying(nombre_usuario: string, id_cm: number, tiempo: any) {
+    const lastPlaying = {
+      nombre_usuario,
+      id_cm,
+      tiempo
+    }
+    return this.http.post<any>(`${this.apiUrl}/save-last-playing`, lastPlaying);
+  }
+
+  recoverLastPlaying(nombre_usuario: string) {
+    return this.http.get<any>(`${this.apiUrl}/recover-last-playing?nombre_usuario=${nombre_usuario}`);
+  }
+
 }

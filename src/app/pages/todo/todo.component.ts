@@ -113,7 +113,7 @@ import { forkJoin } from 'rxjs';
         <div class="flex gap-[42px] pt-2 overflow-visible whitespace-nowrap flex-nowrap">
         @if (homeData) {
         @for (podcast of homeData.podcasts.slice(0, getVisibleLarge10()); track podcast) {
-            <div class="flex flex-col overflow-visible transition-transform duration-300 hover:scale-110 cursor-pointer">
+            <div class="flex flex-col overflow-visible transition-transform duration-300 hover:scale-110 cursor-pointer" [routerLink]="['/inicio/podcast/', (podcast.id_podcast)]">
               <div class="w-[170px] h-[170px] overflow-hidden rounded-[20px]">
                 <img src="{{podcast.link_imagen}}" class="w-full h-full object-cover">
               </div>
@@ -161,7 +161,7 @@ import { forkJoin } from 'rxjs';
               <div *ngIf="cancionAlbum && cancionAlbum.link_imagen" 
                   class="min-w-[170px] flex flex-col justify-start items-center p-4 rounded-lg transition-transform duration-300 hover:scale-105 cursor-pointer"
                   [ngClass]="{'hidden': shouldHideLoMejorDe(i)}">
-                <div class="w-[170px] flex flex-col items-center">
+                <div class="w-[170px] flex flex-col items-center" [routerLink]="'/inicio/' + (cancionAlbum.tipo === 'cancion' ? 'cancion/' + cancionAlbum.id : 'album/' + cancionAlbum.id)">
                   <div class="w-[170px] h-[170px] overflow-hidden rounded-[20px]">
                     <img [src]="cancionAlbum.link_imagen" class="w-full h-full object-cover">
                   </div>
@@ -273,11 +273,11 @@ import { forkJoin } from 'rxjs';
         <p class="text-white font-bold text-[30px]">Lo último de {{this.podcastData.podcast.nombre_podcast}}</p>
         <div class="flex flex-row mt-2 bg-[#151515] h-[404px] rounded-[40px] overflow-hidden">
           <div class="w-[404px] object-cover rounded-[40px] flex-shrink-0">
-            <img class="object-cover h-[404px] w-[404px] rounded-[40px] cursor-pointer transition-shadow duration-300 hover:shadow-[var(--shadowsponge)]" [src]="this.podcastData.podcast.foto_podcast">
+            <img class="object-cover h-[404px] w-[404px] rounded-[40px] cursor-pointer transition-shadow duration-300 hover:shadow-[var(--shadowsponge)]" [src]="this.podcastData.podcast.foto_podcast" [routerLink]="['/inicio/podcast/', (podcastData.podcast.id)]">
           </div>
           <div class="text-white pl-[38px] pt-[33px] pr-[50px] flex flex-col gap-[14px] w-full">
             <ng-container *ngFor="let episodio of podcastData.podcast.episodios_recientes; let i = index">
-              <div class="flex flex-row hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101 p-2 w-full">
+              <div class="flex flex-row hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101 p-2 w-full cursor-pointer" [routerLink]="['/inicio/episodio/', (episodio.id_ep)]">
                 <img class="w-[62px] h-[62px] rounded-[20px]" [src]="podcastData.podcast.foto_podcast">
                 <div class="flex flex-col ml-2">
                   <p class="font-semibold line-clamp-1">{{ episodio.titulo }}</p>
@@ -318,7 +318,7 @@ import { forkJoin } from 'rxjs';
         <div class="flex gap-[42px] pt-2 overflow-visible whitespace-nowrap flex-nowrap">
         @if (podcastData) {
         @for (podcast of podcastData.podcasts.slice(0, getVisibleLarge10()); track podcast) {
-            <div class="flex flex-col overflow-visible transition-transform duration-300 hover:scale-110 cursor-pointer">
+            <div class="flex flex-col overflow-visible transition-transform duration-300 hover:scale-110 cursor-pointer" [routerLink]="['/inicio/podcast/', (podcast.id_podcast)]">
               <div class="w-[170px] h-[170px] overflow-hidden rounded-[20px]">
                 <img src="{{podcast.link_imagen}}" class="w-full h-full object-cover">
               </div>

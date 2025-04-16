@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, AfterViewInit } from '@angular/core';
+import { Component, ViewChild, ElementRef, OnInit, EventEmitter, Output, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UsuarioService } from '../../services/usuario.service';
 import { AuthService } from '../../services/auth.service';
@@ -182,16 +182,8 @@ import { PlayerService } from '../../services/player.service';
 
 `
 })
-export class PlayerComponent implements OnInit {
+export class PlayerComponent implements OnInit, OnDestroy {
   @ViewChild('audioPlayer', { static: false }) audioPlayer!: ElementRef<HTMLAudioElement>;
-
-  constructor(
-    private authService: AuthService,
-    private usuarioService: UsuarioService,
-    private queueService: QueueService,
-    private router: Router,
-    private playerService: PlayerService
-  ) {}
 
   currentSong: any = null;
   isPlaying = false;
@@ -206,26 +198,40 @@ export class PlayerComponent implements OnInit {
   loop = false;
   isShuffle = false;
 
-  @Output() toggleCola = new EventEmitter<void>();
 
+  constructor(
+    private authService: AuthService,
+    private usuarioService: UsuarioService,
+    private queueService: QueueService,
+    private router: Router,
+    private playerService: PlayerService
+  ) {}
+
+  
+  
+  
+  
+  @Output() toggleCola = new EventEmitter<void>();
+  
   toggleColaRepro(): void {
     this.toggleCola.emit();
     this.showQueuePopup = !this.showQueuePopup;
     if (this.showQueuePopup) {
     }
   }
-
+  
+  
   ngOnInit() {
     let nombreUsuario = this.usuarioService.getUsuario().nombre_usuario;
     this.clearQueue();
-  
+    
     if (this.audioPlayer?.nativeElement) {
       // Aquí se llama al método onSongEnd cuando la canción termina
       this.audioPlayer.nativeElement.onended = () => {
         this.onSongEnd();  // Llamamos a onSongEnd
       };
     }
-  
+    
     this.playerService.currentSong.subscribe(song => {
       if (song) {
         this.currentSong = song;
@@ -234,22 +240,80 @@ export class PlayerComponent implements OnInit {
       } else {
         this.stopAndResetAudio();
       } 
-    
+      
     });
-  
-  
-  this.playerService.playState$.subscribe(isPlaying => {
-    this.isPlaying = isPlaying;
-    if (this.audioPlayer?.nativeElement) {
-      if (isPlaying) {
-        this.audioPlayer.nativeElement.play().catch(err => console.error('Error al reproducir:', err));
-      } else {
-        this.audioPlayer.nativeElement.pause();
+    
+    
+    this.playerService.playState$.subscribe(isPlaying => {
+      this.isPlaying = isPlaying;
+      if (this.audioPlayer?.nativeElement) {
+        if (!isPlaying) {
+          this.audioPlayer.nativeElement.pause();
+        }
       }
-    }
-  });
+    });
+
+    setTimeout(() => {
+      this.authService.recoverLastPlaying(nombreUsuario).subscribe((response: any) => {
+        if (response) {
+          this.queueService.addToQueue(nombreUsuario, response.id_cm).subscribe(() => {
+            console.log('Canción añadida a la cola');
+            this.queueService.playCm(response.id_cm).subscribe(response2 => {
+              console.log('Canción sacada:', response2);
+              if (response2) {
+                
+                this.queueService.getQueue(nombreUsuario, 0);
+                this.currentSong = response2;
+                console.log('tiempo', response.tiempo);
+                this.currentTime = this.parseTimeStringToSeconds(response.tiempo);
+                console.log('Tiempo convertido:', this.currentTime);
+                this.cantantes = [response2.autor, ...(response2.artistas_featuring ? response2.artistas_featuring.split(', ') : [])];
+                this.loadAndPlaySong(this.currentTime);
+              }
+            });
+            
+          });
+          
+        } else {
+          console.log('No hay canción guardada para el usuario');
+        }
+      });
+    }, 1000);
+  }
+  
+  ngOnDestroy(): void {
+    this.authService.saveLastPlaying(this.usuarioService.getUsuario().nombre_usuario, this.currentSong?.id_cm,this.secondsToTimeString(this.currentTime)).subscribe(() => {
+      console.log('Última canción guardada correctamente');
+      this.stopAndResetAudio();
+    });
   }
 
+  secondsToTimeString(totalSeconds: number): string {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = Math.floor(totalSeconds % 60);
+  
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  }
+
+  parseTimeStringToSeconds(timeString: string | null | undefined): number {
+    if (!timeString || typeof timeString !== 'string') return 0;
+  
+    const parts = timeString.split(':').map(Number);
+    if (parts.length === 3) {
+      const [hours, minutes, seconds] = parts;
+      return (hours * 3600) + (minutes * 60) + seconds;
+    } else if (parts.length === 2) {
+      const [minutes, seconds] = parts;
+      return (minutes * 60) + seconds;
+    } else if (parts.length === 1) {
+      return parts[0];
+    }
+    return 0;
+  }
+  
+  
   stopAndResetAudio() {
     if (this.audioPlayer?.nativeElement) {
       const audio = this.audioPlayer.nativeElement;
@@ -275,7 +339,7 @@ export class PlayerComponent implements OnInit {
 
   /** 🔹 Retrocede a la canción anterior en la cola */
   previousSong() {
-    this.playerService.previousSong();
+    this.playerService.previousSong(this.loop);
   }
 
   /** 🔹 Mezcla la cola de reproducción */
@@ -299,15 +363,21 @@ export class PlayerComponent implements OnInit {
   }
 
   /** 🔹 Carga y reproduce la canción actual */
-  loadAndPlaySong() {
+  loadAndPlaySong(time: number = 0) {
     if (this.audioPlayer?.nativeElement && this.currentSong?.link_cm) {
       const audio = this.audioPlayer.nativeElement;
       audio.src = this.currentSong.link_cm;
-      audio.load();
+      audio.currentTime = time;
 
+      audio.load();
+      console.log('lolz', time);
+      console.log("lol", audio.currentTime)
+      console.log('Cargando canción:', this.currentSong);
       audio.oncanplay = () => {
-        this.currentTime = 0;
+        this.currentTime = time;
         this.duration = audio.duration || 0;
+        
+        
         audio.play().then(() => {
           this.isPlaying = true;
         }).catch(err => console.error('Error al reproducir:', err));
