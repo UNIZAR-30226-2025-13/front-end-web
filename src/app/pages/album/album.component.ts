@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef,ElementRef, HostListener, ViewChild   } from '@angular/core';
 import { CommonModule, registerLocaleData } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
- import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 import { UsuarioService } from '../../services/usuario.service';
 import { Title } from '@angular/platform-browser';
 import { PlayerService } from '../../services/player.service';
@@ -23,7 +23,7 @@ interface PlaylistChoice {
 interface Playlist {
   nombre: string;
   id_lista: number;
-  // Ajoutez d'autres propriétés si nécessaire
+
 }
 
 @Component({
