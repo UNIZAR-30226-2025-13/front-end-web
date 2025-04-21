@@ -1,18 +1,33 @@
-import { Component, OnInit, AfterViewInit, Renderer2, NgZone } from '@angular/core';
+import { Component, OnInit, AfterViewInit,ViewChild,ElementRef, Renderer2,HostListener, NgZone } from '@angular/core';
 import { CommonModule, registerLocaleData } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { PlayerService } from '../../services/player.service';
 import { UsuarioService } from '../../services/usuario.service';
 import { QueueService } from '../../services/queue.service';
+import { concatMap, concatWith, from, tap } from 'rxjs';
+import { FormsModule } from '@angular/forms';
+
 
 // @ts-ignore
 import ColorThief from 'colorthief';
 
+interface PlaylistChoice {
+  name: string;
+  id?: number;
+  selected: boolean;
+}
+
+interface Playlist {
+  nombre: string;
+  id_lista: number;
+
+}
+
 @Component({
   selector: 'app-lista-podcasts',
-  imports: [CommonModule],
+  imports: [CommonModule,FormsModule, RouterModule],
   template: `
   <div class="bg-black pt-4 px-[34px] min-h-screen">
 
@@ -26,37 +41,83 @@ import ColorThief from 'colorthief';
             <div class="flex flex-col items-start pt-20">
                 <p class="text-white">Podcast</p>
                 <h1 class="font-montserrat font-bold text-4xl ml-[-2px] text-white">{{ podcast_name }}</h1>
-                <p class="text-white">
-                <p class="text-white">
-                <span *ngFor="let creador of creadores.split(',').slice(0,1)">{{ creador }}</span>
-                <span *ngFor="let creador of creadores.split(',').slice(1)">, {{ creador.trim() }}</span>
-              </p>
+                <div class= "flex flex-row ">
+                  <p *ngFor="let creador of creadores.split(',').slice(0,1)"  class=" text-white cursor-pointer min-w-fill max-w-full " [routerLink]="['/inicio/podcaster/',encodeNombreArtista(creador) ]">{{ creador }}</p>
+                  <p *ngFor="let creador of creadores.split(',').slice(1)" class=" text-white cursor-pointer min-w-fill max-w-full " [routerLink]="['/inicio/podcaster/',encodeNombreArtista(creador.trim()) ]">, {{ creador.trim() }}<p>
+                </div>
             </div>
-        </div>
-        <div class=" flex mt-4">
-          <img src="assets/play.png" alt="play" (click)="playSong(episodios[0])" class=" h-[52px] w-[52px]">
-          <img src="assets/aleatorio.png" alt="aleatorio" (click)="random()" class=" h-[52px] w-[52px]">
-          <img src="assets/anyadirplaylist.png" alt="anadir" (click)="add()" class=" h-[52px] w-[52px]">
+          </div>
+          
+          <div class=" flex mt-4 items-center gap-1">
+            <div 
+              class="h-[52px] w-[52px] mt-2 flex items-center justify-center transition-transform duration-200 cursor-pointer"
+              (click)="addSongsToQueue(episodios[0])">
+              <img 
+              class="w-full h-full transition-transform duration-200"
+              src="assets/play.png">
+           </div>
+           <div class="mt-2 rounded-full flex items-center justify-center cursor-pointer">
+              <img src="assets/aleatorio.png" alt="aleatorio" (click)="random()" class=" items-center justify-center h-[52px] w-[52px] cursor-pointer z-10">
+           </div> 
+           <div class="relative flex items-center">
+              <!-- Botón que abre el popup -->
+              <div class="h-[52px] w-[52px] flex items-center justify-center transition-transform duration-200 cursor-pointer">
+                <img src="assets/anyadirplaylist.png" alt="anadir" (click)="toggleBox('album')" class="mt-2 w-full h-full transition-transform duration-200">
+              </div>
+
+              <!-- Popup (posicionado absolutamente respecto al contenedor padre) -->
+              <div *ngIf="isOpen" #popup  
+                  class="border-1 border-[var(--sponge)] absolute left-full top-0 ml-2 h-max max-w-lg w-80 p-4 bg-[var(--graybackground)] opacity-100 rounded-lg z-50 shadow-lg">
+                <div class="max-h-50 overflow-y-auto pr-1 w-full">
+                  <div *ngFor="let choice of choices" class="flex items-center gap-2">
+                    <input
+                        type="checkbox"
+                        [(ngModel)]="choice.selected"
+                        class="w-5 h-5 cursor-pointer"
+                        [ngStyle]="{ 'accent-color': choice.selected ? 'var(--sponge)' : 'white' }"
+                        (change)="choice.name === 'Crear nueva lista' ? toggleNewListInput(choice) : null"
+                      />
+                    <label class="text-white cursor-pointer">{{ choice.name }}</label>
+                  </div>
+                </div>
+
+                <div *ngIf="showNewListInput" class="mt-2">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="newListName" 
+                    placeholder=" Nombre" 
+                    class="w-full p-2 rounded text-white focus:ring-white-500 focus:outline-none focus:ring-2"/>
+                </div>
+
+                <button
+                  (click)="validateSelection()"
+                  class="mt-2 w-full bg-white text-black hover:bg-zinc-600 py-1 rounded transition duration-300"
+                >
+                  Añadir
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+     
 
 
 <div class="m-4">       
 <!-- song list -->
-<div class="grid grid-cols-16 gap-4 text-left text-white mt-20 items-center">
-    <div class="col-span-7">Título</div>
-    <div class="col-span-3 text-center">Tu valoración</div>
-    <div class="col-span-3 text-center">Valoración Media</div>
-    <div class="col-span-2 text-center">Duración</div>
-    <div class="col-span-1 text-center"></div>
+<div class="grid grid-cols-32 gap-4 text-left text-white mt-20 items-center">
+    <div class="col-span-12">Título</div>
+    <div class="col-span-6 text-center">Tu valoración</div>
+    <div class="col-span-6 text-center">Valoración Media</div>
+    <div class="col-span-4 text-center">Duración</div>
+    <div class="col-span-2 text-center"></div>
 </div>
 <hr class="border-t-2 border-white my-4">  
 
-<div *ngFor="let episodio of episodios" class="grid grid-cols-16 gap-4 text-white items-center rounded-[10px] transition-transform duration-300 hover:scale-101">
-    <div class="flex m-3 ml-0 col-span-7">
-        <div class="flex flex-col min-w-0 max-w-md">
-            <p class="font-montserrat font-bold text-lg text-white line-clamp-1">
+<div *ngFor="let episodio of episodios" class="grid grid-cols-32 gap-4 text-white items-center rounded-[10px] transition-transform duration-300 hover:scale-101" >
+    <div class="flex m-3 ml-0 col-span-12">
+        <div class="flex flex-col min-w-0 max-w-md" (click)="addSongsToQueue(episodio)">
+            <p class="font-montserrat font-bold text-lg text-white line-clamp-1 " [routerLink]="['/inicio/episodio/',episodio.id_ep ]">
                 {{ episodio.nombre_ep }}
             </p>
             <p class="text-white text-sm line-clamp-4">
@@ -65,21 +126,80 @@ import ColorThief from 'colorthief';
         </div>
     </div>
     
-    <div class="col-span-3 flex justify-center items-center">
+    <div class="col-span-6 flex justify-center items-center">
         <img *ngFor="let star of generateStars(episodio.valoracion_del_usuario)" [src]="star" alt="star" class="w-5 h-auto"/>
     </div> 
     
-    <div class="col-span-3 flex justify-center items-center">
+    <div class="col-span-6 flex justify-center items-center">
         <img *ngFor="let star of generateStars(episodio.valoracion_media)" [src]="star" alt="star" class="w-5 h-auto"/>
     </div> 
     
-    <div class="col-span-2 flex justify-center items-center">{{ formatDuration(episodio.duracion) }}</div>
+    <div class="col-span-4 flex justify-center items-center">{{ formatDuration(episodio.duracion) }}</div>
 
-    <div class="col-span-1 flex justify-center items-center space-x-2">
-        <img src="assets/anyadirplaylist.png" alt="añadir" (click)="add()" class="h-[17px] w-[18px]">
-        <img src="assets/heart.png" alt="like" (click)="like()" class="h-[17px] w-[18px]">
-        <p (click)="option()" class="font-montserrat font-bold text-xl text-white pb-3">...</p> 
-    </div>
+    <div class="flex w-42 ml-10 items-center col-span-2"> 
+          <div class="relative">
+            <div class="p-2 rounded-full flex items-center justify-center cursor-pointer">
+              <img
+                src="assets/anyadirplaylist.png"
+                alt="anadir"
+                (click)="toggleBox('episodio', episodio)"
+                
+                class="h-[17px] w-auto object-contain z-10 cursor-pointer"
+              >
+            </div>
+
+            <!-- Popup solo si el ID coincide -->
+            <div *ngIf="openedCancionId  === episodio.id_ep" #popup2
+                class="h-max-70 w-80 border-1 border-[var(--sponge)] absolute right-10 bottom-0 ml-2 z-50  max-w-xs p-4 bg-[var(--graybackground)] opacity-100 rounded-lg shadow-lg">
+              <div class="overflow-y-auto pr-1 ">
+                <div *ngFor="let choice of choices" class="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="choice.selected"
+                    class="w-5 h-5 cursor-pointer"
+                    [ngStyle]="{ 'accent-color': choice.selected ? 'var(--sponge)' : 'white' }"
+                    (change)="choice.name === 'Crear nueva lista' ? toggleNewListInput(choice) : null"
+                  />
+                  <label class="text-white cursor-pointer">{{ choice.name }}</label>
+                </div>
+              </div>
+
+              <div *ngIf="showNewListInput" class="mt-2">
+                <input 
+                  type="text" 
+                  [(ngModel)]="newListName" 
+                  placeholder=" Nombre" 
+                  class="w-full p-2 rounded text-white focus:ring-white-500 focus:outline-none focus:ring-2"/>
+              </div>
+
+              <button
+                (click)="validateSelection_episodio(episodio)"
+                class="mt-2 w-full bg-white text-black hover:bg-zinc-600 py-1 rounded transition duration-300"
+              >
+                Añadir
+              </button>
+            </div>
+          </div>
+          
+          <div class="relative p-2 rounded-full flex items-center justify-center cursor-pointer">
+            <img src="assets/heart.png" alt="like" (click)="like(episodio.id_ep)" class="cursor-pointer h-[17px] w-auto object-contain z-10">
+          </div>
+
+          <div class="relative">
+            <div class="p-2 rounded-full flex items-center justify-center w-[33px] h-[33px] cursor-pointer">
+              <p (click)="toggleBox('option', episodio)"
+                class="font-montserrat font-bold text-xl text-white cursor-pointer z-10 leading-none mt-[-5px]">...</p>
+            </div>
+
+            <div *ngIf="openedOptionId === episodio.id_ep" #popup3
+                class="border-1 border-[var(--sponge)] absolute right-10 w-50 bottom-0 ml-2 z-50 h-max max-w-xs bg-[var(--graybackground)] opacity-100 rounded-lg shadow-lg">
+              <button class="flex flex-row text-left px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
+                (click)="anadirCola(episodio)">
+                <img class="w-5 h-5 mr-2" src="assets/queue.png">Añadir a la cola</button>
+            </div>
+          </div>
+        </div>
+      </div>
 </div>
 
 </div>
@@ -90,6 +210,37 @@ export class ListaPodcastComponent implements OnInit, AfterViewInit {
     podcast_name :string = '';//TODO
     podcast_icone:string ='';//TODO
     creadores: string = '' ;//TODO
+    
+    nombre_usuario:string = '';
+
+    //to know if the option panel of the first block is open
+    isOpen = false;
+    //to know if the input of the name to the new playlist is open
+    showNewListInput = false; 
+    //to know if the + of the song is open
+    openedCancionId: number | null = null;
+
+    //to know if the option ... of the song is open
+    openedOptionId: number | null = null;
+
+    //list of the aviable playlists to put the songs in it
+    playlists: any = [];
+
+   //list based on playlists but with attributes in an other way (name, id, selected)
+   choices:any = [];
+
+   //name to enter for the new playlist
+   newListName:string = '';
+
+  //episodio to add to a lista if the + is clicked over an episodio
+  episodioToAdd:any = null;
+
+
+   //color and type of the playslist we want to create
+  color = "#A200F4";
+  type = "episodes";
+
+   
 
     constructor(
         private route: ActivatedRoute,
@@ -194,9 +345,27 @@ export class ListaPodcastComponent implements OnInit, AfterViewInit {
     //to put in aleatorio mode
     random(){} //TODO
     //to anadir
-    add(){}//TODO
-    option(){}//TODO
-    like(){}//TODO
+   
+    like(id_cm: number) {
+    
+      this.nombre_usuario = this.userService.getUsuario().nombre_usuario;
+    
+      if (!this.nombre_usuario) {
+        console.warn("error usario");
+        return;
+      }
+      console.log("id_cm", id_cm)
+      this.authService.addToFav(id_cm, this.nombre_usuario).subscribe({
+        next: (response: any) => {
+  
+          alert('cancion anadida en la playlist');
+  
+        },
+        error: (err) => {
+          console.error("Erreur lors de l'ajout aux favoris :", err);
+        }
+      });
+    }
   
   
     generateStars(rating: string): string[] {
@@ -222,33 +391,284 @@ export class ListaPodcastComponent implements OnInit, AfterViewInit {
   
     sort(){}//TODO
 
-    addSongToQueue(selectedSong: any, event: Event) {
-      const usuario = this.userService.getUsuario()?.nombre_usuario;
-      event.stopPropagation();
-      console.log('Cancion seleccionada:', selectedSong);
-      this.queueService.clearQueue(this.userService.getUsuario()?.nombre_usuario).subscribe(() => {
-      });
+    addSongsToQueue(selectedSong: any) {
+          this.queueService.clearQueue(this.userService.getUsuario()?.nombre_usuario).subscribe(() => {
+          });
       
-      if (!usuario || !selectedSong) return;
+          const startIndex = this.episodios.indexOf(selectedSong);
+          if (startIndex === -1) return;
+      
+          const songsToAdd = this.episodios.slice(startIndex);
+          if (songsToAdd.length === 0) return;
+      
+          const usuario = this.userService.getUsuario()?.nombre_usuario;
+      
+          // Crear un observable para la primera canción
+          const firstSong$ = this.queueService.addToQueue(usuario, songsToAdd[0].id_ep).pipe(
+              tap(() => {
+                  this.playerService.loadSongByPosition(0); // Cargar la primera canción
+              })
+          );
+      
+          // Crear observables para las demás canciones (con concurrencia limitada)
+          const remainingSongs$ = from(songsToAdd.slice(1)).pipe(
+              concatMap(song => this.queueService.addToQueue(usuario, this.episodios.id_ep).pipe()) // Delay opcional
+          );
+      
+          // Ejecutar la primera canción de inmediato y luego las demás en secuencia controlada
+          firstSong$.pipe(concatWith(remainingSongs$)).subscribe({
+              complete: () => {
+                this.playerService.getQueue(usuario)
+              },
+              error: err => console.error('Error al añadir canciones:', err)
+          });
+        }
     
-      // Añadir solo la canción seleccionada a la cola
-      this.queueService.addToQueue(usuario, selectedSong.id_cancion).subscribe({
-        next: () => {
-          // Cargar la canción seleccionada inmediatamente
-          this.playerService.loadSongByPosition(0);
-          this.playerService.getQueue(usuario);
-          console.log('Canción añadida a la cola.');
-        },
-        error: (err: any) => {
-          console.error('Error al añadir la canción a la cola:', err);
-        },
-      });
-    }
 
     formatDuration(duration: string): string {
       const parts = duration.split(':');
       return parts.length === 3 && parts[0] === '00' ? `${parts[1]}:${parts[2]}` : duration;
     }
-  
+    @ViewChild('popup') popupRef!: ElementRef;
+    @ViewChild('popup2') popupRef2!: ElementRef;
+    @ViewChild('popup3') popupRef3!: ElementRef;
 
+    @HostListener('document:mousedown', ['$event'])
+      handleClickOutside(event: Event) {
+        if (this.isOpen && this.popupRef && !this.popupRef.nativeElement.contains(event.target)) {
+          this.isOpen = false;
+        }
+        if (this.openedCancionId && this.popupRef2 && !this.popupRef2.nativeElement.contains(event.target)) {
+          this.openedCancionId = null; // Cerrar el popup de esa canción
+        }
+        if (this.openedOptionId && this.popupRef3 && !this.popupRef3.nativeElement.contains(event.target)) {
+          this.openedOptionId = null; // Cerrar el popup de opciones
+        }
+      }
+
+    toggleBox(type:string, episodio?:any) {
+      if (type == "album"){
+        this.isOpen = !this.isOpen;
+      }
+      if (type === "episodio") {
+        this.openedCancionId = this.openedCancionId === episodio.id_ep ? null : episodio.id_ep;
+        console.log("opened anadir", this.openedCancionId)
+        this.episodioToAdd = episodio.id_ep;  
+      } else if (type === "option") {
+        this.openedOptionId = this.openedOptionId === episodio.id_ep ? null : episodio.id_ep;
+      }
+      this.nombre_usuario = this.userService.getUsuario().nombre_usuario;
+      
+      if (!this.nombre_usuario) {
+        console.warn("Usuario no conectado. Error recuperación listas.");
+        return;
+      }
+    
+      this.authService.getEpisodeList(this.userService.getUsuario().nombre_usuario).subscribe(
+        (response:any) => {
+          this.playlists = response;
+          console.log("reponse", response);
+          
+          
+          this.choices = this.playlists.map((playlist: Playlist): PlaylistChoice => ({
+            name: playlist.nombre,
+            id: playlist.id_lista,
+            selected: false  
+          }));
+          this.choices.push({
+            name: "Crear nueva lista",
+            selected: false
+          });
+          console.log("choix", this.choices);
+        },
+        (error) => {
+          console.error('Error al obtener las playlists:', error);
+        }
+      );
+    }
+
+    toggleNewListInput(choice: any) {
+      if (choice.name === "Crear nueva lista") {
+        this.showNewListInput = choice.selected; 
+        if (!choice.selected) {
+          this.newListName = ""; 
+        }
+      }
+    }
+    validateSelection() {
+      this.isOpen = false;
+      
+      // Filtrer les playlists existantes sélectionnées
+      const selectedPlaylists = this.choices
+        .filter((choice: PlaylistChoice) => choice.selected && choice.name !== "Crear nueva lista")
+        .map((choice: PlaylistChoice) => ({
+          name: choice.name,
+          id: choice.id
+        }));
+        
+      // Variable pour suivre toutes les playlists (existantes + nouvelle)
+      const allSelectedPlaylists = [...selectedPlaylists];
+      
+      // Fonction pour ajouter toutes les chansons aux playlists
+      const addAllSongsToPlaylists = (playlists: any[]) => {
+        for (let selectedPlaylist of playlists) {
+          for (let cancion of this.episodios) {
+            console.log("cancion:", cancion);
+            console.log("addSongToPlaylist")
+            this.addSongToPlaylist(cancion, selectedPlaylist);
+          }
+        }
+      };
+      
+    
+      if (this.showNewListInput && this.newListName.trim() !== "") {
+        this.authService.createPlaylist(this.newListName, this.nombre_usuario, this.color, this.type)
+          .subscribe({
+            next: (response) => {
+              console.log("Nueva lista creada:", response);
+              
+              
+              this.authService.getUserPlaylists(this.userService.getUsuario().nombre_usuario)
+                .subscribe({
+                  next: (response: any) => {
+                    this.playlists = response;
+                    console.log("reponse", response);
+                    
+                    
+                    let newPlaylistId;
+                    for (let playlist of this.playlists) {
+                      if (this.newListName === playlist.nombre) {
+                        console.log("id_nueva_lista", playlist.id_lista);
+                        newPlaylistId = playlist.id_lista;
+                        break;
+                      }
+                    }
+                    
+                    if (newPlaylistId) {
+                     
+                      allSelectedPlaylists.push({
+                        name: this.newListName,
+                        id: newPlaylistId
+                      });
+                    }
+                    
+                    console.log("Playlists selected:", allSelectedPlaylists);
+                    console.log("usuario:", this.nombre_usuario);
+                    
+                    
+                    addAllSongsToPlaylists(allSelectedPlaylists);
+                  },
+                  error: (err) => {
+                    console.error("Error al obtener playlists:", err);
+             
+                    addAllSongsToPlaylists(selectedPlaylists);
+                  }
+                });
+            },
+            error: (err) => {
+              console.error("Error lista no creada:", err);
+          
+              addAllSongsToPlaylists(selectedPlaylists);
+            }
+          });
+      } 
+      
+      else {
+        console.log("Playlists selected:", selectedPlaylists);
+        console.log("usuario:", this.nombre_usuario);
+        addAllSongsToPlaylists(selectedPlaylists);
+      }
+    }
+
+
+
+
+    addSongToPlaylist(episodio:any, playlist: any) {
+      console.log("id_ep:", episodio.id_ep);
+      console.log(" playlist_id", playlist.id);
+      this.authService.addEpisodioToLista( episodio.id_ep, playlist.id).subscribe({
+        next: () => {  // No necesitamos la respuesta si no la vamos a usar
+          console.log('episodio anadido');
+          
+        
+        },
+        error: (error) => {
+          // Mostrar alerta con el mensaje de error
+          alert('Error al añadir la canción a la playlist');
+          console.error('Error al añadir la canción:', error);
+        }
+      });
+    }
+
+    encodeNombreArtista(nombre: string): string {
+      return encodeURIComponent(nombre);
+    }
+
+    validateSelection_episodio(song: any) {
+      const selectedPlaylists = this.choices
+        .filter((choice: PlaylistChoice) => choice.selected && choice.name !== "Crear nueva lista")
+        .map((choice: PlaylistChoice) => ({
+          name: choice.name,
+          id: choice.id
+        }));
+    
+      if (this.showNewListInput && this.newListName.trim() !== "") {
+        this.authService.createPlaylist(this.newListName, this.nombre_usuario, this.color, this.type).subscribe({
+          next: (response) => {
+            console.log("Nueva lista creada:", response);
+            this.authService.getUserPlaylists(this.userService.getUsuario().nombre_usuario).subscribe(
+              (response: any) => {
+                this.playlists = response;
+                console.log("response", response);
+                let newPlaylistId;
+                for (let playlist of this.playlists) {
+                  if (this.newListName === playlist.nombre) {
+                    console.log("id_nueva_lista", playlist.id_lista);
+                    newPlaylistId = playlist.id_lista;
+                    break; // Salir del bucle una vez encontrado
+                  }
+                }
+                if (newPlaylistId) {
+                  selectedPlaylists.push({
+                    name: this.newListName,
+                    id: newPlaylistId
+                  });
+                }  
+              });
+          },
+          error: (err) => console.error("Error lista no creada:", err)
+        });
+      }
+    
+      console.log("Playlists selected :", selectedPlaylists);
+      console.log("usuario :", this.nombre_usuario);
+      for (let selectedPlaylist of selectedPlaylists) {
+        console.log("cancion:", song);
+        console.log("selectedPlaylist:", selectedPlaylist);
+        this.addSongToPlaylist(song, selectedPlaylist);
+      }
+    }
+  
+    anadirCola(song: any) {
+      console.log("anadir a la cola");
+      this.nombre_usuario = this.userService.getUsuario().nombre_usuario;
+      
+      if (!this.nombre_usuario) {
+        console.warn("Usuario no conectado. Error recuperación listas.");
+        return;
+      }
+      this.queueService.addToQueue(this.nombre_usuario,song.id_ep).subscribe({
+        next: () => {  
+          this.playerService.getQueue(this.nombre_usuario);
+          alert('Cancion anadida en la cola');
+        
+        },
+        error: (error) => {
+          alert('Error al añadir el episodio a cola');
+          console.error('Error al añadir el episodio a cola:', error);
+        }
+      });
+  
+      this.openedOptionId = null;
+    }
 }

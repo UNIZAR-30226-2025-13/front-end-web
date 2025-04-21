@@ -15,6 +15,7 @@ import { CarpetasComponent } from './pages/carpetas/carpetas.component';
 import { BuscadorComponent } from './pages/buscador/buscador.component';
 import { PerfilUsuarioComponent } from './pages/perfil-usuario/perfil-usuario.component';
 import { DatospersonalesComponent } from './pages/datospersonales/datospersonales.component';
+import { LyricsComponent } from './pages/lyrics/lyrics.component';
 
 import { EpisodioComponent } from './pages/episodio/episodio.component';
 
@@ -39,6 +40,7 @@ export const routes: Routes = [
       { path: 'usuario/:nombre_usuario', component: PerfilUsuarioComponent},
       { path: 'datospersonales/:nombre_usuario', component: DatospersonalesComponent},
       { path: 'episodio/:id_ep', component: EpisodioComponent},
+      {path:'lyrics/:id_ep', component: LyricsComponent},
     ]
   },
 

@@ -40,7 +40,7 @@ interface PlaylistChoice {
           <p class="">Episodio</p>
           <h1 class="font-montserrat font-bold text-4xl ml-[-2px] text-white">{{ n_episode }} | {{ n_podcast }}</h1>
           <div class="flex flex-row w-full overflow-hidden whitespace-nowrap ">
-            <p class=" cursor-pointer min-w-fill max-w-full " [routerLink]="['/inicio/artista/', encodeNombreArtista(n_podcast)]">{{n_podcast}}</p>
+            <p class=" cursor-pointer min-w-fill max-w-full " [routerLink]="['/inicio/podcast/', encodeNombreArtista(n_podcast)]">{{n_podcast}}</p> <!-- todo or delete -->
             
             <p>&nbsp;| {{ano}} </p>
           </div>
@@ -217,8 +217,7 @@ export class EpisodioComponent {
     
 
 
-    add(){}//TODO
-    
+   
  
     
   
@@ -345,7 +344,9 @@ export class EpisodioComponent {
         );
       }
 
-      validateSelection(){const selectedPlaylists = this.choices
+      validateSelection(){
+        this.isOpen = false
+        const selectedPlaylists = this.choices
         .filter((choice: PlaylistChoice) => choice.selected && choice.name !== "Crear nueva lista")
         .map((choice: PlaylistChoice) => ({
           name: choice.name,
@@ -390,9 +391,9 @@ export class EpisodioComponent {
     }
     
     addSongToPlaylist( playlist: any) {
-      console.log("id_ep:", this.id_ep);
-      console.log(" playlist_id", playlist.id);
-      this.authService.addSongToPlaylist( parseInt(this.id_ep), playlist.id).subscribe({
+      console.log("id_ep:", parseInt(this.id_ep));
+      console.log("playlist_id", playlist.id);
+      this.authService.addEpisodioToLista( parseInt(this.id_ep), playlist.id).subscribe({
         next: () => {  // No necesitamos la respuesta si no la vamos a usar
           console.log('episodio anadido');
           
@@ -400,8 +401,8 @@ export class EpisodioComponent {
         },
         error: (error) => {
           // Mostrar alerta con el mensaje de error
-          alert('Error al añadir la canción a la playlist');
-          console.error('Error al añadir la canción:', error);
+          alert('Error al añadir el episodio a la playlist');
+          console.error('Error al añadir el episodio:', error);
         }
       });
     }

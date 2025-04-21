@@ -1,35 +1,49 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ChangeDetectorRef,HostListener, ElementRef, } from '@angular/core';
 import { CommonModule} from '@angular/common';
+import { AuthService } from '../../services/auth.service';
+import { Title } from '@angular/platform-browser';
+import { ActivatedRoute } from '@angular/router';
+import { RouterModule, Router } from '@angular/router'
+
+import { PlayerService } from '../../services/player.service';
+
+// @ts-ignore
+
+import { UsuarioService } from '../../services/usuario.service';
+import { QueueService } from '../../services/queue.service';
 
 @Component({
   selector: 'app-lyrics',
-  imports: [CommonModule],
+  imports: [CommonModule,RouterModule],
   
   template:`
-  <pre class="text-white font-bold text-3xl overflow-y-auto rounded-lg m-5 p-7" [ngStyle]="{'background-color': dominantColor}" [innerText]="text"></pre>
+  <pre class="text-white font-bold text-3xl overflow-y-auto rounded-lg m-5 p-7 bg-[var(--sponge)]"  [innerText]="text"></pre>
   `,
 })
-export class LyricsComponent {
-  dominantColor: string = 'rgba(69, 203, 96, 0.5)';
-  text:string = `Bellaquita
-Bellaquita
-Eh
-Ey, yo, es Ousi
-Yeah-yeah
-Dei V, Underwater
-Bellaquita
 
-Me diste follow y te di followback
-Me diste like y yo te di dos pa'trá'
-Toma, al otro día me pusiste en los close friends
-Eso es lo que tú quieres, ma
-Voy pa'l DM, de espalda, de la'o o de frente
-En toa' las fotito' se ve bien
-Mami, te lo doy ahora y después también
-Subió una story cerca, estoy que le llego a pie, еh
-Ouh, ma, yo quiero que tú sea' mi loba
-Tú mе tiene' a mí en la cuerda floja`;
+export class LyricsComponent {
+  constructor(
+        private authService: AuthService,
+        private titleService: Title,
+        private route: ActivatedRoute,
+        private router: Router,
+        private playerService: PlayerService,
+        private userService: UsuarioService,
+        private queueService: QueueService
+      ) {}
   
+ 
+  id_ep:string='' ;
+  text:string = '';
   
+ngOnInit() {
+  this.id_ep = this.route.snapshot.paramMap.get('id_ep') ?? '';
+  this.authService.showLyrics(parseInt(this.id_ep)).subscribe((data) => {
+    console.log("data", data)
+    console.log("lyrics", data.letra)
+    this.text = data.letra;
+  
+  })
+}
 
 }
