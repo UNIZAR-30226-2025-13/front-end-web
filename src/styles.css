@@ -1,7 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap');
-@import "tailwindcss";
 
-
+/* Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
     --sponge: #A200F4;
@@ -24,10 +26,10 @@ body {
 
 /* Ocultar la barra de desplazamiento en todos los navegadores */
 .scrollbar-hide {
-    -ms-overflow-style: none;  /* Para Internet Explorer y Edge */
-    scrollbar-width: none;      /* Para Firefox */
+    -ms-overflow-style: none;  
+    scrollbar-width: none;     
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-    display: none;              /* Para Chrome, Safari y Opera */
+    display: none;              
 }
