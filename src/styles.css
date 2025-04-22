@@ -2,10 +2,6 @@
 
 @import "tailwindcss";
 
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
-
 :root {
     --sponge: #A200F4;
     --spongedark: #341146;
