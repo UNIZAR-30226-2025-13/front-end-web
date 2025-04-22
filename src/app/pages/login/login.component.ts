@@ -89,7 +89,7 @@ export class LoginComponent {
   contrasena: string = '';
   passwordVisible = false;
 
-  socket = io('http://localhost:8080', {withCredentials: true});
+  socket = io('https://spongefy-back-end.onrender.com', {withCredentials: true});
 
   constructor(
     private authService: AuthService,

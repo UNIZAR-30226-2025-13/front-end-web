@@ -149,7 +149,7 @@ export class HomeComponent {
   usuarioConfirm = '';
   passwordConfirm = '';
 
-  socket = io('http://localhost:8080', {withCredentials: true});
+  socket = io('https://spongefy-back-end.onrender.com', {withCredentials: true});
 
   //Cadena del Input de búsqueda
   cadena: string = '';

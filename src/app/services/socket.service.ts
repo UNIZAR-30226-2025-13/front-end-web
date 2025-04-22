@@ -15,7 +15,7 @@ export class SocketService {
     private usuarioService: UsuarioService,
     private authService: AuthService
   ) {
-    this.socket = io('http://localhost:8080', {
+    this.socket = io('https://spongefy-back-end.onrender.com', {
       transports: ['websocket', 'polling'],
       withCredentials: true,
     });
