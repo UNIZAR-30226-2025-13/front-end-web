@@ -108,8 +108,21 @@ export class AuthService {
   
   
   addSongToPlaylist(id_cancion: number, id_playlist: number) {
-    return this.http.post(`${this.apiUrl}/add-song-playlist`, { id_cancion, id_playlist });
+    const folderData = {
+      id_cancion,
+      id_playlist
+    };
+    return this.http.post(`${this.apiUrl}/add-song-playlist`, folderData);
   } 
+
+  addEpisodioToLista(id_ep:number, id_lista_ep:number){
+    const folderData = {
+      id_ep,
+      id_lista_ep
+    }; 
+    return this.http.post(`${this.apiUrl}/add-ep-lista-episodios`, folderData);
+
+  }
   
   createFolder(nombre_carpeta: any, nombre_usuario: string) {
     const folderData = {
@@ -245,6 +258,10 @@ export class AuthService {
     return this.http.get<any>(`${this.apiUrl}/song/show?id_cancion=${id_cancion}`);
   }
 
+  showLyrics(id_cancion: number){
+    return this.http.get<any>(`${this.apiUrl}/song/show-lyrics?id_cancion=${id_cancion}`);
+  }
+
   getRate(id_cm: number, nombre_usuario: string) {
     return this.http.get<any>(`${this.apiUrl}/get-rate?id_cm=${id_cm}&nombre_usuario=${nombre_usuario}`);
   }
@@ -268,6 +285,15 @@ export class AuthService {
 
   recoverLastPlaying(nombre_usuario: string) {
     return this.http.get<any>(`${this.apiUrl}/recover-last-playing?nombre_usuario=${nombre_usuario}`);
+  }
+  
+  getEpisode(id_ep:number){
+     return this.http.get<any>(`${this.apiUrl}/get-episode?id_ep=${id_ep}`);
+
+  }
+
+  getEpisodeList( nombre_usuario: string){
+    return this.http.get<any>(`${this.apiUrl}/get-episode-lists?nombre_usuario=${nombre_usuario}`);
   }
 
 }

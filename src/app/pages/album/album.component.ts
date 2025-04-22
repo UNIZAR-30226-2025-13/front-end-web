@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, ChangeDetectorRef,ElementRef, HostListener, ViewChild   } from '@angular/core';
 import { CommonModule, registerLocaleData } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
- import { AuthService } from '../../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 import { UsuarioService } from '../../services/usuario.service';
 import { Title } from '@angular/platform-browser';
 import { PlayerService } from '../../services/player.service';
@@ -23,14 +23,15 @@ interface PlaylistChoice {
 interface Playlist {
   nombre: string;
   id_lista: number;
-  // Ajoutez d'autres propriétés si nécessaire
+
 }
 
 @Component({
   
   selector: 'app-album',
   imports: [CommonModule, RouterModule, FormsModule],
-  template: `<div class="bg-black pt-4 px-[34px] min-h-screen">
+  template: `
+  <div class="bg-black pt-4 px-[34px] min-h-screen">
   <!-- upper box -->
   <div class="flex bg-opacity-60 p-4 rounded-[40px] items-end" [ngStyle]="{'background-color': dominantColor}">
       <div class="flex-row  items-center justify-center">
@@ -207,7 +208,7 @@ interface Playlist {
               <button class="flex flex-row text-left px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
                 (click)="anadirCola(song)">
                 <img class="w-5 h-5 mr-2" src="assets/queue.png">Añadir a la cola</button>
-            </div>
+            </div>  
           </div>
         </div>
       </div>

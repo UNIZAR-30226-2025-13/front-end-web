@@ -17,7 +17,8 @@ import { PlayerService } from '../../services/player.service';
     <div class="flex items-center pl-10 flex-1 gap-2">
       <img [src]="currentSong?.link_imagen" class="h-[50px] mr-1.5 rounded-2xl">
       <div class="text-white text-sm">
-        <a class="block font-bold line-clamp-2">{{ currentSong?.titulo }}</a>
+        <a class="block font-bold line-clamp-2" [routerLink]="['/inicio/',type,currentSong.id_cm ]">{{ currentSong?.titulo }}</a>
+        
         <div class="w-full max-xl:w-20 overflow-hidden text-ellipsis whitespace-nowrap">
           <ng-container *ngFor="let cantante of cantantes; let i = index">
             <a [routerLink]="['/inicio/artista/', encodeNombreArtista(cantante)]"
@@ -91,7 +92,9 @@ import { PlayerService } from '../../services/player.service';
 
     <!-- Parte derecha -->
 <div class="flex flex-row items-center pr-10 flex-1 justify-end max-lg:hidden">
-  <img class="w-[30px] h-[30px] mr-2" src="assets/lyrics.png">
+  <div *ngIf="type == 'cancion'">
+  <img class="w-[30px] h-[30px] mr-2" src="assets/lyrics.png" [routerLink]="['/inicio/lyrics/',currentSong.id_cm ]" >
+</div>
   <img class="w-[30px] h-[30px] mr-2" src="assets/queue.png" (click)="toggleColaRepro()">
   <img class="w-[30px] h-[30px] mr-2" src="assets/sound.png">
 
@@ -197,6 +200,7 @@ export class PlayerComponent implements OnInit, OnDestroy {
   playlists: any[] = [];
   loop = false;
   isShuffle = false;
+  type:string = '';
 
 
   constructor(
@@ -234,8 +238,12 @@ export class PlayerComponent implements OnInit, OnDestroy {
     
     this.playerService.currentSong.subscribe(song => {
       if (song) {
+        console.log("song",song)
         this.currentSong = song;
         this.cantantes = [song.autor, ...(song.artistas_featuring ? song.artistas_featuring.split(', ') : [])];
+        if(song.tipo == 'episodio'){
+          this.type = 'episodio'
+        }else{this.type = 'cancion'}
         this.loadAndPlaySong();
       } else {
         this.stopAndResetAudio();

@@ -7,7 +7,7 @@ import { TodoComponent } from './pages/todo/todo.component';
 import { ArtistaComponent } from './pages/artista/artista.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { PodcasterComponent } from './pages/podcaster/podcaster.component';
-import { PodcastComponent } from './pages/lista-podcasts/podcast.component';
+import { ListaPodcastComponent } from './pages/lista-podcasts/lista_podcast.component';
 import { AlbumComponent } from './pages/album/album.component';
 import { CancionComponent } from './pages/cancion/cancion.component';
 import { ListaReproducionesComponent } from './pages/lista-reproduciones/lista-reproduciones.component';
@@ -15,6 +15,9 @@ import { CarpetasComponent } from './pages/carpetas/carpetas.component';
 import { BuscadorComponent } from './pages/buscador/buscador.component';
 import { PerfilUsuarioComponent } from './pages/perfil-usuario/perfil-usuario.component';
 import { DatospersonalesComponent } from './pages/datospersonales/datospersonales.component';
+import { LyricsComponent } from './pages/lyrics/lyrics.component';
+
+import { EpisodioComponent } from './pages/episodio/episodio.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -30,12 +33,14 @@ export const routes: Routes = [
       { path: 'podcaster/:nombre_podcaster', component: PodcasterComponent },
       { path: 'album/:id_album', component: AlbumComponent },
       { path: 'cancion/:id_cancion', component: CancionComponent },
-      { path: 'podcast/:id_podcast', component: PodcastComponent},
+      { path: 'lista_podcast/:id_podcast', component: ListaPodcastComponent},
       { path: 'lista_reproduccion/:id_lista', component: ListaReproducionesComponent},
       { path: 'carpeta/:id_carpeta', component: CarpetasComponent},
       { path: 'buscador', component: BuscadorComponent},
       { path: 'usuario/:nombre_usuario', component: PerfilUsuarioComponent},
       { path: 'datospersonales/:nombre_usuario', component: DatospersonalesComponent},
+      { path: 'episodio/:id_ep', component: EpisodioComponent},
+      {path:'lyrics/:id_ep', component: LyricsComponent},
     ]
   },
 
