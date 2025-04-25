@@ -117,7 +117,7 @@ export class AuthService {
 
   addEpisodioToLista(id_ep:number, id_lista_ep:number){
     const folderData = {
-      id_ep,
+      id_episodio: id_ep,
       id_lista_ep
     }; 
     return this.http.post(`${this.apiUrl}/add-ep-lista-episodios`, folderData);
