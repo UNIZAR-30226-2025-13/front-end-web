@@ -31,265 +31,289 @@ interface Playlist {
   template: `
  
   <div #container class="bg-black pt-4 px-[34px] min-h-full">
-    <!-- upper box -->
-    <div class="flex p-4 rounded-[40px] items-end"
-     [ngStyle]="{'background-color': getTransparentColor(this.color_playlist, 0.5)}"> 
+  <!-- upper box -->
+  <div class="flex p-4 rounded-[40px] items-end"
+    [ngStyle]="{'background-color': getTransparentColor(this.color_playlist, 0.5)}"> 
       <div class="flex-col items-center justify-center">
-         <div class="flex flex-row items-center justify-center space-x-4">
+          <div class="flex flex-row items-center justify-center space-x-4">
           <!-- Caso: "This is..." -->
-          <div *ngIf="isThisIsPlaylist(); else checkFavorites" class="flex flex-row gap-5">
-            <div class="rounded-[20px] h-[200px] w-[200px] flex flex-none items-end justify-start overflow-hidden">
-              <div class="group relative w-[200px] h-[200px] min-w-[200px] min-h-[200px]">
-                <img [src]="img_artiste" id="artistImage" alt="Imagen del artista" 
-                    class="w-[200px] h-[200px] rounded-[20px] object-cover">
-                <img src="assets/heart.png" alt="Corazón" 
-                    class="absolute top-[22%] left-[22%] w-30">
+              <div *ngIf="isThisIsPlaylist(); else checkFavorites" class="flex flex-row gap-5">
+                  <div class="rounded-[20px] h-[200px] w-[200px] flex flex-none items-end justify-start overflow-hidden">
+                      <div class="group relative w-[200px] h-[200px] min-w-[200px] min-h-[200px]">
+                          <img [src]="img_artiste" id="artistImage" alt="Imagen del artista" 
+                          class="w-[200px] h-[200px] rounded-[20px] object-cover">
+                          <img src="assets/heart.png" alt="Corazón" 
+                          class="absolute top-[22%] left-[22%] w-30">
+                      </div>
+                  </div>           
+
+                  <!-- Información normal de la list -->
+                  <div class="flex flex-col items-start justify-end mb-1">
+                      <p class="text-white">Lista de reproducción</p>
+                      <h1 class="font-montserrat font-bold text-4xl ml-[-2px] text-white" >{{ name }}</h1>
+                      <div class="flex flex-row text-white">
+                          <span class="hover:underline cursor-pointer" [routerLink]="['/inicio/artista/', encodeNombreArtista(getArtistFromThisIs() ?? '')]">{{getArtistFromThisIs()}}</span>&nbsp;<span>| {{ numberCm }} {{list.es_playlist? (numberCm === 1 ? 'canción' : 'canciones') : (numberCm === 1 ? 'episodio' : 'episodios') }} | {{ durationTotal }}</span>
+                      </div>
+                  </div>
               </div>
-            </div>           
- 
-            <!-- Información normal de la list -->
-            <div class="flex flex-col items-start justify-end mb-1">
-                <p class="text-white">Lista de reproducción</p>
-                <h1 class="font-montserrat font-bold text-4xl ml-[-2px] text-white" >{{ name }}</h1>
-                <div class="flex flex-row text-white">
-                  <span class="hover:underline cursor-pointer" [routerLink]="['/inicio/artista/', encodeNombreArtista(getArtistFromThisIs() ?? '')]">{{getArtistFromThisIs()}}</span>&nbsp;<span>| {{ numberCm }} {{list.es_playlist? (numberCm === 1 ? 'canción' : 'canciones') : (numberCm === 1 ? 'episodio' : 'episodios') }} | {{ durationTotal }}</span>
-                </div>
-            </div>
-          </div>
-  
-          <!-- Caso: "Tus contenido favoritas" o "Tus episodios favoritos" -->
-           <ng-template #checkFavorites>
-              <div *ngIf="isFavoritesPlaylist(); else normalPlaylist" 
-                    class="flex flex-row gap-5">
-                <div class="rounded-[20px] h-[200px] w-[200px] flex flex-none items-end justify-start overflow-hidden">
-                  <div class="group relative w-[200px] h-[200px] min-w-[200px] min-h-[200px]">
-                    <div class="rounded-[20px] h-[200px] w-[200px] flex flex-none items-end justify-start overflow-hidden"
+
+              <!-- Caso: "Tus contenido favoritas" o "Tus episodios favoritos" -->
+              <ng-template #checkFavorites>
+                  <div *ngIf="isFavoritesPlaylist(); else normalPlaylist" 
+                      class="flex flex-row gap-5">
+                      <div class="rounded-[20px] h-[200px] w-[200px] flex flex-none items-end justify-start overflow-hidden">
+                          <div class="group relative w-[200px] h-[200px] min-w-[200px] min-h-[200px]">
+                              <div class="rounded-[20px] h-[200px] w-[200px] flex flex-none items-end justify-start overflow-hidden"
+                              [ngStyle]="{'background-color': color_playlist}">
+      
+                              </div> 
+                              <img src="assets/heart.png" alt="Corazón" 
+                              class="absolute top-[22%] left-[22%] w-30">
+                          </div>
+                      </div>
+
+                      <!-- Información normal de la list -->
+                      <div class="flex flex-col items-start justify-end mb-1">
+                          <p class="text-white">Lista de reproducción</p>
+                          <h1 class="font-montserrat font-bold text-4xl ml-[-2px] text-white">{{ name }}</h1>
+                          <p class="text-white">{{ numberCm }} {{list.es_playlist ? (numberCm === 1 ? 'canción' : 'canciones') : (numberCm === 1 ? 'episodio' : 'episodios') }} | {{ durationTotal }}</p>
+                      </div>
+                  </div>
+              </ng-template>
+
+              <!-- Caso Normal -->
+              <ng-template #normalPlaylist>
+                  <div class="flex flex-row gap-5">  
+                      <div class="rounded-[20px] h-[200px] w-[200px] flex flex-none items-end justify-start overflow-hidden"
                       [ngStyle]="{'background-color': color_playlist}">
-        
-                    </div> 
-                    <img src="assets/heart.png" alt="Corazón" 
-                      class="absolute top-[22%] left-[22%] w-30">
+                          <p class="text-black font-extrabold text-left text-[34px] mb-5 ml-[-2px] leading-none"
+                          style="word-break: break-word; white-space: normal;">
+                          {{ name }}
+                          </p>
+                      </div>
+    
+                      <!-- Información normal de la list -->
+                      <div class="flex flex-col items-start justify-end mb-1 text-white">
+                          <p class="">Lista de reproducción</p>
+                          <h1 class="font-montserrat font-bold text-4xl ml-[-2px] ">{{ name }}</h1>
+                          <div class="flex flex-row">
+                              <span>{{ visibility ? 'Pública' : 'Privada' }} | {{ numberCm }} {{list.es_playlist? (numberCm === 1 ? 'canción' : 'canciones') : (numberCm === 1 ? 'episodio' : 'episodios') }} | {{ durationTotal }} |&nbsp;</span><span class="hover:underline cursor-pointer" [routerLink]="['/inicio/usuario/', this.list.nombre_usuario]">{{this.list.nombre_usuario}}</span>
+                          </div>
+                      </div>
                   </div>
-                </div>
-  
-                <!-- Información normal de la list -->
-                <div class="flex flex-col items-start justify-end mb-1">
-                  <p class="text-white">Lista de reproducción</p>
-                  <h1 class="font-montserrat font-bold text-4xl ml-[-2px] text-white">{{ name }}</h1>
-                  <p class="text-white">{{ numberCm }} {{list.es_playlist ? (numberCm === 1 ? 'canción' : 'canciones') : (numberCm === 1 ? 'episodio' : 'episodios') }} | {{ durationTotal }}</p>
-                </div>
-            </div>
-          </ng-template>
-
-          <!-- Caso Normal -->
-          <ng-template #normalPlaylist>
-            <div class="flex flex-row gap-5">  
-              <div class="rounded-[20px] h-[200px] w-[200px] flex flex-none items-end justify-start overflow-hidden"
-                    [ngStyle]="{'background-color': color_playlist}">
-                  <p class="text-black font-extrabold text-left text-[34px] mb-5 ml-[-2px] leading-none"
-                      style="word-break: break-word; white-space: normal;">
-                      {{ name }}
-                  </p>
-              </div>
-     
-          <!-- Información normal de la list -->
-              <div class="flex flex-col items-start justify-end mb-1 text-white">
-                  <p class="">Lista de reproducción</p>
-                  <h1 class="font-montserrat font-bold text-4xl ml-[-2px] ">{{ name }}</h1>
-                  <div class="flex flex-row">
-                  <span>{{ visibility ? 'Pública' : 'Privada' }} | {{ numberCm }} {{list.es_playlist? (numberCm === 1 ? 'canción' : 'canciones') : (numberCm === 1 ? 'episodio' : 'episodios') }} | {{ durationTotal }} |&nbsp;</span><span class="hover:underline cursor-pointer" [routerLink]="['/inicio/usuario/', this.list.nombre_usuario]">{{this.list.nombre_usuario}}</span>
-                  </div>
-              </div>
-            </div>
-          </ng-template>
-        </div>
- 
-        <div class=" flex mt-4 gap-1.5">
-          <img src="assets/play.png" alt="play" (click)="addSongsToQueue(contenido[0])" class=" h-[52px] w-[52px]">
-          <img src="assets/aleatorio.png" alt="aleatorio" (click)="random()" class=" h-[52px] w-[52px]">
-          
-           @if (this.list.nombre_usuario === this.userService.getUsuario()?.nombre_usuario && !this.isFavoritesPlaylist()) {
-          <!-- Contenedor de los "..." con menú -->
-          <div class="relative">
-            <p class="font-montserrat font-bold text-4xl text-white h-[58px] w-[31px] cursor-pointer"
-              (click)="toggleMenu($event)">...</p> 
-
-            <!-- Menú emergente -->
-            <div *ngIf="menuAbierto"
-                class="absolute top-2 left-full w-auto bg-black rounded-lg text-white shadow-lg border border-gray-500 p-1 z-20 whitespace-nowrap">
-              <button class="flex flex-row text-left px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
-                  (click)="mostrarCarpetas($event)">
-                  <img class="w-5 h-5 mr-2" src="assets/folder.png">Añadir a Carpeta</button>
-              <button class="flex flex-row text-left px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
-                  (click)="borrarLista()">
-                  <img class="w-5 h-5 mr-2" src="assets/trash.png">Eliminar Lista</button>
-              <button class="flex flex-row text-left px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
-                  (click)="cambiarPrivacidad()">
-                  <img class="w-5 h-5 mr-2" src="assets/lock.png">Cambiar a {{!visibility ? 'Publica' : 'Privada'}}</button>
-            </div>
-
-            <!-- Lista de carpetas -->
-            <div *ngIf="carpetasVisibles" 
-                class="absolute top-2 left-full max-w-80 w-auto rounded-lg bg-black text-white shadow-lg border border-gray-500 p-2 z-20 whitespace-nowrap">
-              <p *ngFor="let carpeta of carpetas" 
-                class="px-1 py-0.5 hover:bg-gray-400/50 rounded-lg cursor-pointer truncate" 
-                (click)="agregarACarpeta(carpeta.id_carpeta)">
-                {{ carpeta.nombre_carpeta }}
-              </p>
-            </div>
+              </ng-template>
           </div>
-        }
-        </div>
-      </div>
-    </div>
 
-    <!-- upper box -->
-    <div class="flex justify-between">
-      <div class="flex items-center gap-2 m-4 p-2 rounded-full hover:bg-neutral-700 hover:border-neutral-600 focus-within:border-neutral-500 focus-within:bg-neutral-600 transition-colors w-fit">
-        <img src="assets/search.png" class="h-[40px] w-[40px]" (click)="search()">
-        <input [(ngModel)]="searchQuery" (input)="search()" class="font-montserrat text-white text-lg bg-transparent outline-none placeholder-gray-400 rounded-md px-2 min-w-[100px] w-full flex-1" placeholder="Buscar">
+          <div class=" flex mt-4 gap-1.5">
+              <img src="assets/play.png" alt="play" (click)="addSongsToQueue(contenido[0])" class=" h-[52px] w-[52px]">
+              <img src="assets/aleatorio.png" alt="aleatorio" (click)="random()" class=" h-[52px] w-[52px]">
+        
+              @if (this.list.nombre_usuario === this.userService.getUsuario()?.nombre_usuario && !this.isFavoritesPlaylist()) {
+              <!-- Contenedor de los "..." con menú -->
+              <div class="relative">
+                  <p class="font-montserrat font-bold text-4xl text-white h-[58px] w-[31px] cursor-pointer"
+                  (click)="toggleMenu($event)">...</p> 
+
+                  <!-- Menú emergente -->
+                  <div *ngIf="menuAbierto"
+                  class="absolute top-2 left-full w-auto bg-black rounded-lg text-white shadow-lg border border-gray-500 p-1 z-20 whitespace-nowrap">
+                      <button class="flex flex-row text-left px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
+                      (click)="mostrarCarpetas($event)">
+                      <img class="w-5 h-5 mr-2" src="assets/folder.png">Añadir a Carpeta</button>
+                      <button class="flex flex-row text-left px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
+                      (click)="borrarLista()">
+                      <img class="w-5 h-5 mr-2" src="assets/trash.png">Eliminar Lista</button>
+                      <button class="flex flex-row text-left px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
+                      (click)="cambiarPrivacidad()">
+                      <img class="w-5 h-5 mr-2" src="assets/lock.png">Cambiar a {{!visibility ? 'Publica' : 'Privada'}}</button>
+                  </div>
+
+                  <!-- Lista de carpetas -->
+                  <div *ngIf="carpetasVisibles" 
+                      class="absolute top-2 left-full max-w-80 w-auto rounded-lg bg-black text-white shadow-lg border border-gray-500 p-2 z-20 whitespace-nowrap">
+                      <p *ngFor="let carpeta of carpetas" 
+                      class="px-1 py-0.5 hover:bg-gray-400/50 rounded-lg cursor-pointer truncate" 
+                      (click)="agregarACarpeta(carpeta.id_carpeta)">
+                      {{ carpeta.nombre_carpeta }}
+                      </p>
+                  </div>
+              </div>
+              }
+          </div>
       </div>
-      <div class="flex font-montserrat text-white text-lg m-4 items-center">
-        <img src="assets/sort.png" class="h-[22px] w-[22px]">
-        <select (change)="sortCMs($event)" class="bg-black border border-gray-300 text-gray-900 text-sm focus:ring-white focus:border-white block w-full dark:bg-black dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-black dark:focus:border-black rounded-md p-1">
-          <option value="Fecha_publicación" selected> Fecha de publicación</option>
-          <option value="titulo">Título </option>
-          <option value="artista">{{ list.es_playlist ? 'Artista' : 'Podcaster'}} </option>
-          <option value="duracion">Duracion </option>
-          <option value="album">{{ list.es_playlist ? 'Álbum' : 'Podcast'}} </option>
-          <option value="valoracion">Tu Valoracion </option>
-        </select>
-        <div class="flex items-center gap-2 m-4 ml-0 p-2 rounded-full hover:bg-neutral-700 hover:border-neutral-600 focus-within:border-neutral-500 focus-within:bg-neutral-600 transition-colors w-fit"> 
-          <ng-container *ngIf="order === true; else order_change"> 
-            <img src="assets/up_arrow.png" alt="up_arrow" class="w-5 h-auto " (click)="revert()"/>
-          </ng-container>
-          <ng-template #order_change>
-            <img src="assets/down_arrow.png" alt="down_arrow" class="w-5 h-auto" (click)="revert()"/>
-          </ng-template>
-        </div>
+  </div>
+
+  <!-- upper box -->
+  <div class="flex justify-between">
+    <div class="flex items-center gap-2 m-4 p-2 rounded-full hover:bg-neutral-700 hover:border-neutral-600 focus-within:border-neutral-500 focus-within:bg-neutral-600 transition-colors w-fit">
+      <img src="assets/search.png" class="h-[40px] w-[40px]" (click)="search()">
+      <input [(ngModel)]="searchQuery" (input)="search()" class="font-montserrat text-white text-lg bg-transparent outline-none placeholder-gray-400 rounded-md px-2 min-w-[100px] w-full flex-1" placeholder="Buscar">
+    </div>
+    <div class="flex font-montserrat text-white text-lg m-4 items-center">
+      <img src="assets/sort.png" class="h-[22px] w-[22px]">
+      <select (change)="sortCMs($event)" class="bg-black border border-gray-300 text-gray-900 text-sm focus:ring-white focus:border-white block w-full dark:bg-black dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-black dark:focus:border-black rounded-md p-1">
+        <option value="Fecha_publicación" selected> Fecha de publicación</option>
+        <option value="titulo">Título </option>
+        <option value="artista">{{ list.es_playlist ? 'Artista' : 'Podcaster'}} </option>
+        <option value="duracion">Duracion </option>
+        <option value="album">{{ list.es_playlist ? 'Álbum' : 'Podcast'}} </option>
+        <option value="valoracion">Tu Valoracion </option>
+      </select>
+      <div class="flex items-center gap-2 m-4 ml-0 p-2 rounded-full hover:bg-neutral-700 hover:border-neutral-600 focus-within:border-neutral-500 focus-within:bg-neutral-600 transition-colors w-fit"> 
+        <ng-container *ngIf="order === true; else order_change"> 
+          <img src="assets/up_arrow.png" alt="up_arrow" class="w-5 h-auto " (click)="revert()"/>
+        </ng-container>
+        <ng-template #order_change>
+          <img src="assets/down_arrow.png" alt="down_arrow" class="w-5 h-auto" (click)="revert()"/>
+        </ng-template>
       </div>
     </div>
- 
-    <div class="m-4">       
-    <!-- cm list -->
-        <div class="grid grid-cols-43 gap-4 text-left text-white">
-            <div class="font-bold col-span-12">Título</div>
-            <div class="font-bold col-span-8">{{ list.es_playlist ? 'Álbum' : 'Podcast'}}</div>
-            <div class="font-bold col-span-8">Tu valoración</div>
-            <div class="font-bold col-span-8">Fecha en la que se publicó</div>
-            <div class="font-bold col-span-2">Duracion</div>
-        </div>
-        <hr class="border-t-2 border-white my-4 ">  
-        <div *ngFor="let cm of contenido"
-          class="grid grid-cols-43 gap-4 text-white items-center hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101" (dblclick)="addSongsToQueue(cm)">
+  </div>
+
+  <div class="m-4">       
+  <!-- cm list -->
+      <div class="grid grid-cols-43 gap-4 text-left text-white">
+          <div class="font-bold col-span-12">Título</div>
+          <div class="font-bold col-span-8">{{ list.es_playlist ? 'Álbum' : 'Podcast'}}</div>
+          <div class="font-bold col-span-8">Tu valoración</div>
+          <div class="font-bold col-span-8">Fecha en la que se publicó</div>
+          <div class="font-bold col-span-2">Duracion</div>
+      </div>
+      <hr class="border-t-2 border-white my-4 ">  
+      <div *ngFor="let cm of contenido"
+        class="grid grid-cols-43 gap-4 text-white items-center hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101" (dblclick)="addSongsToQueue(cm)">
           <div class="flex m-2 col-span-12 ">
-           
-            <div class="relative w-[44px] h-[44px] group mr-5 min-w-[44px]" (click)="addSongsToQueue(cm)">
+          
+              <div class="relative w-[44px] h-[44px] group mr-5 min-w-[44px]" (click)="addSongsToQueue(cm)">
               <!-- Imagen de la canción -->
-              <img [src]="cm.link_imagen" alt="Icono de la canción"
+                  <img [src]="cm.link_imagen" alt="Icono de la canción"
                   class="w-full h-full rounded-[10px] object-cover flex-shrink-0"> 
-              
-              <!-- Capa oscura con icono de Play -->
-              <div class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-[10px]">
-                  <img src="assets/play.png" alt="Play"
-                      class="w-6 h-6 cursor-pointer">
+            
+                  <!-- Capa oscura con icono de Play -->
+                  <div class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-[10px]">
+                      <img src="assets/play.png" alt="Play"
+                        class="w-6 h-6 cursor-pointer">
+                  </div>
               </div>
-            </div>
-            <div class="flex flex-col min-w-0">
-              <p class="font-montserrat font-bold text-lg text-white cursor-pointer" [routerLink]="['/inicio/',tipo,cm.id_cm ]">
+              <div class="flex flex-col min-w-0">
+                  <p class="font-montserrat font-bold text-lg text-white cursor-pointer" [routerLink]="['/inicio/',tipo,cm.id_cm ]">
                   {{ cm.titulo  }}
-              </p>
-              <div class="flex flex-row w-full overflow-hidden whitespace-nowrap ">
-                <p class="text-white text-sm hover:underline min-w-fill max-w-full " [routerLink]="['/inicio/artista/', encodeNombreArtista(cm.nombre_creador)]">{{cm.nombre_creador}}</p>
-                <ng-container *ngIf="cm.artistas_feat != null">
-                  <ng-container *ngFor="let ft of getArtistasFeat(cm); track by ft">
-                    <p class="text-white text-sm inline-block min-w-max">,&nbsp;</p>
-                    <p [routerLink]="['/inicio/artista/', encodeNombreArtista(ft)]" 
-                      class="text-white text-sm hover:underline inline-block min-w-max">
-                      {{ ft }}
-                    </p>
-                  </ng-container>
-                </ng-container>
+                  </p>
+                  <div class="flex flex-row w-full overflow-hidden whitespace-nowrap ">
+                      <p class="text-white text-sm hover:underline min-w-fill max-w-full " [routerLink]="['/inicio/artista/', encodeNombreArtista(cm.nombre_creador)]">{{cm.nombre_creador}}</p>
+                      <ng-container *ngIf="cm.artistas_feat != null">
+                          <ng-container *ngFor="let ft of getArtistasFeat(cm); track by ft">
+                              <p class="text-white text-sm inline-block min-w-max">,&nbsp;</p>
+                              <p [routerLink]="['/inicio/artista/', encodeNombreArtista(ft)]" 
+                              class="text-white text-sm hover:underline inline-block min-w-max">
+                                {{ ft }}
+                              </p>
+                          </ng-container>
+                      </ng-container>
+                  </div>
               </div>
-            </div>
           </div>
           <div class="col-span-8"> {{cm.nombre_grupo}}</div>
-          <div class="col-span-8 flex"  >
-            <ng-container> 
-            <img *ngFor="let star of generateStars(cm.valoracion_del_usuario)" [src]="star" alt="star" class="w-5 h-auto flex-col"/>
-            <script src="script.js"></script>
-            </ng-container>          
-            </div> 
-            <div class="col-span-8">{{ formatFecha(cm.fecha_pub) }}</div> 
-            <div class="col-span-2">{{ formatDurationSong(cm.duracion) }}</div>
-            <div class="flex w-42 ml-10 items-center col-span-2"> 
-            <div class="relative">
-              <div class="p-2 rounded-full flex items-center justify-center cursor-pointer">
-                <img
-                  src="assets/anyadirplaylist.png"
-                  alt="anadir"
-                  (click)="toggleBox('cancion', cm)"
-                  
-                  class="h-[17px] w-auto object-contain z-10 cursor-pointer"
-                >
-              </div>
+          <div class="col-span-8  cursor-pointer" (click)="toggle_valoracion(cm)" >
+    
+          <div *ngIf="openValoracion=== cm.id_cm" #popup4 class="h-max-70 w-80 justify-center border-1 border-[var(--sponge)] absolute   ml-2 z-50  max-w-xs p-4 bg-[var(--graybackground)] opacity-100 rounded-lg shadow-lg">
+                <div class="flex justify-center" >   
+                    <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(cm,1)"class="cursor-pointer h-[40px]"> 
+                    <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(cm,2)"class="cursor-pointer h-[40px]"> 
+                    <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(cm,3)"class="cursor-pointer h-[40px]"> 
+                    <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(cm,4)"class="cursor-pointer h-[40px]"> 
+                    <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(cm,5)"class="cursor-pointer h-[40px]"> 
+                </div>       
+                <button class="flex ml-8 m-1 justify-center text-center px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
+                        (click)="removeValoracion(cm)">
+                        <img class="w-5 h-5 mr-2 text-center" src="assets/trash.png">
+                        <p >borrar la nota </p>
 
-              <!-- Popup solo si el ID coincide -->
-              <div *ngIf="openedCancionId === cm.id_cm" #popup2
-                  class="h-max-70 w-80 border-1 border-[var(--sponge)] absolute right-10 bottom-0 ml-2 z-50  max-w-xs p-4 bg-[var(--graybackground)] opacity-100 rounded-lg shadow-lg">
-                <div class="overflow-y-auto pr-1 ">
-                  <div *ngFor="let choice of choices" class="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      [(ngModel)]="choice.selected"
-                      class="w-5 h-5 cursor-pointer"
-                      [ngStyle]="{ 'accent-color': choice.selected ? 'var(--sponge)' : 'white' }"
-                      (change)="choice.name === 'Crear nueva lista' ? toggleNewListInput(choice) : null"
-                    />
-                    <label class="text-white cursor-pointer">{{ choice.name }}</label>
-                  </div>
-                </div>
-
-                <div *ngIf="showNewListInput" class="mt-2">
-                  <input 
-                    type="text" 
-                    [(ngModel)]="newListName" 
-                    placeholder=" Nombre" 
-                    class="w-full p-2 rounded text-white focus:ring-white-500 focus:outline-none focus:ring-2"/>
-                </div>
-
-                <button
-                  (click)="validateSelection_cancion(cm)"
-                  class="mt-2 w-full bg-white text-black hover:bg-zinc-600 py-1 rounded transition duration-300"
-                >
-                  Añadir
-                </button>
-              </div>
+                        </button>       
+            </div>   
+        
+            <div class="w-5 flex flex-row h-auto ">
+                <ng-container > 
+                    <img *ngFor="let star of generateStars(cm.valoracion_del_usuario)" [src]="star" alt="star" class="w-5 h-auto "/>
+                    <script src="script.js"></script>
+                </ng-container> 
             </div>
             
-            <div class="relative p-2 rounded-full flex items-center justify-center cursor-pointer">
-              <img src="assets/heart.png" alt="like" (click)="like(cm.id_cm)" class="cursor-pointer h-[17px] w-auto object-contain z-10">
-            </div>
+          </div> 
+  
+        
+          <div class="col-span-8">{{ formatFecha(cm.fecha_pub) }}</div> 
+          <div class="col-span-2">{{ formatDurationSong(cm.duracion) }}</div>
+          <div class="flex w-42 ml-10 items-center col-span-2"> 
+              <div class="relative">
+                  <div class="p-2 rounded-full flex items-center justify-center cursor-pointer">
+                      <img
+                          src="assets/anyadirplaylist.png"
+                          alt="anadir"
+                          (click)="toggleBox('cancion', cm)"
+                          class="h-[17px] w-auto object-contain z-10 cursor-pointer">
+                  </div>
 
-            <div class="relative">
-              <div class="p-2 rounded-full flex items-center justify-center w-[33px] h-[33px] cursor-pointer">
-                <p (click)="toggleBox('option', cm)"
-                  class="font-montserrat font-bold text-xl text-white cursor-pointer z-10 leading-none mt-[-5px]">...</p>
-              </div>
+                  <!-- Popup solo si el ID coincide -->
+                  <div *ngIf="openedCancionId === cm.id_cm" #popup2
+                  class="h-max-70 w-80 border-1 border-[var(--sponge)] absolute right-10 bottom-0 ml-2 z-50  max-w-xs p-4 bg-[var(--graybackground)] opacity-100 rounded-lg shadow-lg">
+                      <div class="overflow-y-auto pr-1 ">
+                          <div *ngFor="let choice of choices" class="flex items-center gap-2">
+                              <input
+                              type="checkbox"
+                              [(ngModel)]="choice.selected"
+                              class="w-5 h-5 cursor-pointer"
+                              [ngStyle]="{ 'accent-color': choice.selected ? 'var(--sponge)' : 'white' }"
+                              (change)="choice.name === 'Crear nueva lista' ? toggleNewListInput(choice) : null"
+                              />
+                              <label class="text-white cursor-pointer">{{ choice.name }}</label>
+                          </div>
+                      </div>
 
-              <div *ngIf="openedOptionId === cm.id_cm" #popup3
-                  class="border-1 border-[var(--sponge)] absolute right-10 w-50 bottom-0 ml-2 z-50 h-max max-w-xs bg-[var(--graybackground)] opacity-100 rounded-lg shadow-lg">
-                <button class="flex flex-row text-left px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
-                  (click)="anadirCola(cm)">
-                  <img class="w-5 h-5 mr-2" src="assets/queue.png">Añadir a la cola</button>
-              </div>
+                      <div *ngIf="showNewListInput" class="mt-2">
+                          <input 
+                            type="text" 
+                            [(ngModel)]="newListName" 
+                            placeholder=" Nombre" 
+                            class="w-full p-2 rounded text-white focus:ring-white-500 focus:outline-none focus:ring-2"/>
+                      </div>
+
+                      <button
+                        (click)="validateSelection_cancion(cm)"
+                        class="mt-2 w-full bg-white text-black hover:bg-zinc-600 py-1 rounded transition duration-300"
+                        >
+                        Añadir
+                      </button>
+                    </div>
+                </div>
+        
+                <div class="relative p-2 rounded-full flex items-center justify-center cursor-pointer">
+                    <img src="assets/heart.png" alt="like" (click)="like(cm.id_cm)" class="cursor-pointer h-[17px] w-auto object-contain z-10">
+                </div>
+
+                <div class="relative">
+                    <div class="p-2 rounded-full flex items-center justify-center w-[33px] h-[33px] cursor-pointer">
+                        <p (click)="toggleBox('option', cm)"
+                        class="font-montserrat font-bold text-xl text-white cursor-pointer z-10 leading-none mt-[-5px]">...</p>
+                    </div>
+
+                    <div *ngIf="openedOptionId === cm.id_cm" #popup3
+                        class="border-1 border-[var(--sponge)] absolute right-10 w-50 bottom-0 ml-2 z-50 h-max max-w-xs bg-[var(--graybackground)] opacity-100 rounded-lg shadow-lg">
+                        <button class="flex flex-row text-left px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
+                        (click)="anadirCola(cm)">
+                        <img class="w-5 h-5 mr-2" src="assets/queue.png">Añadir a la cola</button>
+                        <button class="flex flex-row text-left px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
+                        (click)="removeFromLista(cm.id_cm)">
+                        <img class="w-5 h-5 mr-2" src="assets/trash.png">borrar de la lista</button>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-          
-          <hr class="border-t-2 border-white my-4">
-        </div> 
-      </div>
+      
+        <hr class="border-t-2 border-white my-4">
+      
+    </div> 
+</div> 
   `,
  
 })
@@ -319,6 +343,9 @@ export class ListaReproducionesComponent implements OnInit {
   //to know if the ... is open
   openedOptionId = false;
 
+  // to know if valoration is open
+  openValoracion = false;
+
   //cancion selected when we want to andir or open her options
   songToAdd: any = null;
   
@@ -341,6 +368,8 @@ export class ListaReproducionesComponent implements OnInit {
 
   @ViewChild('popup2') popupRef2!: ElementRef;
   @ViewChild('popup3') popupRef3!: ElementRef;
+  @ViewChild('popup4') popupRef4!: ElementRef;
+
 
   constructor( 
     private route: ActivatedRoute,
@@ -500,7 +529,11 @@ handleClickOutside(event: Event) {
       !(event.target instanceof HTMLElement && event.target.closest('.selector-que-abre-popup3'))) {
     this.openedOptionId = false;
   }
-}
+
+  if(this.openValoracion !==null &&   this.openValoracion !== false  && this.popupRef4 && !this.popupRef4.nativeElement.contains(event.target) && 
+  !(event.target instanceof HTMLElement && event.target.closest('.selector-que-abre-popup4'))) {
+this.openValoracion = false;
+}}
   getArtistasFeat(cm: any): string[] {
     return cm.artistas_feat ? cm.artistas_feat.split(',').map((artista: string) => artista.trim()) : []; 
   }
@@ -593,8 +626,8 @@ handleClickOutside(event: Event) {
             setTimeout(() => {
               const imgElement = document.getElementById('artistImage') as HTMLImageElement;
               if (imgElement) {
-                imgElement.crossOrigin = "anonymous"; // 🚀 Aseguramos que la imagen se cargue con CORS
-                imgElement.src = this.img_artiste; // 👈 Esto debe ir después de asignar `crossOrigin`
+                imgElement.crossOrigin = "anonymous"; //Aseguramos que la imagen se cargue con CORS
+                imgElement.src = this.img_artiste; //Esto debe ir después de asignar `crossOrigin`
                 imgElement.onload = () => {
                   if (imgElement.naturalWidth > 0) {
                     this.extractColor(imgElement);
@@ -1020,5 +1053,87 @@ handleClickOutside(event: Event) {
   borrarLista () {
 
   }
+
+ removeFromLista(id_cm:string){
+    console.log("id_cm",id_cm.toString())
+    console.log("id_lista",this.id_lista)
+    this.authService.removeCMFromLista(id_cm.toString(), this.id_lista).subscribe({
+      next: () => {  // No necesitamos la respuesta si no la vamos a usar
+        alert('Canción borada de la playlist');
+      
+      },
+      error: (error) => {
+        // Mostrar alerta con el mensaje de error
+        alert('Error para borrar la canción de la playlist');
+        console.error('Error para borrar la canción de la playlist:', error);
+      }
+    });} 
+    toggle_valoracion(song:any){
+      
+      this.openValoracion = this.openValoracion === song.id_cm ? null : song.id_cm;
+
+      
+    }
+    cambiar_valoracion(cm:any, valor:number){
+      const usuario = this.userService.getUsuario()?.nombre_usuario;
+      if (cm.valoracion_del_usuario != null)
+      {
+        this.authService.deleteRate(cm.id_cm,usuario,).subscribe({
+          next: () => {  // No necesitamos la respuesta si no la vamos a usar
+            console.log('delete value');
+
+            this.authService.postRate(cm.id_cm,usuario,valor).subscribe({
+              next: () => {  // No necesitamos la respuesta si no la vamos a usar
+                alert('cambio de valor');
+                this.ngOnInit()
+              },
+              error: (error) => {
+                // Mostrar alerta con el mensaje de error
+                alert('Error para cambiar de notacion');
+                console.error('Error para cambiar de notacion:', error);
+              }
+            });
+          },
+          error: (error) => {
+            // Mostrar alerta con el mensaje de error
+            alert('Error para cambiar de notacion');
+            console.error('Error para cambiar de notacion:', error);
+          }
+        });
+      }
+      else{
+      this.authService.postRate(cm.id_cm,usuario,valor).subscribe({
+        next: () => {  // No necesitamos la respuesta si no la vamos a usar
+          console.log('cambio de valor');
+          this.ngOnInit()
+        },
+        error: (error) => {
+          // Mostrar alerta con el mensaje de error
+          alert('Error para cambiar de notacion');
+          console.error('Error para cambiar de notacion:', error);
+        }
+      });
+    }  
+    }
+
+  removeValoracion(cm:any){
+    const usuario = this.userService.getUsuario()?.nombre_usuario;
+      if (cm.valoracion_del_usuario != null)
+      {
+        this.authService.deleteRate(cm.id_cm,usuario,).subscribe({
+          next: () => {  // No necesitamos la respuesta si no la vamos a usar
+            console.log('delete value');
+            this.ngOnInit()
+
+            
+          },
+          error: (error) => {
+            // Mostrar alerta con el mensaje de error
+            alert('Error para cambiar de notacion');
+            console.error('Error para cambiar de notacion:', error);
+          }
+        });
+  }}
+
 }
   

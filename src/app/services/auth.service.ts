@@ -141,6 +141,13 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/add-list-to-folder`, list_folderData);
   } 
 
+  removeCMFromLista(id_cm:string, id_lista:string){
+    const remove= {
+    id_cm, 
+    id_lista}
+    return this.http.post<any>(`${this.apiUrl}/remove-cm-from`, remove);
+  }
+
   deleteFolder(nombre_usuario: string, id_carpeta: number) {
     const folderData = {
       nombre_usuario,
@@ -265,6 +272,24 @@ export class AuthService {
   getRate(id_cm: number, nombre_usuario: string) {
     return this.http.get<any>(`${this.apiUrl}/get-rate?id_cm=${id_cm}&nombre_usuario=${nombre_usuario}`);
   }
+  postRate(id_cm:number, nombre_usuario:string, valoracion:number){
+    const body = {
+      id_cm,
+      nombre_usuario,
+      valoracion
+    }
+    return this.http.post<any>(`${this.apiUrl}/post-rate`, body);
+
+  }
+
+  deleteRate(id_cm:number, nombre_usuario:string){
+    const body = {
+      id_cm,
+      nombre_usuario
+    }
+    return this.http.post<any>(`${this.apiUrl}/delete-rate`, body);
+  }
+  
 
   getAverageRate(id_cm: number) {
     return this.http.get<any>(`${this.apiUrl}/get-average-rate?id_cm=${id_cm}`);
