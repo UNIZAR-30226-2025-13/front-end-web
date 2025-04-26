@@ -253,6 +253,7 @@ export class ArtistaComponent implements OnInit, AfterViewInit, OnDestroy {
             this.authService.isFollowerCreator(this.userService.getUsuario()?.nombre_usuario, this.artista.nombre_artista).subscribe({
               next: (response) => {
                 console.log('Respuesta de isFollowerCreator:', response);
+    
                 this.isFollowing = response.es_seguidor;
               }
             });

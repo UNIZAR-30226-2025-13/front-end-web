@@ -6,14 +6,13 @@ import { ActivatedRoute } from '@angular/router';
 import { RouterModule, Router } from '@angular/router'
 import localeEs from '@angular/common/locales/es';
 import { PlayerService } from '../../services/player.service';
-
+import { UsuarioService } from '../../services/usuario.service';
 registerLocaleData(localeEs, 'es-ES');
 
 
 // @ts-ignore
 import ColorThief from 'colorthief';
 import { QueueService } from '../../services/queue.service';
-import { UsuarioService } from '../../services/usuario.service';
 
 @Component({
   selector: 'app-podcaster',
@@ -195,7 +194,6 @@ export class PodcasterComponent implements OnInit, AfterViewInit, OnDestroy {
     this.route.paramMap.subscribe((params) => {
       const nombre_podcaster_encoded = this.route.snapshot.paramMap.get('nombre_podcaster') ?? '';
       this.nombre_podcaster = decodeURIComponent(nombre_podcaster_encoded);
-      console.log('Nombre del podcaster:', this.nombre_podcaster);
       this.titleService.setTitle(`${this.nombre_podcaster} | Spongefy`);
 
       this.authService.getPodcaster(nombre_podcaster_encoded).subscribe({
@@ -204,15 +202,15 @@ export class PodcasterComponent implements OnInit, AfterViewInit, OnDestroy {
             this.podcaster = data;
             this.ep_mas_reciente = data.ep_mas_reciente;
             this.img_artiste = this.transformCloudinaryUrl(this.podcaster.link_imagen);
-            this.max_rep = this.podcaster.episodios
-              .sort((a: any, b: any) => b.n_repros - a.n_repros)
-              .slice(0, 5);
-
-            this.authService.isFollowerCreator(this.userService.getUsuario()?.nombre_usuario, nombre_podcaster_encoded).subscribe({
+            this.seguidores = data.seguidores;
+            console.log('Nombre de usuario:', this.userService.getUsuario()?.nombre_usuario);
+            console.log('Nombre del podcaster:', nombre_podcaster_encoded);
+            this.authService.isFollowerCreator(this.userService.getUsuario()?.nombre_usuario, this.nombre_podcaster).subscribe({
               next: (response) => {
+                
                 console.log('Respuesta de isFollowerCreator:', response);
                 this.isFollowing = response.es_seguidor;
-                this.cd.detectChanges();
+                
               }
             });
 
