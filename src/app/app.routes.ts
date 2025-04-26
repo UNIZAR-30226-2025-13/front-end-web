@@ -33,14 +33,14 @@ export const routes: Routes = [
       { path: 'podcaster/:nombre_podcaster', component: PodcasterComponent },
       { path: 'album/:id_album', component: AlbumComponent },
       { path: 'cancion/:id_cancion', component: CancionComponent },
-      { path: 'lista_podcast/:id_podcast', component: ListaPodcastComponent},
+      { path: 'podcast/:id_podcast', component: ListaPodcastComponent},
       { path: 'lista_reproduccion/:id_lista', component: ListaReproducionesComponent},
       { path: 'carpeta/:id_carpeta', component: CarpetasComponent},
       { path: 'buscador', component: BuscadorComponent},
       { path: 'usuario/:nombre_usuario', component: PerfilUsuarioComponent},
       { path: 'datospersonales/:nombre_usuario', component: DatospersonalesComponent},
       { path: 'episodio/:id_ep', component: EpisodioComponent},
-      {path:'lyrics/:id_ep', component: LyricsComponent},
+      { path:'lyrics/:id_ep', component: LyricsComponent},
     ]
   },
 
