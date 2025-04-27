@@ -126,9 +126,33 @@ interface Playlist {
         </div>
     </div>
     
-    <div class="col-span-6 flex justify-center items-center">
-        <img *ngFor="let star of generateStars(episodio.valoracion_del_usuario)" [src]="star" alt="star" class="w-5 h-auto"/>
-    </div> 
+    
+    <div class="col-span-6 flex justify-center items-center" (click)="toggle_valoracion(episodio)" >
+    
+          <div *ngIf="openValoracion=== episodio.id_ep" #popup4 class="h-max-70 w-80 justify-center border-1 border-[var(--sponge)] absolute   ml-2 z-50  max-w-xs p-4 bg-[var(--graybackground)] opacity-100 rounded-lg shadow-lg">
+                <div class="flex justify-center" >   
+                    <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(episodio,1)"class="cursor-pointer h-[40px]"> 
+                    <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(episodio,2)"class="cursor-pointer h-[40px]"> 
+                    <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(episodio,3)"class="cursor-pointer h-[40px]"> 
+                    <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(episodio,4)"class="cursor-pointer h-[40px]"> 
+                    <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(episodio,5)"class="cursor-pointer h-[40px]"> 
+                </div>       
+                <button class="flex ml-8 m-1 justify-center text-center px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
+                        (click)="removeValoracion(episodio)">
+                        <img class="w-5 h-5 mr-2 text-center" src="assets/trash.png">
+                        <p >borrar la nota </p>
+
+                        </button>       
+            </div>   
+        
+            <div class="w-5 flex flex-row h-auto ">
+                <ng-container > 
+                    <img *ngFor="let star of generateStars(episodio.valoracion_del_usuario)" [src]="star" alt="star" class="w-5 h-auto "/>
+                    <script src="script.js"></script>
+                </ng-container> 
+            </div>
+            
+          </div> 
     
     <div class="col-span-6 flex justify-center items-center">
         <img *ngFor="let star of generateStars(episodio.valoracion_media)" [src]="star" alt="star" class="w-5 h-auto"/>
@@ -239,6 +263,12 @@ export class ListaPodcastComponent implements OnInit, AfterViewInit {
    //color and type of the playslist we want to create
   color = "#A200F4";
   type = "episodes";
+
+  // to know if valoration is open
+  openValoracion = false;
+
+   //to store the data of the valoration temp:
+   valoracion_usuario:any= null;
 
    
 
@@ -369,6 +399,7 @@ export class ListaPodcastComponent implements OnInit, AfterViewInit {
   
   
     generateStars(rating: string): string[] {
+      console.log(this.episodios,"episodios")
       const r = parseFloat(rating);
       const stars = [];
       const fullStars = Math.floor(r);
@@ -381,7 +412,7 @@ export class ListaPodcastComponent implements OnInit, AfterViewInit {
         }
       
         if (hasHalfStar) {
-          stars.push("assets/half_star.png"); // Media estrella
+          stars.push("assets/half-star.png"); // Media estrella
         }
       } else {
         stars.push("assets/star_no_rate.png"); // Estrella llena
@@ -671,4 +702,85 @@ export class ListaPodcastComponent implements OnInit, AfterViewInit {
   
       this.openedOptionId = null;
     }
+
+    toggle_valoracion(episodio:any){
+      
+      this.openValoracion = this.openValoracion === episodio.id_ep ? null : episodio.id_ep;
+  
+      
+    }
+
+    cambiar_valoracion(cm:any, valor:number){
+      const usuario = this.userService.getUsuario()?.nombre_usuario;
+      
+      this.authService.getRate(cm.id_ep, this.userService.getUsuario()?.nombre_usuario).subscribe((data) => {
+        this.valoracion_usuario = data.valoracion;
+        if (this.valoracion_usuario != null)
+      {
+        this.authService.deleteRate(cm.id_ep,usuario,).subscribe({
+          next: () => {  // No necesitamos la respuesta si no la vamos a usar
+            console.log("valo",this.valoracion_usuario);
+            console.log('delete value');
+            console.log('id_cancion:', cm.id_ep);
+            console.log('usuario:', usuario);
+            console.log('valor:', valor);
+            this.authService.postRate(cm.id_ep,usuario,valor).subscribe({
+              next: () => {  // No necesitamos la respuesta si no la vamos a usar
+                console.log('cambio de valor');
+                this.ngOnInit()
+                const valoracion_usuario = this.authService.getRate(cm.id_ep,usuario);
+                console.log("valo",valoracion_usuario);
+              },
+              error: (error) => {
+                // Mostrar alerta con el mensaje de error
+                alert('Error para cambiar de notacion');
+                console.error('Error para cambiar de notacion:', error);
+              }
+            });
+          },
+          error: (error) => {
+            // Mostrar alerta con el mensaje de error
+            alert('Error para cambiar de notacion');
+            console.error('Error para cambiar de notacion:', error);
+          }
+        });
+      }
+      else{
+      this.authService.postRate(cm.id_ep,usuario,valor).subscribe({
+        next: () => {  // No necesitamos la respuesta si no la vamos a usar
+          console.log('cambio de valor');
+          this.ngOnInit()
+        },
+        error: (error) => {
+          // Mostrar alerta con el mensaje de error
+          alert('Error para cambiar de notacion');
+          console.error('Error para cambiar de notacion:', error);
+        }
+      });
+    }});
+    }
+
+
+    removeValoracion(cm:any){
+      console.log("cancion", cm);
+      
+      const usuario = this.userService.getUsuario()?.nombre_usuario;
+      this.authService.getRate(cm.id_cancion, this.userService.getUsuario()?.nombre_usuario).subscribe((data) => {
+        this.valoracion_usuario = data.valoracion;
+        if (this.valoracion_usuario != null)
+        {
+          this.authService.deleteRate(cm.id_cancion,usuario,).subscribe({
+            next: () => {  // No necesitamos la respuesta si no la vamos a usar
+              console.log('delete value');
+              this.ngOnInit()
+    
+              
+            },
+            error: (error) => {
+              // Mostrar alerta con el mensaje de error
+              alert('Error para cambiar de notacion');
+              console.error('Error para cambiar de notacion:', error);
+            }
+          });
+        }});}
 }
