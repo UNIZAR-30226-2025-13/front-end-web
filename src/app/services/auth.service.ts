@@ -23,7 +23,7 @@ export class AuthService {
   deleteUser(deleteData: any) {
     localStorage.removeItem('token');
     localStorage.removeItem('usuario');
-    return this.http.post(`${this.apiUrl}/deleteUser`, deleteData);
+    return this.http.post(`${this.apiUrl}/delete-account`, deleteData);
   }
 
   getArtist(nombre_artista: string) {

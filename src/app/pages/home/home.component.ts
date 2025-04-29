@@ -103,7 +103,7 @@ import { SocketService } from '../../services/socket.service';
 
                     <!-- Campo de Nombre de Usuario con Icono -->
                     <div class="relative w-full mb-4">
-                      <span class="absolute inset-y-0 left-3 flex items-center text-gray-500">
+                      <span class="absolute inset-y-0 left-3 flex items-center text-black">
                         <img src="assets/user.png" alt="Usuario" class="w-5 h-5">
                       </span>
                       <input type="text" [(ngModel)]="usuarioConfirm" name="usuarioConfirm"
@@ -113,7 +113,7 @@ import { SocketService } from '../../services/socket.service';
 
                     <!-- Campo de Contraseña con Icono -->
                     <div class="relative w-full mb-4">
-                      <span class="absolute inset-y-0 left-3 flex items-center text-gray-500">
+                      <span class="absolute inset-y-0 left-3 flex items-center text-black">
                         <img src="assets/password.png" alt="Contraseña" class="w-5 h-5">
                       </span>
                       <input type="password" [(ngModel)]="passwordConfirm" name="passwordConfirm"
