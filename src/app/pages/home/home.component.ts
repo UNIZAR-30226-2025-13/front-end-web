@@ -229,11 +229,6 @@ export class HomeComponent {
       return;
     }
 
-    if (this.passwordConfirm.length < 6) {
-      alert('Ingresa una contraseña válida.');
-      return;
-    }
-
     const deleteData = { nombre_usuario: this.usuarioInfo.nombre_usuario };
 
     if (confirm('¿Estás seguro de que deseas eliminar tu perfil? Esta acción no se puede deshacer.')) {

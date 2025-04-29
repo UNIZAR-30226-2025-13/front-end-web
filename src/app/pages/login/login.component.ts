@@ -110,8 +110,11 @@ export class LoginComponent {
         this.usuarioService.guardarUsuario(response.usuario);
         console.log(this.nombre_usuario);
         this.socketService.login(this.nombre_usuario);
-
-        this.router.navigate(['/inicio']);
+        if (!response.es_admin) {
+          this.router.navigate(['/inicio']);
+        } else {
+          this.router.navigate(['/admin']);
+        }
       },
       error: (error) => {
         console.error('Error en el inicio de sesión', error);
