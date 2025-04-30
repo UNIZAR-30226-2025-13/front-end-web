@@ -22,7 +22,7 @@ import { SocketService } from '../../services/socket.service';
       <div class="flex flex-row items-center space-x-4">
         <!-- Icono de casa fuera del buscador -->
         <div (click)="router.navigate(['/inicio'])"class="text-white max-sm:hidden">
-          <img src="assets/home.png" class="w-9 h-9">
+          <img src="assets/home.png" class="w-9 h-9 cursor-pointer">
         </div>
 
         <!-- Barra de búsqueda funcional -->
@@ -43,7 +43,9 @@ import { SocketService } from '../../services/socket.service';
 
       <!-- Parte derecha -->
       <div class="flex flex-row mr-7 items-center gap-5">
-        <img src="assets/friends.png" class="w-9 h-9 max-sm:hidden">
+
+        <!-- Botón del chat -->
+        <img src="assets/friends.png" class="w-9 h-9 max-sm:hidden cursor-pointer" (click)="toggleChat()">
         
         <!-- Botón del usuario -->
          
@@ -148,6 +150,7 @@ export class HomeComponent {
   mostrarModal = false;
   usuarioConfirm = '';
   passwordConfirm = '';
+  chatAbierto = false; 
 
   socket = io('https://spongefy-back-end.onrender.com', {withCredentials: true});
 
@@ -180,6 +183,15 @@ export class HomeComponent {
 
   }
 
+  // Método que abre y cierra el chat
+  toggleChat() {
+    this.chatAbierto = !this.chatAbierto; // Alterna el estado del chat
+    if (this.chatAbierto) {
+      this.router.navigate(['/inicio/chat/']); // Abre
+    } else {
+      this.router.navigate(['/inicio/']); // Cierra
+    }
+  }
 
   // Abre/cierra el menú desplegable
   toggleDropdown() {

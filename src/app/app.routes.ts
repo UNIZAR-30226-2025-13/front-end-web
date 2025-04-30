@@ -18,6 +18,19 @@ import { DatospersonalesComponent } from './pages/datospersonales/datospersonale
 import { LyricsComponent } from './pages/lyrics/lyrics.component';
 
 import { EpisodioComponent } from './pages/episodio/episodio.component';
+import { ChatComponent } from './pages/chat/chat.component';
+import { EditarPerfilComponent } from './pages/editar-perfil/editar-perfil.component';
+
+
+import { AdminComponent } from './pages/admin/admin.component';
+import { GestionarArtistasComponent } from './pages/gestionar-artistas/gestionar-artistas.component';
+import { NuevoArtistaComponent } from './pages/nuevo-artista/nuevo-artista.component';
+import { EditarArtistaComponent } from './pages/editar-artista/editar-artista.component';
+import { GestionarPodcastersComponent } from './pages/gestionar-podcasters/gestionar-podcasters.component';
+import { NuevoPodcasterComponent } from './pages/nuevo-podcaster/nuevo-podcaster.component';
+import { EditarPodcasterComponent } from './pages/editar-podcaster/editar-podcaster.component';
+import { GestionarAlbumesComponent } from './pages/gestionar-albumes/gestionar-albumes.component';
+import { NuevoAlbumComponent } from './pages/nuevo-album/nuevo-album.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -40,8 +53,19 @@ export const routes: Routes = [
       { path: 'usuario/:nombre_usuario', component: PerfilUsuarioComponent},
       { path: 'datospersonales/:nombre_usuario', component: DatospersonalesComponent},
       { path: 'episodio/:id_ep', component: EpisodioComponent},
-      { path:'lyrics/:id_ep', component: LyricsComponent},
+      { path: 'lyrics/:id_ep', component: LyricsComponent},
+      { path: 'editarperfil/:nombre_usuario', component: EditarPerfilComponent},
+      { path: 'lyrics/:id_ep', component: LyricsComponent},
+      { path: 'chat', component: ChatComponent},
     ]
   },
-
+  { path: 'admin', component: AdminComponent, title: 'Administrador | Spongefy'},
+  { path: 'gestionar-artistas', component: GestionarArtistasComponent, title: 'Gestionar Artistas | Spongefy'},
+  { path: 'gestionar-artistas/nuevo', component: NuevoArtistaComponent, title: 'Nuevo Artista | Spongefy'},
+  { path: 'gestionar-artistas/editar/:nombre', component: EditarArtistaComponent, title: 'Editar Artista | Spongefy'},
+  { path: 'gestionar-podcasters', component: GestionarPodcastersComponent, title: 'Gestionar Podcasters | Spongefy'},
+  { path: 'gestionar-podcasters/nuevo', component: NuevoPodcasterComponent, title: 'Nuevo Podcaster | Spongefy'},
+  { path: 'gestionar-podcasters/editar/:nombre', component: EditarPodcasterComponent, title: 'Editar Podcaster | Spongefy'},
+  { path: 'gestionar-albumes', component: GestionarAlbumesComponent, title: 'Gestionar Álbumes | Spongefy'},
+  { path: 'gestionar-albumes/nuevo', component: NuevoAlbumComponent, title: 'Nuevo Álbum | Spongefy'},
 ];
