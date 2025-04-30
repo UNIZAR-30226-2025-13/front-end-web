@@ -266,8 +266,8 @@ export class CancionComponent implements OnInit, AfterViewInit {
         this.valoration = data.valoracion;
         console.log("valoration",this.valoration)
         this.authService.getAverageRate(parseInt(this.id_cancion)).subscribe((data) => {
-          this.valoration_media = data.valoracion;
-          console.log("valoration",this.valoration_media)
+          this.valoration_media = data.valoracion_media;
+          console.log("valoration media",this.valoration_media)
         });
       });
     });
@@ -349,7 +349,7 @@ export class CancionComponent implements OnInit, AfterViewInit {
       }
     
       if (hasHalfStar) {
-        stars.push("assets/half-star.png"); // Media estrella
+        stars.push("assets/half_star.png"); // Media estrella
       }
     } else {
       stars.push("assets/star_no_rate.png"); // Estrella llena

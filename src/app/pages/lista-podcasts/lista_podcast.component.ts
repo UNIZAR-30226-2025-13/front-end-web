@@ -412,7 +412,7 @@ export class ListaPodcastComponent implements OnInit, AfterViewInit {
         }
       
         if (hasHalfStar) {
-          stars.push("assets/half-star.png"); // Media estrella
+          stars.push("assets/half_star.png"); // Media estrella
         }
       } else {
         stars.push("assets/star_no_rate.png"); // Estrella llena

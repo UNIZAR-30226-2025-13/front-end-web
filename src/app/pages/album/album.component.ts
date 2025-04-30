@@ -346,7 +346,7 @@ loadAllRatings() {
     
     loadAverageRating(songId: number) {
       this.authService.getAverageRate(songId).subscribe(result => {
-        const rating = result.valoracion;
+        const rating = result.valoracion_media;
         this.averageRatings.set(songId, rating);
         
       });
@@ -376,7 +376,7 @@ loadAllRatings() {
         stars.push("assets/star.png"); // Estrella llena
       }
       if (hasHalfStar) {
-        stars.push("assets/half-star.png"); // Media estrella
+        stars.push("assets/half_star.png"); // Media estrella
       }
     } else {
       stars.push("assets/star_no_rate.png"); // Estrella llena
