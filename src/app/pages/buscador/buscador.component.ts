@@ -197,7 +197,7 @@ import { RouterModule } from '@angular/router';
  
             <div 
             class="w-30 h-30 rounded-lg flex-none flex items-end justify-start overflow-visible transition-transform duration-300 hover:scale-97 cursor-pointer" 
-                [style.background-color]="lista.color" [routerLink]="['/inicio/lista_reproduccion/', (lista.id_lista)]"
+                [style.background-color]="lista.color" [routerLink]="['/inicio/lista_reproduccion/', (lista.id)]"
             >
                 <p 
                   class="text-black font-extrabold text-left text-[24px] mb-4 ml-[-4px] p-0 leading-none"
@@ -218,10 +218,10 @@ import { RouterModule } from '@angular/router';
     @if (usuarios.length > 0) {
     <div>
       <h2 class="text-2xl font-semibold mb-4">Usuarios</h2>
-      <div class="flex gap-10 pb-2 overflow-x-scroll scrollbar-hide"> 
+      <div class="flex gap-10 pb-2 overflow-x-auto scrollbar-hide whitespace-nowrap"> 
         @for (usuario of usuarios; track usuario.email) {
           <!-- Cuadrado gris -->
-          <div class="w-30 h-30 bg-[var(--graybackground)] flex items-center justify-center rounded-lg transition-transform duration-300 hover:scale-97 cursor-pointer"
+          <div class="w-30 h-30 bg-[var(--graybackground)] flex-none flex items-center justify-center rounded-lg transition-transform duration-300 hover:scale-97 cursor-pointer"
           [routerLink]="['/inicio/usuario/', usuario.name]">
             <p class="text-md text-white text-center">{{ usuario.name }}</p>
           </div>

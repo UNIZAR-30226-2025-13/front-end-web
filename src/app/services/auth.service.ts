@@ -169,10 +169,53 @@ export class AuthService {
     return this.http.get<any>(`${this.apiUrl}/search-lista?cadena=${name}`);
   }
 
+  searchGeneral(name: string) {
+    return this.http.get<any>(`${this.apiUrl}/search-?cadena=${name}`);
+  }
+
+
+  updateProfile(nombre_usuario: string, nuevo_email: string, nueva_contrasena: string) {
+    const body = {
+      nombre_usuario,
+      nuevo_email,
+      nueva_contrasena
+    };
+    return this.http.post(`${this.apiUrl}/update-profile`, body);
+  }
+  
+  
+
+
+  uploadCreador(formData: FormData) {
+    return this.http.post(`${this.apiUrl}/admin/upload-creator`, formData);
+  }
+
+  updateCreador(formData: FormData) {
+    return this.http.post(`${this.apiUrl}/admin/update-creator`, formData);
+  }
+  
+  eliminarCreador(nombreCreador: string) {
+    const body = { nombre_creador: nombreCreador };
+    return this.http.post(`${this.apiUrl}/admin/delete-creator`, body);
+  }
+
+  uploadAlbum(formData: FormData) {
+    return this.http.post(`${this.apiUrl}/admin/upload-album`, formData);
+  }
+  
+
+  getNumeroSeguidoresYSeguidos(nombre: string) {
+    return this.http.get<any>(`${this.apiUrl}/get-number-followers-and-following?nombre_usuario=${nombre}`);
+  }
+  
+
   getPublicLists(nombre: string) {
     return this.http.get<any>(`${this.apiUrl}/get-public-lists?nombre_usuario=${nombre}`);
   }
 
+  getFriendsList(nombre: string) {
+    return this.http.get<any>(`${this.apiUrl}/get-friends-list?nombre_usuario=${nombre}`);
+  }
 
   
   changeListPrivacy (id_lista: number, nombre_usuario: string) {
@@ -191,10 +234,10 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/follow-user`, follow);
   }
 
-  unfollowUser(nombre_usuario: string, nombre_usuario_a_dejar_de_seguir: string) {
+  unfollowUser(nombre_usuario: string, nombre_usuario_a_dejar_seguir: string) {
     const unfollow = {
       nombre_usuario,
-      nombre_usuario_a_dejar_de_seguir
+      nombre_usuario_a_dejar_seguir
     }
     return this.http.post<any>(`${this.apiUrl}/unfollow-user`, unfollow);
   }

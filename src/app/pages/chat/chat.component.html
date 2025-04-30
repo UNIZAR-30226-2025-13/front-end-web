@@ -1,17 +1,18 @@
-<div class="flex h-screen">  
-    <!-- chat -->
-    <div class="w-9/10 m-10 ml-14 flex flex-col min-h-200 h-[25vh]">
-        <div class="flex bg-opacity-60 p-4 rounded-[20px] p-10 pl-14 items-end bg-[var(--spondemidledark)] ">
+<div class="flex h-screen overflow-hidden">  
+    <!-- Chat -->
+    <div class="w-9/10 m-10 ml-14 flex flex-col min-h-200 h-[80vh]">
+        <div class="flex bg-opacity-60 rounded-[40px] p-10 pl-14 items-end bg-[var(--spondemidledark)] ">
             <p class="text-white font-bold text-[30px] text-center">{{nombre_amigo}}</p>
         </div>
 
-        <!-- Lista mensaje -->
-        <div class="flex-1 overflow-y-auto h-[60vh] p-6 mt-4 mb-2 overflow-x-hidden" #chatContainer >
+        <!-- Lista mensajes -->
+        <div class="overflow-y-auto h-[50vh] p-6 mt-4 mb-2 overflow-x-hidden scrollbar-hide" #chatContainer >
+
             <div *ngFor="let msg of text" class="w-full flex flex-col m-3">
                 
-                <!--  texte -->
+                <!--  Mensaje tipo TEXTO -->
                 <div *ngIf="msg.typo === 'mensaje'" class="flex" [ngClass]="{'justify-end': msg.persona === 1, 'justify-start': msg.persona === 2}">
-                    <div class="w-1/2 flex items-center" [ngClass]="{'justify-end space-x-2': msg.persona === 1, 'justify-start space-x-2': msg.persona === 2}">
+                    <div class="w-3/5 flex items-center" [ngClass]="{'justify-end space-x-2': msg.persona === 1, 'justify-start space-x-2': msg.persona === 2}">
                         <img *ngIf="msg.persona === 2" src="assets/triangle_chat_otro.png" alt="triangle" class="h-[30px] w-[25px] m-1 -mr-1 mb-1">
                         <div class="rounded-lg p-4 w-full flex justify-center items-center text-center"
                             [ngClass]="{'bg-[var(--spondemidledark)]': msg.persona === 1, 'bg-[var(--spongedark)]': msg.persona === 2}">
@@ -20,7 +21,8 @@
                         <img *ngIf="msg.persona === 1" src="assets/triangle_chat.png" alt="triangle" class="m-1 -ml-1 mb-1 h-[30px] w-[25px]">
                     </div>
                 </div>
-                <!-- Cancion -->
+
+                <!-- Mensaje tipo CANCION -->
                 <div *ngIf="msg.typo === 'cancion'" class="flex" [ngClass]="{'justify-end': msg.persona === 1, 'justify-start': msg.persona === 2}">
                     <div class="w-1/2 flex items-center" [ngClass]="{'justify-end space-x-2': msg.persona === 1, 'justify-start space-x-2': msg.persona === 2}">
                         <img *ngIf="msg.persona === 2" src="assets/triangle_chat_otro.png" alt="triangle" class="h-[30px] w-[25px] m-1 -mr-1 mb-1">
@@ -39,30 +41,40 @@
                     </div>
                 </div>
 
-                <!--  anadir todo los typos -->
+
             </div>
     
 
             
         </div>
 
-        <!-- escribir -->
-        <div class="flex p-4 rounded-[20px] items-center bg-stone-700 h-[10vh] w-full mt-auto sticky bottom-20">
+        <!-- Escribir -->
+        <div class="flex p-4 rounded-[40px] items-center bg-stone-700 h-[8vh] w-full mt-2">
             <input (input)="ecrire()" 
-                class="font-montserrat text-white text-lg bg-gray-400 placeholder-stone-700 placeholder-opacity-80 h-full p-5 rounded-[20px] min-w-[100px] w-full mr-5 flex-1 focus:outline-none focus:ring-0" 
+                class="font-montserrat text-white text-lg bg-gray-400 placeholder-stone-700 placeholder-opacity-80 h-full p-5 rounded-[40px] min-w-[100px] w-full mr-5 flex-1 focus:outline-none focus:ring-0" 
                 placeholder="Escribe un mensaje...">
             <img src="assets/send.png" alt="send" class="h-[40px] w-[40px] m-1 -mr-1">
         </div>
     </div>
 
-    <!-- amigos -->
-    <div class="bg-[var(--graybackground)] flex-shrink-0 py-2.5 rounded-lg m-10 overflow-y-auto">
-        <h2 class="text-lg font-bold text-white whitespace-nowrap m-4">Tus amigos</h2>
-        <li><button class="flex items-center flex-row mt-2 text-white font-bold truncate w-full text-left p-2">
-            <p class="truncate m-2">jorgehache</p>
-            <img src="assets/chat.png" alt="chat" class="w-12 h-12 rounded-full ml-auto mr-2 p-2 bg-[var(--spondemidledark)]"></button></li>
-        <li><button class="flex flex-row items-center mt-2 text-white font-bold truncate w-full text-left p-2">
-            <p class="m-2 truncate">marioclavero</p>
-            <img src="assets/chat.png" alt="chat" class="w-12 h-12 rounded-full ml-auto mr-2 p-2 bg-[var(--spondemidledark)]"></button></li>
+    <!-- Amigos -->
+    <div class="bg-[var(--graybackground)] flex-shrink-0 py-2.5 rounded-lg m-10 h-[75vh]">
+        <h2 class="text-2xl font-bold text-white whitespace-nowrap m-4">Tus amigos</h2>      
+        <ul>
+            <li *ngFor="let amigo of misAmigos">
+              <button class="flex items-center flex-row mt-2 text-white font-bold truncate w-full text-left p-2">
+                <p class="truncate m-2">{{ amigo }}</p>
+                <img src="assets/chat.png" alt="chat" class="w-12 h-12 rounded-full ml-auto mr-2 p-2 bg-[var(--spondemidledark)]">
+              </button>
+            </li>
+        </ul>
+
+
     </div>
+
+
+
+
+
+  
 </div>
