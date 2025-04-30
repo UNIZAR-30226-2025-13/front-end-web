@@ -159,7 +159,7 @@ export class EditarArtistaComponent {
     this.authService.updateCreador(formData).subscribe({
       next: () => {
         alert('Cambios guardados correctamente');
-        this.router.navigate(['/gestionar-artistas/']); // Redirige al listado de artistas
+        this.router.navigate(['/admin/gestionar-artistas/']); // Redirige al listado de artistas
       },
       error: (error) => {
         console.error('Error al guardar los cambios del artista:', error);
@@ -176,7 +176,7 @@ export class EditarArtistaComponent {
     this.authService.eliminarCreador(this.nombre).subscribe({
       next: () => {
         alert('Artista eliminado correctamente.');
-        this.router.navigate(['/gestionar-artistas']);
+        this.router.navigate(['/admin/gestionar-artistas']);
       },
       error: (error) => {
         console.error('Error al eliminar el artista:', error);
@@ -192,7 +192,7 @@ export class EditarArtistaComponent {
   
 
   cancelar() {
-    this.router.navigate(['/gestionar-artistas/']); 
+    this.router.navigate(['/admin/gestionar-artistas/']); 
   }
   
 }

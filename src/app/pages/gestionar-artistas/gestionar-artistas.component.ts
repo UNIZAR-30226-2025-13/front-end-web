@@ -19,7 +19,7 @@ import { RouterModule } from '@angular/router';
           <img src="assets/artistas.png" class="w-8 h-8" alt="Icono artistas" />
           <h1 class="text-3xl uppercase tracking-wide font-semibold">ARTISTAS</h1>
           <button class="bg-[var(--sponge)] text-white text-lg font-medium rounded-full px-4 py-1 border-3 border-white hover:bg-[var(--lightSponge)] transition"
-          [routerLink]="['/gestionar-artistas/nuevo']">
+          [routerLink]="['/admin/gestionar-artistas/nuevo']">
             + Nuevo
           </button>
         </div>
@@ -55,7 +55,7 @@ import { RouterModule } from '@angular/router';
                 [src]="artist.image"
                 [alt]="artist.name"
                 class="w-64 h-64 object-cover rounded-xl mb-2"
-                [routerLink]="['/gestionar-artistas/editar/', encodeNombreArtista(artist.name)]"
+                [routerLink]="['/admin/gestionar-artistas/editar/', encodeNombreArtista(artist.name)]"
               />
               <span class="text-xl text-center font-semibold">{{ artist.name }}</span>
             </div>

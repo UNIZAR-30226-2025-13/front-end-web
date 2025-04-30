@@ -3,6 +3,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { ChangePasswordComponent } from './pages/change-password/change-password.component';
 import { MarcoComponent } from './pages/marco/marco.component';
+import { MarcoAdminComponent } from './pages/marco-admin/marco-admin.component';
 import { TodoComponent } from './pages/todo/todo.component';
 import { ArtistaComponent } from './pages/artista/artista.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
@@ -59,13 +60,24 @@ export const routes: Routes = [
       { path: 'chat', component: ChatComponent},
     ]
   },
-  { path: 'admin', component: AdminComponent, title: 'Administrador | Spongefy'},
-  { path: 'gestionar-artistas', component: GestionarArtistasComponent, title: 'Gestionar Artistas | Spongefy'},
-  { path: 'gestionar-artistas/nuevo', component: NuevoArtistaComponent, title: 'Nuevo Artista | Spongefy'},
-  { path: 'gestionar-artistas/editar/:nombre', component: EditarArtistaComponent, title: 'Editar Artista | Spongefy'},
-  { path: 'gestionar-podcasters', component: GestionarPodcastersComponent, title: 'Gestionar Podcasters | Spongefy'},
-  { path: 'gestionar-podcasters/nuevo', component: NuevoPodcasterComponent, title: 'Nuevo Podcaster | Spongefy'},
-  { path: 'gestionar-podcasters/editar/:nombre', component: EditarPodcasterComponent, title: 'Editar Podcaster | Spongefy'},
-  { path: 'gestionar-albumes', component: GestionarAlbumesComponent, title: 'Gestionar Álbumes | Spongefy'},
-  { path: 'gestionar-albumes/nuevo', component: NuevoAlbumComponent, title: 'Nuevo Álbum | Spongefy'},
+
+  { path: 'admin',
+    component: MarcoAdminComponent,
+    children: [
+      { path: '', component: AdminComponent, title: 'Administrador | Spongefy'},
+      { path: 'gestionar-artistas', component: GestionarArtistasComponent},
+      { path: 'gestionar-artistas/nuevo', component: NuevoArtistaComponent},
+      { path: 'gestionar-artistas/editar/:nombre', component: EditarArtistaComponent},
+      { path: 'gestionar-podcasters', component: GestionarPodcastersComponent},
+      { path: 'gestionar-podcasters/nuevo', component: NuevoPodcasterComponent},
+      { path: 'gestionar-podcasters/editar/:nombre', component: EditarPodcasterComponent},
+      { path: 'gestionar-albumes', component: GestionarAlbumesComponent},
+      { path: 'gestionar-albumes/nuevo', component: NuevoAlbumComponent},
+    ]
+  },
+
+
+  
+  
+
 ];

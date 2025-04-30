@@ -19,7 +19,7 @@ import { RouterModule } from '@angular/router';
           <img src="assets/podcasters.png" class="w-8 h-8" alt="Icono podcasters" />
           <h1 class="text-3xl uppercase tracking-wide font-semibold">PODCASTERS</h1>
           <button class="bg-[var(--sponge)] text-white text-lg font-medium rounded-full px-4 py-1 border-3 border-white hover:bg-[var(--lightSponge)] transition"
-          [routerLink]="['/gestionar-podcasters/nuevo']">
+          [routerLink]="['/admin/gestionar-podcasters/nuevo']">
             + Nuevo
           </button>
         </div>
@@ -55,7 +55,7 @@ import { RouterModule } from '@angular/router';
                 [src]="podcaster.image"
                 [alt]="podcaster.name"
                 class="w-64 h-64 object-cover rounded-xl mb-2"
-                [routerLink]="['/gestionar-podcasters/editar/', encodeNombreArtista(podcaster.name)]"
+                [routerLink]="['/admin/gestionar-podcasters/editar/', encodeNombreArtista(podcaster.name)]"
               />
               <span class="text-xl text-center font-semibold">{{ podcaster.name }}</span>
             </div>
