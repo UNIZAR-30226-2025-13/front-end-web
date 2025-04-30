@@ -122,7 +122,7 @@ export class NuevoAlbumComponent {
     this.authService.uploadAlbum(formData).subscribe({
       next: () => {
         alert('Álbum creado con éxito');
-        this.router.navigate(['/gestionar-albumes']);
+        this.router.navigate(['/admin/gestionar-albumes']);
       },
       error: (error) => {
         console.error('Error al subir álbum:', error);
@@ -132,7 +132,7 @@ export class NuevoAlbumComponent {
   }
 
   cancelar() {
-    this.router.navigate(['/gestionar-albumes']);
+    this.router.navigate(['/admin/gestionar-albumes']);
   }
 
 }

@@ -10,13 +10,12 @@ import { UsuarioService } from '../../services/usuario.service';
   template: `
     <div class="min-h-screen bg-black flex flex-col items-center justify-center text-white">
       <div class="text-center mb-8">
-        <p class="text-3xl font-bold">ADMIN</p>
         <p class="text-2xl">{{ nombreUsuario }}</p>
       </div>
 
       <div class="grid grid-cols-3 gap-10">
         <div class="bg-[var(--sponge)] rounded-lg p-4 flex flex-col items-center justify-center w-60 h-60 hover:bg-[var(--lightSponge)] cursor-pointer"
-        [routerLink]="['/gestionar-artistas/']">
+        [routerLink]="['/admin/gestionar-artistas/']">
           <img src="assets/artistas.png" alt="Gestionar artistas" class="w-15 h-15 mb-2">
           <span class="text-xl text-center">Gestionar<br>artistas</span>
         </div>
@@ -25,12 +24,12 @@ import { UsuarioService } from '../../services/usuario.service';
           <span class="text-xl text-center">Gestionar<br>canciones</span>
         </div>
         <div class="bg-[var(--sponge)] rounded-lg p-4 flex flex-col items-center justify-center w-60 h-60 hover:bg-[var(--lightSponge)] cursor-pointer"
-        [routerLink]="['/gestionar-albumes/']">
+        [routerLink]="['/admin/gestionar-albumes/']">
           <img src="assets/albumes.png" alt="Gestionar álbumes" class="w-15 h-15 mb-2">
           <span class="text-xl text-center">Gestionar<br>álbumes</span>
         </div>
         <div class="bg-[var(--sponge)] rounded-lg p-4 flex flex-col items-center justify-center w-60 h-60 hover:bg-[var(--lightSponge)] cursor-pointer"
-        [routerLink]="['/gestionar-podcasters/']">
+        [routerLink]="['/admin/gestionar-podcasters/']">
           <img src="assets/podcasters.png" alt="Gestionar podcasters" class="w-15 h-15 mb-2">
           <span class="text-xl text-center">Gestionar<br>podcasters</span>
         </div>

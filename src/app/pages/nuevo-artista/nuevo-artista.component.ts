@@ -119,7 +119,7 @@ export class NuevoArtistaComponent {
     this.authService.uploadCreador(formData).subscribe({
       next: () => {
         alert('Artista creado con éxito');
-        this.router.navigate(['/gestionar-artistas/']);
+        this.router.navigate(['/admin/gestionar-artistas/']);
       },
       error: (err) => {
         console.error('Error al subir artista', err);
@@ -129,7 +129,7 @@ export class NuevoArtistaComponent {
   }
 
   cancelar() {
-    this.router.navigate(['/gestionar-artistas/']);  // Vuelve a la página anterior
+    this.router.navigate(['/admin/gestionar-artistas/']);  // Vuelve a la página anterior
   }
 
 

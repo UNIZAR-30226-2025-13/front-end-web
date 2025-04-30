@@ -116,7 +116,7 @@ export class NuevoPodcasterComponent {
     this.authService.uploadCreador(formData).subscribe({
       next: () => {
         alert('Podcaster creado con éxito');
-        this.router.navigate(['/gestionar-podcasters/']);
+        this.router.navigate(['/admin/gestionar-podcasters/']);
       },
       error: (err) => {
         console.error('Error al subir podcaster', err);
@@ -126,6 +126,6 @@ export class NuevoPodcasterComponent {
   }
 
   cancelar() {
-    this.router.navigate(['/gestionar-podcasters/']);  
+    this.router.navigate(['/admin/gestionar-podcasters/']);  
   }
 }

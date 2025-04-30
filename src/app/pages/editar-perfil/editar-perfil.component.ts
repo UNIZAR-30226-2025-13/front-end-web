@@ -81,6 +81,12 @@ export class EditarPerfilComponent implements OnInit {
       console.error('No se pudo obtener el usuario');
       return;
     }
+
+    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordPattern.test(this.contrasena)) {
+      window.alert('La contraseña debe tener al menos 8 caracteres, con mayúsculas, minúsculas, números y símbolos especiales.');
+      return;
+    }
   
     this.authService.updateProfile(usuario.nombre_usuario, this.correo, this.contrasena)
       .subscribe({

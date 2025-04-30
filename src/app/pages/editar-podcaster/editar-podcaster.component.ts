@@ -157,7 +157,7 @@ export class EditarPodcasterComponent {
     this.authService.updateCreador(formData).subscribe({
       next: () => {
         alert('Cambios guardados correctamente');
-        this.router.navigate(['/gestionar-podcasters/']); 
+        this.router.navigate(['/admin/gestionar-podcasters/']); 
       },
       error: (error) => {
         console.error('Error al guardar los cambios del podcaster:', error);
@@ -174,7 +174,7 @@ export class EditarPodcasterComponent {
     this.authService.eliminarCreador(this.nombre).subscribe({
       next: () => {
         alert('Podcaster eliminado correctamente.');
-        this.router.navigate(['/gestionar-podcasters']);
+        this.router.navigate(['/admin/gestionar-podcasters']);
       },
       error: (error) => {
         console.error('Error al eliminar el podcaster:', error);
@@ -190,6 +190,6 @@ export class EditarPodcasterComponent {
 
 
   cancelar() {
-    this.router.navigate(['/gestionar-podcasters/']); 
+    this.router.navigate(['/admin/gestionar-podcasters/']); 
   }
 }
