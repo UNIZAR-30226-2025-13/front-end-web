@@ -26,6 +26,8 @@ interface Playlist {
 
 }
 
+
+
 @Component({
   
   selector: 'app-album',
@@ -110,7 +112,7 @@ interface Playlist {
         <div class=" col-span-2"></div>
     </div>
     <hr class="border-t-2 border-white my-2 ">  
-    <div *ngFor="let song of songs; trackBy: trackByFn" class="group grid grid-cols-43  text-white items-center hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101" (dblclick)="addSongsToQueue(song)">
+    <div *ngFor="let song of songs; trackBy: trackByFn" class="group grid grid-cols-43  text-white items-center hover:bg-gray-500/20 rounded-[10px] transition-property: rotate duration-300 hover:scale-101" (dblclick)="addSongsToQueue(song)">
         <div class="flex m-2  col-span-12 "> 
             <div class="relative w-[44px] h-[44px] mr-1 min-w-[44px]" (click)="addSongsToQueue(song)">                
                 <!-- Capa oscura con icono de Play -->
@@ -138,13 +140,36 @@ interface Playlist {
             </div> 
         </div>
         <div class="col-span-8">{{ song.n_repros | number:'1.0-0':'es-ES' }}</div>
-        <div class="col-span-8 flex"  >
-            <img *ngFor="let star of generateStars(song.tu_valoration);trackBy: trackByFn" [src]="star" alt="star" class="w-5 h-auto flex-col"/>
-          <script src="script.js"></script>
-        </div> 
+        <div class="col-span-8  cursor-pointer" (click)="toggle_valoracion(song)" >
+    
+          <div *ngIf="openValoracion=== song.id_cancion" #popup4 class="h-max-70 w-80 justify-center border-1 border-[var(--sponge)] absolute   ml-2 z-50  max-w-xs p-4 bg-[var(--graybackground)] opacity-100 rounded-lg shadow-lg">
+                <div class="flex justify-center" >   
+                    <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(song,1)"class="cursor-pointer h-[40px]"> 
+                    <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(song,2)"class="cursor-pointer h-[40px]"> 
+                    <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(song,3)"class="cursor-pointer h-[40px]"> 
+                    <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(song,4)"class="cursor-pointer h-[40px]"> 
+                    <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(song,5)"class="cursor-pointer h-[40px]"> 
+                </div>       
+                <button class="flex ml-8 m-1 justify-center text-center px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
+                        (click)="removeValoracion(song)">
+                        <img class="w-5 h-5 mr-2 text-center" src="assets/trash.png">
+                        <p >borrar la nota </p>
+
+                        </button>       
+            </div>   
+        
+            <div class="w-5 flex flex-row h-auto ">
+                <ng-container > 
+                    <img *ngFor="let star of generateStars(song, 'user')" [src]="star" alt="star" class="w-5 h-auto "/>
+                    <script src="script.js"></script>
+                </ng-container> 
+            </div>
+            
+          </div> 
+  
         <div class="col-span-8 flex"  >
             <!-- change condition to agree with the database-->
-            <img *ngFor="let star of generateStars(song.valoration_media);trackBy: trackByFn" [src]="star" alt="star" class="w-5 h-auto flex-col"/>
+            <img *ngFor="let star of generateStars(song,'media')"  [src]="star" alt="star" class="w-5 h-auto flex-col"/>
           <script src="script.js"></script>
         </div> 
         <div class="col-span-2 flex">{{ formatDurationSong(song.duracion) }}</div>
@@ -237,6 +262,14 @@ export class AlbumComponent implements OnInit, AfterViewInit {
   nombre_usuario:string = '';
   showPlaylistPopup = false;
   currentSong: any = null;
+  // to know if valoration is open
+  openValoracion = false;
+
+  //to store the data of the valoration temp:
+  valoracion_usuario:any= null;
+
+  userRatings = new Map<number, number>();
+  averageRatings = new Map<number,number>();
  
  
   constructor(
@@ -262,11 +295,13 @@ export class AlbumComponent implements OnInit, AfterViewInit {
       }
       if (id_album) {
         this.getAlbumData(id_album);
+        
       } else {
         this.AlbumNotFound = true;
       }
+      
     });
-
+    
     // Abonnement à l'état de lecture du player
     this.playerService.playState$.subscribe(isPlaying => {
       console.log("Événement playState$ reçu:", isPlaying);
@@ -287,26 +322,101 @@ export class AlbumComponent implements OnInit, AfterViewInit {
       }
     }, 1000);
   }
+loadAllRatings() {
+    // Pour chaque chanson dans votre liste
+    this.songs.forEach(song => {
+      this.loadUserRating(song.id_cancion);
+      console.log("userRatings", this.userRatings)
+      this.loadAverageRating(song.id_cancion);
+      console.log("meidaRatings", this.averageRatings)
 
-  generateStars(rating: any): string[] {
+    });}
+
+
+
+    loadUserRating(songId: number) {
+      const usuario = this.usuarioService.getUsuario()?.nombre_usuario;
+      
+      this.authService.getRate(songId, usuario).subscribe(result => {
+        const rating = result.valoracion;
+        this.userRatings.set(songId, rating);
+        
+      });
+    }
+    
+    loadAverageRating(songId: number) {
+      this.authService.getAverageRate(songId).subscribe(result => {
+        const rating = result.valoracion;
+        this.averageRatings.set(songId, rating);
+        
+      });
+    }
+    
+
+
+
+  generateStars(cm: any,type:string): string[] {
     const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
+    
+    
+    
+    if (type === "user"){
+      
+        for (let [id, nota] of this.userRatings.entries()){
+          if (id===cm.id_cancion)
+          {const r = nota;
+            console.log("r",r);
+            console.log("data[0]",id);
+            console.log("data[1]",nota);
+          const fullStars = Math.floor(r);
+    const hasHalfStar = r % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-  
-    if (rating != null) {
+    if (r != null) {
       for (let i = 0; i < fullStars; i++) {
         stars.push("assets/star.png"); // Estrella llena
       }
-    
+      if (hasHalfStar) {
+        stars.push("assets/half-star.png"); // Media estrella
+      }
+    } else {
+      stars.push("assets/star_no_rate.png"); // Estrella llena
+    }
+          break;
+        }}}
+    if (type === "media"){
+      for (let [id, nota] of this.averageRatings.entries()){
+        if (id===cm.id_cancion)
+        {const r = nota;
+          console.log("r",r);
+          console.log("data[0]",id);
+          console.log("data[1]",nota);
+
+          const fullStars = Math.floor(r);
+    const hasHalfStar = r % 1 >= 0.5;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    if (r != null) {
+      for (let i = 0; i < fullStars; i++) {
+        stars.push("assets/star.png"); // Estrella llena
+      }
       if (hasHalfStar) {
         stars.push("assets/half_star.png"); // Media estrella
       }
     } else {
       stars.push("assets/star_no_rate.png"); // Estrella llena
     }
+          break;
+        }}
+    }
+      
+    
+    
+ 
+    
+    
     return stars;
-  }
+      }
+
+  
 
   getAlbumData(id_album: number) {
     this.authService.getInfoAlbum(id_album).subscribe({
@@ -325,6 +435,7 @@ export class AlbumComponent implements OnInit, AfterViewInit {
           this.fecha = this.formatFecha(this.album.album.fecha_pub);
           this.nb_cancione = this.songs.length;
           this.AlbumNotFound = false;
+          this.loadAllRatings();
   
           // Extraire la couleur dominante
           const imgElement = document.getElementById('albumImage') as HTMLImageElement;
@@ -523,6 +634,7 @@ export class AlbumComponent implements OnInit, AfterViewInit {
   @ViewChild('popup') popupRef!: ElementRef;
   @ViewChild('popup2') popupRef2!: ElementRef;
   @ViewChild('popup3') popupRef3!: ElementRef;
+  @ViewChild('popup4') popupRef4!: ElementRef;
   
   
   openedCancionId: number | null = null;
@@ -551,6 +663,11 @@ export class AlbumComponent implements OnInit, AfterViewInit {
     if (this.openedOptionId && this.popupRef3 && !this.popupRef3.nativeElement.contains(event.target)) {
       this.openedOptionId = null; // Cerrar el popup de opciones
     }
+
+    if(this.openValoracion !==null &&   this.openValoracion !== false  && this.popupRef4 && !this.popupRef4.nativeElement.contains(event.target) && 
+  !(event.target instanceof HTMLElement && event.target.closest('.selector-que-abre-popup4'))) {
+this.openValoracion = false;
+}
   }
 
   toggleNewListInput(choice: any) {
@@ -790,4 +907,84 @@ export class AlbumComponent implements OnInit, AfterViewInit {
 
     this.openedOptionId = null;
   }
+
+  toggle_valoracion(song:any){
+      
+    this.openValoracion = this.openValoracion === song.id_cancion ? null : song.id_cancion;
+
+    
+  }
+  cambiar_valoracion(cm:any, valor:number){
+    const usuario = this.usuarioService.getUsuario()?.nombre_usuario;
+    
+    this.authService.getRate(cm.id_cancion, this.usuarioService.getUsuario()?.nombre_usuario).subscribe((data) => {
+      this.valoracion_usuario = data.valoracion;
+      if (this.valoracion_usuario != null)
+    {
+      this.authService.deleteRate(cm.id_cancion,usuario,).subscribe({
+        next: () => {  // No necesitamos la respuesta si no la vamos a usar
+          console.log("valo",this.valoracion_usuario);
+          console.log('delete value');
+          console.log('id_cancion:', cm.id_cancion);
+          console.log('usuario:', usuario);
+          console.log('valor:', valor);
+          this.authService.postRate(cm.id_cancion,usuario,valor).subscribe({
+            next: () => {  // No necesitamos la respuesta si no la vamos a usar
+              console.log('cambio de valor');
+              this.ngOnInit()
+              const valoracion_usuario = this.authService.getRate(cm.id_cancion,usuario);
+              console.log("valo",valoracion_usuario);
+            },
+            error: (error) => {
+              // Mostrar alerta con el mensaje de error
+              alert('Error para cambiar de notacion');
+              console.error('Error para cambiar de notacion:', error);
+            }
+          });
+        },
+        error: (error) => {
+          // Mostrar alerta con el mensaje de error
+          alert('Error para cambiar de notacion');
+          console.error('Error para cambiar de notacion:', error);
+        }
+      });
+    }
+    else{
+    this.authService.postRate(cm.id_cancion,usuario,valor).subscribe({
+      next: () => {  // No necesitamos la respuesta si no la vamos a usar
+        console.log('cambio de valor');
+        this.ngOnInit()
+      },
+      error: (error) => {
+        // Mostrar alerta con el mensaje de error
+        alert('Error para cambiar de notacion');
+        console.error('Error para cambiar de notacion:', error);
+      }
+    });
+  }});
+  }
+  
+
+removeValoracion(cm:any){
+  console.log("cancion", cm);
+  
+  const usuario = this.usuarioService.getUsuario()?.nombre_usuario;
+  this.authService.getRate(cm.id_cancion, this.usuarioService.getUsuario()?.nombre_usuario).subscribe((data) => {
+    this.valoracion_usuario = data.valoracion;
+    if (this.valoracion_usuario != null)
+    {
+      this.authService.deleteRate(cm.id_cancion,usuario,).subscribe({
+        next: () => {  // No necesitamos la respuesta si no la vamos a usar
+          console.log('delete value');
+          this.ngOnInit()
+
+          
+        },
+        error: (error) => {
+          // Mostrar alerta con el mensaje de error
+          alert('Error para cambiar de notacion');
+          console.error('Error para cambiar de notacion:', error);
+        }
+      });
+    }});}
 }

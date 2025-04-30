@@ -122,11 +122,26 @@ interface PlaylistChoice {
   <div class="flex  items-center gap-8 m-4 mr-20">
     <!-- Section Tu valoración -->
     <div class="flex flex-col items-start">
-        <p class="font-montserrat text-lg text-white text-center">Tu valoración</p> <!-- pouvoir changer en sin valorcaion  -->
-        <div class="flex w-[calc(48px * 5)] mt-1">
-            <img *ngFor="let star of generateStars(this.valoration)" [src]="star" alt="star" class="w-12 h-auto flex-col"/>
-            <script src="script.js"></script>
-        </div>
+    <p class="font-montserrat text-lg text-white text-center">Tu valoración</p>
+          <div class="flex w-[calc(48px * 5)] mt-1 cursor-pointer" (click)="toggle_valoracion()">
+              <img *ngFor="let star of generateStars(this.valoration)" [src]="star" alt="star" class="w-12 h-auto flex-col"/>
+              <script src="script.js"></script>
+          </div>
+          <div *ngIf="openValoracion" #popup4 class="h-max-70 w-80 justify-center border-1 border-[var(--sponge)] absolute   ml-2 z-50  max-w-xs p-4 bg-[var(--graybackground)] opacity-100 rounded-lg shadow-lg">
+          <div class="flex justify-center" >   
+              <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(1)"class="cursor-pointer h-[40px]"> 
+              <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(2)"class="cursor-pointer h-[40px]"> 
+              <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(3)"class="cursor-pointer h-[40px]"> 
+              <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(4)"class="cursor-pointer h-[40px]"> 
+              <img src= "assets/star.png" alt = "star" (click)="cambiar_valoracion(5)"class="cursor-pointer h-[40px]"> 
+          </div>       
+          <button class="flex ml-8 m-1 justify-center text-center px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
+                  (click)="removeValoracion()">
+                  <img class="w-5 h-5 mr-2 text-center" src="assets/trash.png">
+                  <p class="text-white">borrar la nota </p>
+
+                  </button>       
+          </div>
     </div>
 
     <!-- Section valoración media -->
@@ -180,6 +195,9 @@ export class EpisodioComponent {
     newListName = "album";//todo
     playlists: any = [];
     openedOptionId= false;
+
+      // to know if valoration is open
+  openValoracion = false;
   
   
   
@@ -200,6 +218,7 @@ export class EpisodioComponent {
         this.authService.getRate(parseInt(this.id_ep), this.userService.getUsuario()?.nombre_usuario).subscribe((data) => {
           this.valoration = data.valoracion;
           this.authService.getAverageRate(parseInt(this.id_ep)).subscribe((data) => {
+            console.log(data, "data");
             this.valoration_media = data.valoracion_media;
             console.log(this.valoration_media, "valoration_media");
           });
@@ -235,7 +254,7 @@ export class EpisodioComponent {
         }
       
         if (hasHalfStar) {
-          stars.push("assets/half_star.png"); // Media estrella
+          stars.push("assets/half-star.png"); // Media estrella
         }
       } else {
         stars.push("assets/star_no_rate.png"); // Estrella llena
@@ -456,4 +475,80 @@ export class EpisodioComponent {
 
       this.openedOptionId = false;
     }
+
+    cambiar_valoracion( valor:number){
+      this.openValoracion =false;
+      const usuario = this.userService.getUsuario()?.nombre_usuario;
+      console.log("this.d_cancion");
+      if (this.valoration != null)
+      {
+        this.authService.deleteRate(parseInt(this.id_ep),usuario,).subscribe({
+          next: () => {  // No necesitamos la respuesta si no la vamos a usar
+            console.log("valo",this.valoration);
+            console.log('delete value');
+            console.log('id_cancion:', this.id_ep);
+            console.log('usuario:', usuario);
+         
+            this.authService.postRate(parseInt(this.id_ep),usuario,valor).subscribe({
+              next: () => {  // No necesitamos la respuesta si no la vamos a usar
+                console.log('cambio de valor');
+                this.ngOnInit()
+                
+              },
+              error: (error) => {
+                // Mostrar alerta con el mensaje de error
+                alert('Error para cambiar de notacion');
+                console.error('Error para cambiar de notacion:', error);
+              }
+            });
+          },
+          error: (error) => {
+            // Mostrar alerta con el mensaje de error
+            alert('Error para cambiar de notacion');
+            console.error('Error para cambiar de notacion:', error);
+          }
+        });
+      }
+      else{
+      this.authService.postRate(parseInt(this.id_ep),usuario,valor).subscribe({
+        next: () => {  // No necesitamos la respuesta si no la vamos a usar
+          console.log('cambio de valor');
+          this.ngOnInit()
+        },
+        error: (error) => {
+          // Mostrar alerta con el mensaje de error
+          alert('Error para cambiar de notacion');
+          console.error('Error para cambiar de notacion:', error);
+        }
+      });
+    }  
+    }
+
+    toggle_valoracion(){
+      
+      this.openValoracion = !this.openValoracion;
+  
+      
+    }
+    removeValoracion(){
+  
+      this.openValoracion =false;
+      const usuario = this.userService.getUsuario()?.nombre_usuario;
+      
+        if (this.valoration!= null)
+        {
+          this.authService.deleteRate(parseInt(this.id_ep),usuario).subscribe({
+            next: () => {  // No necesitamos la respuesta si no la vamos a usar
+              console.log('delete value');
+              this.ngOnInit()
+    
+              
+            },
+            error: (error) => {
+              // Mostrar alerta con el mensaje de error
+              alert('Error para cambiar de notacion');
+              console.error('Error para cambiar de notacion:', error);
+            }
+          });
+    }}
 }
