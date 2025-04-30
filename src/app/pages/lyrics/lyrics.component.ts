@@ -17,7 +17,7 @@ import { QueueService } from '../../services/queue.service';
   imports: [CommonModule,RouterModule],
   
   template:`
-  <pre class="text-white font-bold text-3xl overflow-y-auto rounded-lg m-5 p-7 bg-[var(--sponge)]"  [innerText]="text"></pre>
+  <pre class="text-white font-bold text-3xl overflow-y-auto rounded-lg m-5 p-7 bg-[var(--graybackground)]"  [innerText]="text"></pre>
   `,
 })
 
@@ -42,7 +42,7 @@ ngOnInit() {
     console.log("data", data)
     console.log("lyrics", data.letra)
     this.text = data.letra;
-  
+   
   })
 }
 
