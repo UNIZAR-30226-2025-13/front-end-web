@@ -165,7 +165,7 @@ export class PodcasterComponent implements OnInit, AfterViewInit, OnDestroy {
 
   podcaster: any = null;
   ep_mas_reciente: any = null;
-  type: string = 'Artista';
+  type: string = 'Podcaster';
   img_artiste: string = '';
   podcasterNotFound: boolean = false;
   nombre_podcaster = '';

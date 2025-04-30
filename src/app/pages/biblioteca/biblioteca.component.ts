@@ -109,6 +109,8 @@ import { FormsModule } from '@angular/forms';
             <button class="bg-black border-[var(--sponge)] border-1 text-white px-4 py-2 rounded-[20px] hover:bg-[var(--spongedark)]" 
                     (click)="seleccionarTipo('lista')">Lista de reproducción</button>
             <button class="bg-black border-[var(--sponge)] border-1 text-white px-4 py-2 rounded-[20px] hover:bg-[var(--spongedark)]" 
+                    (click)="seleccionarTipo('IA')">Lista de canciones con IA</button>
+            <button class="bg-black border-[var(--sponge)] border-1 text-white px-4 py-2 rounded-[20px] hover:bg-[var(--spongedark)]" 
                     (click)="seleccionarTipo('carpeta')">Carpeta</button>
             <button class="bg-[var(--button)] text-white px-4 py-2 rounded-[20px] hover:bg-[var(--buttonhover)] hover:text-black" 
                     (click)="cerrarPopup()">Cancelar</button>
@@ -157,6 +159,32 @@ import { FormsModule } from '@angular/forms';
                   (click)="guardarCarpeta()">Guardar</button>
         </div>
       </div>
+    </div>
+
+      <!-- Popup para crear una lista de reproducción con IA -->
+    <div *ngIf="mostrarPopupIA" class="fixed inset-0 flex items-center justify-center bg-black/70 z-10">
+      <div class="bg-black p-6 rounded-lg w-1/2 max-w-xs border-2 border-white">
+        <h3 class="text-xl font-bold mb-4 text-white">Crear nueva lista</h3>
+        <label for="nombreLista" class="block text-white">Nombre de la lista</label>
+        <input id="nombreLista" type="text" [(ngModel)]="nuevoNombre" 
+              class="text-black border bg-gray-300 p-2 w-full rounded-[10px] mb-4" 
+              placeholder="Ingresa un nombre" maxlength="25">
+
+        <label for="tipoLista" class="block text-white">Descripción</label>
+        <textarea id="descripcion" type="large-text" [(ngModel)]="descripcion" 
+              class="text-black border bg-gray-300 p-2 w-full rounded-[10px] mb-4" 
+              placeholder="Ingresa una descripción"></textarea>
+
+        <label for="colorLista" class="block text-white">Seleccionar color</label>
+        <input id="colorLista" type="color" [(ngModel)]="nuevoColor" class="h-8 mb-4 w-full rounded-[10px]">
+
+        <div class="flex justify-end gap-4">
+          <button class="bg-gray-500 text-white px-2 py-1 rounded-[20px] hover:bg-gray-700" (click)="cerrarPopup()">Cancelar</button>
+          <button class="bg-[var(--sponge)] text-white px-2 py-1 hover:bg-[var(--spongedark)] rounded-[20px]" 
+                  (click)="guardarListaIA()">Guardar</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   `,
@@ -179,9 +207,11 @@ export class BibliotecaComponent implements OnInit {
   mostrarPopupSeleccion: boolean = false;
   mostrarPopupLista: boolean = false;
   mostrarPopupCarpeta: boolean = false;
+  mostrarPopupIA: boolean = false;
   nuevoNombre: string = '';
   nuevoNombreCarpeta: string = '';
   nuevoColor: string = '#000000';
+  descripcion: string = '';
   tipoLista: string = 'canciones';
 
   constructor(
@@ -224,11 +254,12 @@ export class BibliotecaComponent implements OnInit {
     this.mostrarPopupSeleccion = false;
     if (tipo === 'lista') {
       this.mostrarPopupLista = true;
-    } else {
+    } else if (tipo === 'carpeta') {
       this.mostrarPopupCarpeta = true;
+    } else {
+      this.mostrarPopupIA = true;
     }
   }
-
 
   cogerListasUsuarios(nombre_usuario: string) {
     this.authService.getUserLists(nombre_usuario).subscribe(
@@ -273,6 +304,7 @@ export class BibliotecaComponent implements OnInit {
     this.mostrarPopupLista = false;
     this.mostrarPopupCarpeta = false;
     this.mostrarPopupSeleccion = false;
+    this.mostrarPopupIA = false;
   }
 
   // Guardar la nueva lista
@@ -306,6 +338,41 @@ export class BibliotecaComponent implements OnInit {
     }
   
     this.authService.createPlaylist(this.nuevoNombre, this.userService.getUsuario()?.nombre_usuario, this.nuevoColor, this.tipoLista)
+      .subscribe(response => {
+        alert('Lista creada correctamente.');
+        this.cerrarPopup();
+        this.cogerListasUsuarios(this.userService.getUsuario()?.nombre_usuario);
+      }, error => {
+        alert('Hubo un error al crear la lista.');
+      });
+  }
+
+  // Guardar la nueva lista
+  guardarListaIA() {
+    this.nuevoNombre = this.nuevoNombre.trim(); // Elimina espacios al inicio y al final
+  
+    if (!this.nuevoNombre) {
+      alert('Por favor, ingrese un nombre para la lista.');
+      return;
+    }
+  
+    if (this.nuevoNombre.length > 25) {
+      alert('El nombre de la lista no puede superar los 25 caracteres.');
+      return;
+    }
+  
+    const nombreProhibido = ["Tus canciones favoritas", "Tus episodios favoritos"];
+    if (nombreProhibido.includes(this.nuevoNombre)) {
+      alert(`El nombre "${this.nuevoNombre}" no está permitido.`);
+      return;
+    }
+  
+    if (this.nuevoNombre.toLowerCase().startsWith("this is")) {
+      alert('El nombre de la lista no puede comenzar con "This is".');
+      return;
+    }
+  
+    this.authService.createPlaylistIA(this.nuevoNombre, this.userService.getUsuario()?.nombre_usuario, this.nuevoColor, this.descripcion)
       .subscribe(response => {
         alert('Lista creada correctamente.');
         this.cerrarPopup();
