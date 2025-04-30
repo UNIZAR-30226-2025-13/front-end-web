@@ -93,6 +93,16 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/create-list`, playlistData);
   }
 
+  createPlaylistIA(nombre_playlist: string, nombre_usuario: string, color: string, contexto: string) {
+    const playlistData = {
+      nombre_playlist,
+      contexto,
+      color,
+      nombre_usuario
+    };
+    return this.http.post(`${this.apiUrl}/generar-playlist`, playlistData);
+  }
+
   getInfoAlbum(id: number)
   {return this.http.get(`${this.apiUrl}/album?id_album=${id}`)}
 
