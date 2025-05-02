@@ -19,7 +19,8 @@ import { UsuarioService } from '../../services/usuario.service';
           <img src="assets/artistas.png" alt="Gestionar artistas" class="w-15 h-15 mb-2">
           <span class="text-xl text-center">Gestionar<br>artistas</span>
         </div>
-        <div class="bg-[var(--sponge)] rounded-lg p-4 flex flex-col items-center justify-center w-60 h-60 hover:bg-[var(--lightSponge)] cursor-pointer">
+        <div class="bg-[var(--sponge)] rounded-lg p-4 flex flex-col items-center justify-center w-60 h-60 hover:bg-[var(--lightSponge)] cursor-pointer"
+        [routerLink]="['/admin/gestionar-canciones/']">
           <img src="assets/canciones.png" alt="Gestionar canciones" class="w-15 h-15 mb-2">
           <span class="text-xl text-center">Gestionar<br>canciones</span>
         </div>
@@ -37,7 +38,8 @@ import { UsuarioService } from '../../services/usuario.service';
           <img src="assets/episodios.png" alt="Gestionar episodios" class="w-15 h-15 mb-2">
           <span class="text-xl text-center">Gestionar<br>episodios</span>
         </div>
-        <div class="bg-[var(--sponge)] rounded-lg p-4 flex flex-col items-center justify-center w-60 h-60 hover:bg-[var(--lightSponge)] cursor-pointer">
+        <div class="bg-[var(--sponge)] rounded-lg p-4 flex flex-col items-center justify-center w-60 h-60 hover:bg-[var(--lightSponge)] cursor-pointer"
+        [routerLink]="['/admin/gestionar-podcasts/']">
           <img src="assets/podcasts.png" alt="Gestionar pódcasts" class="w-15 h-15 mb-2">
           <span class="text-xl text-center">Gestionar<br>pódcasts</span>
         </div>

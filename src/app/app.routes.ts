@@ -30,6 +30,13 @@ import { NuevoPodcasterComponent } from './pages/nuevo-podcaster/nuevo-podcaster
 import { EditarPodcasterComponent } from './pages/editar-podcaster/editar-podcaster.component';
 import { GestionarAlbumesComponent } from './pages/gestionar-albumes/gestionar-albumes.component';
 import { NuevoAlbumComponent } from './pages/nuevo-album/nuevo-album.component';
+import { EditarAlbumComponent } from './pages/editar-album/editar-album.component';
+import { GestionarPodcastsComponent } from './pages/gestionar-podcasts/gestionar-podcasts.component';
+import { NuevoPodcastComponent } from './pages/nuevo-podcast/nuevo-podcast.component';
+import { EditarPodcastComponent } from './pages/editar-podcast/editar-podcast.component';
+import { GestionarCancionesComponent } from './pages/gestionar-canciones/gestionar-canciones.component';
+import { NuevoCancionComponent } from './pages/nuevo-cancion/nuevo-cancion.component';
+import { EditarCancionComponent } from './pages/editar-cancion/editar-cancion.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -69,6 +76,13 @@ export const routes: Routes = [
       { path: 'gestionar-podcasters/editar/:nombre', component: EditarPodcasterComponent},
       { path: 'gestionar-albumes', component: GestionarAlbumesComponent},
       { path: 'gestionar-albumes/nuevo', component: NuevoAlbumComponent},
+      { path: 'gestionar-albumes/editar/:id_album', component: EditarAlbumComponent},
+      { path: 'gestionar-podcasts', component: GestionarPodcastsComponent},
+      { path: 'gestionar-podcasts/nuevo', component: NuevoPodcastComponent},
+      { path: 'gestionar-podcasts/editar/:id_podcast', component: EditarPodcastComponent},
+      { path: 'gestionar-canciones', component: GestionarCancionesComponent},
+      { path: 'gestionar-canciones/nuevo', component: NuevoCancionComponent},
+      { path: 'gestionar-canciones/editar/:id_cancion', component: EditarCancionComponent},
     ]
   },
 
