@@ -106,6 +106,8 @@ export class AuthService {
   getInfoAlbum(id: number)
   {return this.http.get(`${this.apiUrl}/album?id_album=${id}`)}
 
+  
+
   shuffle(nombre_usuario: string, posicion: number) {
     const body = {
       nombre_usuario: nombre_usuario,
@@ -232,6 +234,53 @@ export class AuthService {
   uploadAlbum(formData: FormData) {
     return this.http.post(`${this.apiUrl}/admin/upload-album`, formData);
   }
+
+  updateAlbum(formData: FormData) {
+    return this.http.post(`${this.apiUrl}/admin/update-album`, formData);
+  }
+
+  eliminarAlbum(id_album: number) {
+    const body = { id_album: id_album };
+    return this.http.post(`${this.apiUrl}/admin/delete-album`, body);
+  }
+
+  uploadPodcast(formData: FormData) {
+    return this.http.post(`${this.apiUrl}/admin/upload-podcast`, formData);
+  }
+
+  updatePodcast(formData: FormData) {
+    return this.http.post(`${this.apiUrl}/admin/update-podcast`, formData);
+  }
+
+  eliminarPodcast(id_podcast: number) {
+    const body = { id_podcast: id_podcast };
+    return this.http.post(`${this.apiUrl}/admin/delete-podcast`, body);
+  }
+
+  uploadMultimedia(formData: FormData) {
+    return this.http.post(`${this.apiUrl}/admin/upload-multimedia`, formData);
+  }
+
+  updateMultimedia(formData: FormData) {
+    return this.http.post(`${this.apiUrl}/admin/update-multimedia`, formData);
+  }
+
+  eliminarMultimedia(id_cm: number) {
+    const body = { id_cm: id_cm };
+    return this.http.post(`${this.apiUrl}/admin/delete-multimedia`, body);
+  }
+
+
+
+
+
+
+
+
+
+
+
+
   
 
   getNumeroSeguidoresYSeguidos(nombre: string) {
@@ -318,8 +367,13 @@ export class AuthService {
     return this.http.get<any>(`${this.apiUrl}/song/show?id_cancion=${id_cancion}`);
   }
 
+
   showLyrics(id_cancion: number){
     return this.http.get<any>(`${this.apiUrl}/song/show-lyrics?id_cancion=${id_cancion}`);
+  }
+
+  showCM(id_cm: number) {
+    return this.http.get<any>(`${this.apiUrl}/show-cm?id_cm=${id_cm}`);
   }
 
   getRate(id_cm: number, nombre_usuario: string) {

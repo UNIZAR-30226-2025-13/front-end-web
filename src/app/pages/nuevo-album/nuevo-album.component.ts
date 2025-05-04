@@ -92,7 +92,10 @@ export class NuevoAlbumComponent {
   imagenArchivo!: File;
   previewImage: string | null = null;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService, 
+    private router: Router
+  ) {}
 
   onImageSelected(event: any) {
     const file = event.target.files[0];

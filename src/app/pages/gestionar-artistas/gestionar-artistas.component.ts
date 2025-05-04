@@ -42,7 +42,7 @@ import { RouterModule } from '@angular/router';
 
       @if (busqueda.trim() == '') {
         <div class="flex items-center justify-center h-screen">
-          <p class="text-2xl text-white">¡ Busca un artista o crea uno nuevo !</p>
+          <p class="text-2xl text-white">Busca un artista o crea uno nuevo</p>
         </div>
       }
 
