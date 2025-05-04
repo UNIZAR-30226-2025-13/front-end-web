@@ -9,7 +9,6 @@ import { SocketService } from '../../services/socket.service';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
   imports: [FormsModule, RouterModule],
   template: `
 <div class="min-h-screen flex items-center justify-center bg-black relative">
