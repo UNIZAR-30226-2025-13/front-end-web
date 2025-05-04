@@ -273,7 +273,7 @@ import { forkJoin } from 'rxjs';
         <p class="text-white font-bold text-[30px]">Lo último de {{this.podcastData.podcast.nombre_podcast}}</p>
         <div class="flex flex-row mt-2 bg-[#151515] h-[404px] rounded-[40px] overflow-hidden">
           <div class="w-[404px] object-cover rounded-[40px] flex-shrink-0">
-            <img class="object-cover h-[404px] w-[404px] rounded-[40px] cursor-pointer transition-shadow duration-300 hover:shadow-[var(--shadowsponge)]" [src]="this.podcastData.podcast.foto_podcast" [routerLink]="['/inicio/podcast/', (podcastData.podcast.id)]">
+            <img class="object-cover h-[404px] w-[404px] rounded-[40px] cursor-pointer transition-shadow duration-300 hover:shadow-[var(--shadowsponge)]" [src]="this.podcastData.podcast.foto_podcast" [routerLink]="['/inicio/podcast/', (podcastData.podcast.id_podcast)]">
           </div>
           <div class="text-white pl-[38px] pt-[33px] pr-[50px] flex flex-col gap-[14px] w-full">
             <ng-container *ngFor="let episodio of podcastData.podcast.episodios_recientes; let i = index">

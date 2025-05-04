@@ -24,7 +24,7 @@ import { SocketService } from '../../services/socket.service';
     <div class="p-5 max-w-md w-full">
       <h2 class="text-3xl font-bold text-white text-center mb-6">Iniciar Sesión</h2>
 
-      <form (submit)="onLogin()" class="space-y-4">
+      <form (submit)="onLogin()" class="flex flex-col space-y-4">
         <!-- Campo de Nombre de Usuario con Icono -->
         <div class="relative">
           <span class="absolute inset-y-0 left-3 flex items-center text-gray-500">
