@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -79,7 +80,7 @@ export class RegisterComponent {
   correo = '';
   passwordVisible = false;
 
-  constructor(private router: Router, private http: HttpClient) {} // 👈 Inyectar HttpClient
+  constructor(private router: Router, private http: HttpClient, private authService: AuthService) {} // 👈 Inyectar HttpClient
 
   onRegister() {
     if (!this.username || !this.correo || !this.password) {
@@ -104,20 +105,17 @@ export class RegisterComponent {
       correo: this.correo,
       contrasena: this.password
   };
-  
-  this.http.post('http://localhost:8080/register', registroData, {
-        headers: { 'Content-Type': 'application/json' }
-    }).subscribe({
-        next: (response) => {
-            console.log('¡Registro exitoso!', response);
-            this.router.navigate(['/login']);
-            
-        },
-        error: (error) => {
-            console.error('Error en el registro:', error);
-            window.alert('Hubo un problema con el registro: ' + error.error.message);
-        }
-    });
+
+  this.authService.register(registroData).subscribe({
+    next: (response) => {
+      console.log('¡Registro exitoso!', response);
+      this.router.navigate(['/login']);
+    },
+    error: (error) => {
+        console.error('Error en el registro:', error);
+        window.alert('Hubo un problema con el registro: ' + error.error.message);
+    }
+  });
   }
 
   togglePasswordVisibility() {
