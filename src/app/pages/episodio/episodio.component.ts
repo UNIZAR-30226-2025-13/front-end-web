@@ -220,7 +220,6 @@ export class EpisodioComponent {
           this.authService.getAverageRate(parseInt(this.id_ep)).subscribe((data) => {
             console.log(data, "data");
             this.valoration_media = data.valoracion_media;
-            console.log(this.valoration_media, "valoration_media");
           });
         });
       });

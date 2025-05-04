@@ -264,10 +264,8 @@ export class CancionComponent implements OnInit, AfterViewInit {
 
       this.authService.getRate(parseInt(this.id_cancion), this.userService.getUsuario()?.nombre_usuario).subscribe((data) => {
         this.valoration = data.valoracion;
-        console.log("valoration",this.valoration)
-        this.authService.getAverageRate(parseInt(this.id_cancion)).subscribe((data) => {
-          this.valoration_media = data.valoracion;
-          console.log("valoration",this.valoration_media)
+        this.authService.getAverageRate(parseInt(this.id_cancion)).subscribe((data2) => {
+          this.valoration_media = data2.valoracion_media;
         });
       });
     });
