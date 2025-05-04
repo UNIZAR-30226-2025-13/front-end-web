@@ -105,8 +105,8 @@ interface Playlist {
           </div>
 
           <div class=" flex mt-4 gap-1.5">
-              <img src="assets/play.png" alt="play" (click)="addSongsToQueue(contenido[0])" class=" h-[52px] w-[52px]">
-              <img src="assets/aleatorio.png" alt="aleatorio" (click)="random()" class=" h-[52px] w-[52px]">
+              <img src="assets/play.png" alt="play" (click)="addSongsToQueue(contenido[0])" class=" h-[52px] w-[52px] cursor-pointer">
+              <img src="assets/aleatorio.png" alt="aleatorio" (click)="random()" class=" h-[52px] w-[52px] cursor-pointer">
         
               @if (this.list.nombre_usuario === this.userService.getUsuario()?.nombre_usuario && !this.isFavoritesPlaylist()) {
               <!-- Contenedor de los "..." con menú -->
@@ -1009,10 +1009,50 @@ this.openValoracion = false;
   }
 
   random() {
-    const randomIndex = Math.floor(Math.random() * this.contenido.length);
-    const randomSong = this.contenido[randomIndex];
-    this.playSong(randomSong);
+    this.nombre_usuario = this.userService.getUsuario()?.nombre_usuario;
+    
+    if (!this.nombre_usuario) {
+      console.warn("Usuario no conectado");
+      return;
+    }
+    
+
+    this.queueService.clearQueue(this.nombre_usuario).subscribe(() => {
+
+      const songsToAdd = [...this.contenido_list];
+      
+
+      const firstSong$ = this.queueService.addToQueue(this.nombre_usuario, songsToAdd[0].id_cm).pipe(
+        tap(() => {
+          this.playerService.loadSongByPosition(0); 
+        })
+      );
+      
+      const remainingSongs$ = from(songsToAdd.slice(1)).pipe(
+        concatMap(song => this.queueService.addToQueue(this.nombre_usuario, song.id_cm))
+      );
+      
+      firstSong$.pipe(
+        concatWith(remainingSongs$)
+      ).subscribe({
+        complete: () => {
+          console.log("canciones anadidas a la cola");
+          
+          this.authService.shuffle(this.nombre_usuario, 0).subscribe({
+            next: (response: any) => {
+              console.log("cola mezclada", response);
+              this.playerService.getQueue(this.nombre_usuario);
+            },
+            error: (err) => {
+              console.error("Error durante la mezcla de canciones:", err);
+            }
+          });
+        },
+        error: (err) => console.error('Error al anadir las canciones:', err)
+      });
+    });
   }
+  
 
 
   // Aquí viene el método addSongsToQueue
@@ -1051,8 +1091,21 @@ this.openValoracion = false;
   }
 
   borrarLista () {
-
-  }
+    console.log("lista", this.id_lista);
+    this.authService.borrar_lista( this.id_lista).subscribe({
+      next: () => {  // No necesitamos la respuesta si no la vamos a usar
+        alert('palylist_borada');
+        this.router.navigate(['/inicio']);
+      
+      },
+      error: (error) => {
+        // Mostrar alerta con el mensaje de error
+        alert('Error para borrar  playlist');
+        console.error('Error para borrar playlist:', error);
+      }
+    });} 
+    
+  
 
  removeFromLista(id_cm:string){
     console.log("id_cm",id_cm.toString())

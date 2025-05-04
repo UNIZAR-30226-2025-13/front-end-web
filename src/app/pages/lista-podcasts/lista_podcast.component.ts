@@ -373,7 +373,50 @@ export class ListaPodcastComponent implements OnInit, AfterViewInit {
     //to play the first song of the playlist
     playSong(song: any){} //TODO
     //to put in aleatorio mode
-    random(){} //TODO
+    random() {
+      this.nombre_usuario = this.userService.getUsuario()?.nombre_usuario;
+      
+      if (!this.nombre_usuario) {
+        console.warn("Usuario no conectado");
+        return;
+      }
+      
+  
+      this.queueService.clearQueue(this.nombre_usuario).subscribe(() => {
+  
+        const songsToAdd = [...this.episodios];
+        
+  
+        const firstSong$ = this.queueService.addToQueue(this.nombre_usuario, songsToAdd[0].id_ep).pipe(
+          tap(() => {
+            this.playerService.loadSongByPosition(0); 
+          })
+        );
+        
+        const remainingSongs$ = from(songsToAdd.slice(1)).pipe(
+          concatMap(song => this.queueService.addToQueue(this.nombre_usuario, song.id_ep))
+        );
+        
+        firstSong$.pipe(
+          concatWith(remainingSongs$)
+        ).subscribe({
+          complete: () => {
+            console.log("canciones anadidas a la cola");
+            
+            this.authService.shuffle(this.nombre_usuario, 0).subscribe({
+              next: (response: any) => {
+                console.log("cola mezclada", response);
+                this.playerService.getQueue(this.nombre_usuario);
+              },
+              error: (err) => {
+                console.error("Error durante la mezcla de canciones:", err);
+              }
+            });
+          },
+          error: (err) => console.error('Error al anadir las canciones:', err)
+        });
+      });
+    }
     //to anadir
    
     like(id_cm: number) {

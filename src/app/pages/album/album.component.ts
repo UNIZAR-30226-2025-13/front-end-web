@@ -268,6 +268,8 @@ export class AlbumComponent implements OnInit, AfterViewInit {
   //to store the data of the valoration temp:
   valoracion_usuario:any= null;
 
+  //to know if the album as been launch 
+  hasbeenplayed: boolean = false;
   userRatings = new Map<number, number>();
   averageRatings = new Map<number,number>();
  
@@ -326,9 +328,9 @@ loadAllRatings() {
     // Pour chaque chanson dans votre liste
     this.songs.forEach(song => {
       this.loadUserRating(song.id_cancion);
-      console.log("userRatings", this.userRatings)
+     
       this.loadAverageRating(song.id_cancion);
-      console.log("meidaRatings", this.averageRatings)
+      
 
     });}
 
@@ -365,9 +367,7 @@ loadAllRatings() {
         for (let [id, nota] of this.userRatings.entries()){
           if (id===cm.id_cancion)
           {const r = nota;
-            console.log("r",r);
-            console.log("data[0]",id);
-            console.log("data[1]",nota);
+           
           const fullStars = Math.floor(r);
     const hasHalfStar = r % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
@@ -387,9 +387,7 @@ loadAllRatings() {
       for (let [id, nota] of this.averageRatings.entries()){
         if (id===cm.id_cancion)
         {const r = nota;
-          console.log("r",r);
-          console.log("data[0]",id);
-          console.log("data[1]",nota);
+      
 
           const fullStars = Math.floor(r);
     const hasHalfStar = r % 1 >= 0.5;
@@ -581,30 +579,66 @@ loadAllRatings() {
     return encodeURIComponent(nombre);
   }
 
-  random() { 
-    console.log("i'm going to suffle the queue")
-    this.nombre_usuario = this.usuarioService.getUsuario().getUsuario;
-  
+  random() {
+    this.nombre_usuario = this.usuarioService.getUsuario()?.nombre_usuario;
+    
     if (!this.nombre_usuario) {
-      console.error("Error: Nombre de usuario no definido.");
+      console.warn("Usuario no conectado");
       return;
     }
+    
+
+    this.queueService.clearQueue(this.nombre_usuario).subscribe(() => {
+
+      const songsToAdd = [...this.songs];
+      
+
+      const firstSong$ = this.queueService.addToQueue(this.nombre_usuario, songsToAdd[0].id_cancion).pipe(
+        tap(() => {
+          this.playerService.loadSongByPosition(0); 
+        })
+      );
+      
+      const remainingSongs$ = from(songsToAdd.slice(1)).pipe(
+        concatMap(song => this.queueService.addToQueue(this.nombre_usuario, song.id_cancion))
+      );
+      
+      firstSong$.pipe(
+        concatWith(remainingSongs$)
+      ).subscribe({
+        complete: () => {
+          console.log("canciones anadidas a la cola");
+          
+          this.authService.shuffle(this.nombre_usuario, 0).subscribe({
+            next: (response: any) => {
+              console.log("File d'attente mélangée avec succès", response);
+              this.playerService.getQueue(this.nombre_usuario);
+            },
+            error: (err) => {
+              console.error("Error durante la mezcla de canciones:", err);
+            }
+          });
+        },
+        error: (err) => console.error('Error al anadir las canciones:', err)
+      });
+    });
+  }
   
-    this.authService.shuffle(this.nombre_usuario, 0).subscribe({
+
+  executeShuffle(posicion: number) {
+    this.authService.shuffle(this.nombre_usuario, posicion).subscribe({
       next: (response: any) => {
         if (!response || typeof response !== 'object') {
           console.error("Error: Respuesta inválida del servidor.");
           return;
         }
-  
-        if (response.link_cm) {
-          this.playerService.playSong(response);
-        } else {
-          console.warn("Advertencia: No se encontró 'link_cm' en la respuesta.");
-        }
+        
+        console.log("cola reorganizada", response);
+   
+        this.playerService.getQueue(this.nombre_usuario);
       },
       error: (err) => {
-        console.error("Error al reproducir la canción:", err);
+        console.error("Error al reorganizar la cola:", err);
       },
     });
   }
@@ -841,7 +875,7 @@ this.openValoracion = false;
     addSongsToQueue(selectedSong: any) {
       this.queueService.clearQueue(this.usuarioService.getUsuario()?.nombre_usuario).subscribe(() => {
       });
-  
+      if(selectedSong === this.songs[0]){ this.hasbeenplayed=true}
       const startIndex = this.songs.indexOf(selectedSong);
       if (startIndex === -1) return;
   

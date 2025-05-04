@@ -113,7 +113,7 @@ import { forkJoin } from 'rxjs';
         <div class="flex gap-[42px] pt-2 overflow-visible whitespace-nowrap flex-nowrap">
         @if (homeData) {
         @for (podcast of homeData.podcasts.slice(0, getVisibleLarge10()); track podcast) {
-            <div class="flex flex-col overflow-visible transition-transform duration-300 hover:scale-110 cursor-pointer">
+            <div class="flex flex-col overflow-visible transition-transform duration-300 hover:scale-110 cursor-pointer" [routerLink]="['/inicio/lista_podcast/', (podcast.id_podcast)]">
               <div class="w-[170px] h-[170px] overflow-hidden rounded-[20px]">
                 <img src="{{podcast.link_imagen}}" class="w-full h-full object-cover">
               </div>
