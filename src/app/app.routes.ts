@@ -39,6 +39,9 @@ import { EditarPodcastComponent } from './pages/editar-podcast/editar-podcast.co
 import { GestionarCancionesComponent } from './pages/gestionar-canciones/gestionar-canciones.component';
 import { NuevoCancionComponent } from './pages/nuevo-cancion/nuevo-cancion.component';
 import { EditarCancionComponent } from './pages/editar-cancion/editar-cancion.component';
+import { GestionarEpisodiosComponent } from './pages/gestionar-episodios/gestionar-episodios.component';
+import { NuevoEpisodioComponent } from './pages/nuevo-episodio/nuevo-episodio.component';
+import { EditarEpisodioComponent } from './pages/editar-episodio/editar-episodio.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -87,6 +90,9 @@ export const routes: Routes = [
       { path: 'gestionar-canciones', component: GestionarCancionesComponent},
       { path: 'gestionar-canciones/nuevo', component: NuevoCancionComponent},
       { path: 'gestionar-canciones/editar/:id_cancion', component: EditarCancionComponent},
+      { path: 'gestionar-episodios', component: GestionarEpisodiosComponent},
+      { path: 'gestionar-episodios/nuevo', component: NuevoEpisodioComponent},
+      { path: 'gestionar-episodios/editar/:id_episodio', component: EditarEpisodioComponent},
     ]
   },
 

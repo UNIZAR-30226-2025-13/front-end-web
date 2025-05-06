@@ -1,5 +1,6 @@
-import { Component, OnInit, ChangeDetectorRef,Input } from '@angular/core';
- 
+import { Component, OnInit, OnDestroy, ChangeDetectorRef,Input } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { io } from 'socket.io-client';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -7,6 +8,7 @@ import { Title } from '@angular/platform-browser';
 import { PlayerService } from '../../services/player.service';
 import { ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
 import { UsuarioService } from '../../services/usuario.service';
+import { SocketService } from '../../services/socket.service';
 
 
 @Component({
@@ -15,25 +17,34 @@ import { UsuarioService } from '../../services/usuario.service';
   templateUrl: './chat.component.html',
   styleUrl: './chat.component.css'
 })
+
 export class ChatComponent implements AfterViewChecked  {
   @Input() msg: any;
+
+  text: any[] = [];
+  nombreUsuario: any = null;
+  nombreUsuarioRecibe: any = null;
   
   misAmigos: any[] = [];
-  nombre_amigo: string = 'jorgehache';
 
   constructor(
     private route: ActivatedRoute,
+    private http: HttpClient,
     private titleService: Title,
     private authService: AuthService,
     private usuarioService: UsuarioService,
     private router: Router,
     private playerService: PlayerService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private socket: SocketService
   ) {}
 
   ngOnInit() {
     const usuarioLogueado = this.usuarioService.getUsuario();
     console.log('Usuario logueado:', usuarioLogueado.nombre_usuario);
+    this.nombreUsuario = usuarioLogueado ? usuarioLogueado.nombre_usuario : 'Usuario desconocido';
+
+    this.socket.login(this.nombreUsuario);
 
     this.authService.getFriendsList(usuarioLogueado.nombre_usuario)
     .subscribe({
@@ -45,21 +56,84 @@ export class ChatComponent implements AfterViewChecked  {
         console.error('Error al obtener la lista de amigos:', err);
       }
     });
+
+    this.socket.onNewMessage((msg) => {
+      console.log('Nuevo mensaje recibido:', msg);
+      this.cargarMensajes(this.nombreUsuarioRecibe);
+      
+    });
+      
+    this.socket.onMessageSent((msg) => {
+      this.cargarMensajes(this.nombreUsuarioRecibe);
+      
+    });
+    
+
+    this.socket.onForceLogout(() => {
+      alert('Sesión cerrada en otro dispositivo');
+      this.router.navigate(['/inicio']);
+    });
+
+    this.socket.onMessageDeleted(({ id_mensaje }) => {
+      this.cargarMensajes(this.nombreUsuarioRecibe);
+    });
   }
 
-      
-  text: any[] = [
-    { persona: 2, typo: "mensaje", texto: "me encanta!" },
-    { persona: 1, typo: "mensaje", texto: "me encanta!" },
-    { persona: 2, typo: "cancion", id: 4 },
-    { persona: 2, typo: "cancion", id: 4 },
-    { persona: 2, typo: "cancion", id: 4 }
-  ];
-  info_cancion: any = [];
-  cancionNotFound: boolean = false; // Ajout de cette propriété pour gérer l'erreur
+  ngOnDestroy() {
+    this.socket.disconnect();
+  }
 
-    
-  ecrire() {}
+  abrirChat(amigo: string) {
+    this.nombreUsuarioRecibe = amigo;
+    this.cargarMensajes(amigo);
+  }
+
+  cargarMensajes(amigo: string) {
+    this.authService.getMessages(this.nombreUsuario, amigo).subscribe(
+      (data: any[]) => {
+        this.text = data.reverse().map(msg => ({
+          persona: msg.nombre_usuario_envia === this.nombreUsuario ? 1 : 2,
+          texto: msg.contenido,
+          typo: 'mensaje',
+          id: msg.id_mensaje
+        }));
+      }
+    );
+  }
+  
+
+  eliminarMensaje(id_mensaje: string) {
+      this.socket.deleteMessage(id_mensaje);
+  }
+  
+
+  enviarMensaje(mensaje: string) {
+    if (!mensaje.trim()) return;
+  
+    const payload = {
+      nombre_usuario_envia: this.nombreUsuario,
+      nombre_usuario_recibe: this.nombreUsuarioRecibe,
+      mensaje: mensaje,
+    };
+    console.log('Enviando mensaje:', payload);
+
+    this.socket.sendMessage({
+      nombre_usuario_envia: this.nombreUsuario,
+      nombre_usuario_recibe: this.nombreUsuarioRecibe,
+      mensaje: mensaje,
+    });
+
+    // Limpia el campo de entrada
+    const input = document.querySelector<HTMLInputElement>('input[placeholder="Escribe un mensaje..."]');
+    if (input) input.value = '';
+
+  }
+  
+
+  generarId(): string {
+    return Date.now().toString(); 
+  }
+
 
   @ViewChild('chatContainer') private chatContainer!: ElementRef;
 
@@ -74,32 +148,9 @@ export class ChatComponent implements AfterViewChecked  {
       console.error('Erreur de défilement:', err);
     }
   }
-    
-  getCancionInfo(id: number) {
-    /*
-    this.authService.getInfocancion(id).subscribe({
-      next: (data) => {
-        console.log('datas', data);
-        if (data) {
-          this.info_cancion = data;
-          this.cancionNotFound = false; // Réinitialisation en cas de succès
-        } else {
-          this.cancionNotFound = true; // Si aucune donnée n'est retournée
-        }
-        this.cdRef.detectChanges(); // Force la mise à jour de l'affichage
-      },
-      error: (err) => {
-        console.error('fail to charge cancion datas:', err);
-        this.cancionNotFound = true; // Gestion des erreurs
-        this.cdRef.detectChanges();
 
-      }
-  )}, */
 
-    this.info_cancion = {link_imagen: "./assets/exemple_song_2.png", autor: "Harry Styles", artistas_featuring:"", titulo:"Golden (Fine Line) Harry Styles"}
-    console.log('info_cancion', this.info_cancion);
-  }
-    }
+}
 
    
 

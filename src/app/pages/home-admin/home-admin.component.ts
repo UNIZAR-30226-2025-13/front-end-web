@@ -5,7 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { BusquedaService } from '../../services/busqueda.service';
 import { io } from 'socket.io-client';
-import { SocketService } from '../../services/socket.service';
+
 
 @Component({
   selector: 'app-home-admin',
@@ -134,8 +134,7 @@ export class HomeAdminComponent {
     private usuarioService: UsuarioService,
     private authService: AuthService,
     public router: Router,
-    private busquedaService: BusquedaService,
-    private socketService: SocketService
+    private busquedaService: BusquedaService
   ) {}
 
   ngOnInit() {

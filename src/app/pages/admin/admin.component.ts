@@ -34,7 +34,8 @@ import { UsuarioService } from '../../services/usuario.service';
           <img src="assets/podcasters.png" alt="Gestionar podcasters" class="w-15 h-15 mb-2">
           <span class="text-xl text-center">Gestionar<br>podcasters</span>
         </div>
-        <div class="bg-[var(--sponge)] rounded-lg p-4 flex flex-col items-center justify-center w-60 h-60 hover:bg-[var(--lightSponge)] cursor-pointer">
+        <div class="bg-[var(--sponge)] rounded-lg p-4 flex flex-col items-center justify-center w-60 h-60 hover:bg-[var(--lightSponge)] cursor-pointer"
+        [routerLink]="['/admin/gestionar-episodios/']">
           <img src="assets/episodios.png" alt="Gestionar episodios" class="w-15 h-15 mb-2">
           <span class="text-xl text-center">Gestionar<br>episodios</span>
         </div>
