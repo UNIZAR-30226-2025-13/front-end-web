@@ -7,9 +7,8 @@ import { Subscription, forkJoin, map, catchError, of } from 'rxjs';
 import { RouterModule } from '@angular/router';
 import { switchMap } from 'rxjs';
 
-
 @Component({
-  selector: 'app-gestionar-canciones',
+  selector: 'app-gestionar-episodios',
   imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="min-h-screen bg-black text-white pt-8">
@@ -17,10 +16,10 @@ import { switchMap } from 'rxjs';
       <!-- Banner superior morado -->
       <div class="bg-[var(--sponge)] text-white px-8 py-4 flex items-center justify-between mb-8">
         <div class="flex items-center gap-4">
-          <img src="assets/canciones.png" class="w-8 h-8" alt="Icono canciones" />
-          <h1 class="text-3xl uppercase tracking-wide font-semibold">CANCIONES</h1>
+          <img src="assets/episodios.png" class="w-8 h-8" alt="Icono episodios" />
+          <h1 class="text-3xl uppercase tracking-wide font-semibold">EPISODIOS</h1>
           <button class="bg-[var(--sponge)] text-white text-lg font-medium rounded-full px-4 py-1 border-3 border-white hover:bg-[var(--lightSponge)] transition"
-          [routerLink]="['/admin/gestionar-canciones/nuevo']">
+          [routerLink]="['/admin/gestionar-episodios/nuevo']">
             + Nuevo
           </button>
         </div>
@@ -43,96 +42,78 @@ import { switchMap } from 'rxjs';
 
       @if (busqueda.trim() == '') {
         <div class="flex items-center justify-center h-screen">
-          <p class="text-2xl text-white">Busca una canción o crea una nueva</p>
+          <p class="text-2xl text-white">Busca un episodio o crea uno nuevo</p>
         </div>
       }
 
-      <!-- Lista de canciones -->
+      <!-- Lista de episodios -->
       @if (busqueda.trim() !== '') {
         <div class="grid grid-cols-43 gap-4 text-left text-white pl-40">
-            <div class="font-bold col-span-8">Título</div>
-            <div class="font-bold col-span-8">Álbum</div>
-            <div class="font-bold col-span-6">Reproducciones</div>
+            <div class="font-bold col-span-14">Título</div>
+            <div class="font-bold col-span-8">Podcast</div>
             <div class="font-bold col-span-6">Valoración media</div>
             <div class="font-bold col-span-8">Fecha publicación</div>
             <div class="font-bold col-span-6">Duración</div>
         </div>
 
         <hr class="border-t-2 border-white my-4 ">  
-        <div *ngFor="let song of songs"
+        <div *ngFor="let episode of episodes"
           class="grid grid-cols-43 gap-4 pl-40 text-white items-center hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101 cursor-pointer"
-          [routerLink]="['/admin/gestionar-canciones/editar/', song.id]">
-            <div class="flex m-2 col-span-8 ">
+          [routerLink]="['/admin/gestionar-episodios/editar/', episode.id]">
+            <div class="flex m-2 col-span-14 ">
           
               <div class="relative w-[44px] h-[44px] group mr-5 min-w-[44px]">
-              <!-- Imagen de la canción -->
-                <img [src]="song.image" alt="Icono de la canción"
+              <!-- Imagen del episodio -->
+                <img [src]="episode.imagen" alt="Icono del episodio"
                 class="w-full h-full rounded-[10px] object-cover flex-shrink-0"> 
               </div>
 
-              <!-- Título y artista de la canción -->
+              <!-- Título y descripcion del episodio -->
               <div class="flex flex-col min-w-0">
                 <p class="font-montserrat font-bold text-lg text-white cursor-pointer">
-                  {{ song.title  }}
+                  {{ episode.titulo  }}
                 </p>
               
                 <div class="flex flex-row w-full overflow-hidden whitespace-nowrap ">
-                  <p class="text-white text-sm hover:underline min-w-fill max-w-full">{{song.artist}}</p>
-                  <!-- Featurings -->
-                  <div *ngIf="song.featurings != null">
-                    @for(ft of getArtistasFeat(song); track ft) {
-                      <p class="text-white text-sm inline-block min-w-max">,&nbsp;</p>
-                      <p class="text-white text-sm hover:underline inline-block min-w-max">
-                        {{ ft }}
-                      </p>
-                    }
-                  </div>
-
+                  <p class="text-white text-sm hover:underline min-w-fill max-w-full">{{episode.descripcion}}</p>
                 </div>
+
               </div>
             </div>
 
-            <!-- Álbum -->
+            <!-- Podcast -->
             <div class="col-span-8">
-              {{song.album_nombre}}
+              {{episode.podcast_nombre}}
             </div>
 
-            <!-- Reproducciones -->
-            <div class="col-span-6">
-              {{ song.reproducciones }}
-            </div>
 
             <!-- Valoración media -->
             <div class="flex gap-1 col-span-6">
                 <ng-container> 
-                    <img *ngFor="let star of generateStars(song.valoracion_media)" [src]="star" alt="star" class="w-5 h-auto "/>
+                    <img *ngFor="let star of generateStars(episode.valoracion_media)" [src]="star" alt="star" class="w-5 h-auto "/>
                     <script src="script.js"></script>
                 </ng-container> 
             </div>  
           
             <!-- Fecha de publicación -->
             <div class="col-span-8">
-              {{ formatFecha(song.releaseDate) }}
+              {{ formatFecha(episode.fecha_pub) }}
             </div> 
 
             <!-- Duración -->
             <div class="col-span-6">
-              {{ formatDurationSong(song.duracion) }}
+              {{ formatDurationEpisode(episode.duracion) }}
             </div>
 
         </div> 
       }
-
-
-
-
   `,
   styles: ``
 })
-export class GestionarCancionesComponent {
+export class GestionarEpisodiosComponent {
   busqueda: string = '';
 
-  songs: any[] = [];
+  episodes: any[] = [];
   
   subscription!: Subscription;
 
@@ -146,25 +127,28 @@ export class GestionarCancionesComponent {
   }
 
   onBusquedaChange() {
+    console.log('Buscando:', this.busqueda); 
     const cadena = this.busqueda.trim();
   
     if (cadena !== '') {
-      this.getCanciones(cadena).subscribe(songs => {
-        this.songs = songs;
+      this.getEpisodios(cadena).subscribe(episodes => {
+        this.episodes = episodes;
+        console.log('Episodios encontrados:', episodes); 
       });
     } else {
-      this.songs = [];
+      this.episodes = [];
     }
   }  
 
   
   ngOnInit() {
     this.subscription = this.busquedaService.cadenaBusqueda$.subscribe(nuevaCadena => {
+      console.log('Cadena recibida desde servicio de búsqueda:', nuevaCadena);
       if (nuevaCadena.trim() !== '') { 
         forkJoin({
-          songs: this.getCanciones(nuevaCadena)
+          episodes: this.getEpisodios(nuevaCadena)
         }).subscribe(resultados => {
-          this.songs = resultados.songs;
+          this.episodes = resultados.episodes;
           console.log('Todos los resultados obtenidos:', resultados);
         });
       }
@@ -175,65 +159,55 @@ export class GestionarCancionesComponent {
     this.subscription.unsubscribe();
   }
 
-  getCanciones(name: string) {
+  getEpisodios(name: string) {
     return this.authService.searchMultimedia(name).pipe(
-      map((response: any) => response.top10Completo?.length > 0
-        ? response.top10Completo
-            .filter((item: any) => item.tipo === 'Canción')
-            .map((song: any) => ({
-              id: song.id_cm,
-              title: song.titulo,
-              artist: song.cantante,
-              image: song.link_imagen,
-              duracion: song.duracion,
-              releaseDate: song.fecha_pub,
-              featurings: song.feat
-            }))
-        : []
-      ),
+      map((response: any) => {
+        console.log('🔍 Respuesta completa de searchMultimedia:', response);
   
-      switchMap((songs: any[]) => {
-        if (songs.length === 0) return of([]);
+        if (!response || !Array.isArray(response.top10Completo)) {
+          console.warn('top10Completo no existe o no es un array');
+          return [];
+        }
   
-        const requests = songs.map(song =>
-          // Paso 1: obtener cm, valoracion y reproducciones en paralelo
+        const episodios = response.top10Completo.filter((item: any) => {
+          console.log('Item tipo:', item.tipo);
+          return item.tipo?.toLowerCase() === 'Episodio';  // <-- Asegura que comparas en minúsculas
+        });
+  
+        console.log('Episodios encontrados tras filtro:', episodios);
+  
+        return episodios.map((ep: any) => ({
+          id: ep.id_cm,
+          titulo: ep.titulo,
+          imagen: ep.link_imagen,
+          duracion: ep.duracion,
+          fecha_pub: ep.fecha_pub,
+          podcast_nombre: ep.podcast
+        }));
+      }),
+  
+      switchMap((episodes: any[]) => {
+        if (episodes.length === 0) return of([]);
+  
+        const requests = episodes.map(ep =>
           forkJoin({
-            cm: this.authService.showCM(song.id).pipe(catchError(() => of({ id_album: null }))),
-            rating: this.authService.getAverageRate(song.id).pipe(catchError(() => of({ valoracion_media: null }))),
-            plays: this.authService.showSong(song.id).pipe(catchError(() => of({ reproducciones: 0 })))
+            description: this.authService.getEpisode(ep.id).pipe(
+              map((res: any) => res.descripcion),
+              catchError(() => of(null))
+            ),
+            rating: this.authService.getAverageRate(ep.id).pipe(
+              map((res: any) => res.valoracion_media),
+              catchError(() => of(null))
+            )
           }).pipe(
-            // Paso 2: usar el id_album para obtener el nombre del álbum
-            switchMap(({ cm, rating, plays }) => {
-              const id_album = cm.id_album;
-  
-              if (!id_album) {
-                return of({
-                  ...song,
-                  id_album: null,
-                  album_nombre: null,
-                  valoracion_media: rating.valoracion_media,
-                  reproducciones: plays.reproducciones
-                });
-              }
-  
-              return this.authService.getInfoAlbum(id_album).pipe(
-                map((albumInfo: any) => ({
-                  ...song,
-                  id_album: id_album,
-                  album_nombre: albumInfo.album?.nombre ?? null,
-                  valoracion_media: rating.valoracion_media,
-                  reproducciones: plays.reproducciones
-                })),
-                catchError(() =>
-                  of({
-                    ...song,
-                    id_album: id_album,
-                    album_nombre: null,
-                    valoracion_media: rating.valoracion_media,
-                    reproducciones: plays.reproducciones
-                  })
-                )
-              );
+            map(({ description, rating }) => {
+              const result = {
+                ...ep,
+                descripcion: description,
+                valoracion_media: rating
+              };
+              console.log('Episodio procesado:', result);
+              return result;
             })
           )
         );
@@ -242,16 +216,13 @@ export class GestionarCancionesComponent {
       }),
   
       catchError(err => {
-        console.error('Error al obtener canciones:', err);
+        console.error('Error en getEpisodios:', err);
         return of([]);
       })
     );
   }
   
-
-  getArtistasFeat(cm: any): string[] {
-    return cm.artistas_feat ? cm.artistas_feat.split(',').map((artista: string) => artista.trim()) : []; 
-  }
+  
 
   generateStars(rating: number | null): string[] {
     const stars = [];
@@ -280,9 +251,8 @@ export class GestionarCancionesComponent {
   
     return stars;
   }
-  
 
-  formatDurationSong(duration: string): string {
+  formatDurationEpisode(duration: string): string {
     const parts = duration.split(':');
     return parts.length === 3 && parts[0] === '00' ? `${parts[1]}:${parts[2]}` : duration;
   }
@@ -293,18 +263,5 @@ export class GestionarCancionesComponent {
     return fecha.toLocaleDateString('es-ES', opciones);  
   }
 
-  getReproducciones(id: string) {
-    return this.authService.showSong(parseInt(id)).pipe(
-      map((response: any) => response.reproducciones ?? 0),
-      catchError(err => {
-        console.error('Error al obtener reproducciones:', err);
-        return of(0); 
-      })
-    );
-    
-  }
-  
 
-
-  
 }

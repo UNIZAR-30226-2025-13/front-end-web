@@ -214,6 +214,8 @@ export class NuevoCancionComponent {
       formData.append('generos', this.generos);
       formData.append('idiomas', this.idiomas);
       formData.append('id_album', this.id_album);
+      //log para mostrar el id del album
+      console.log(this.id_album);
   
       this.authService.uploadMultimedia(formData).subscribe({
         next: () => {

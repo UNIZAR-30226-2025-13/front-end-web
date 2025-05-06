@@ -175,6 +175,10 @@ export class AuthService {
     return this.http.get<any>(`${this.apiUrl}/search-?cadena=${name}`);
   }
 
+  searchEpisodios(name: string) {
+    return this.http.get<any>(`${this.apiUrl}/search-episodios?cadena=${name}`);  
+  }
+
 
   updateProfile(nombre_usuario: string, nuevo_email: string, nueva_contrasena: string) {
     const body = {
@@ -184,9 +188,6 @@ export class AuthService {
     };
     return this.http.post(`${this.apiUrl}/update-profile`, body);
   }
-  
-  
-
 
   uploadCreador(formData: FormData) {
     return this.http.post(`${this.apiUrl}/admin/upload-creator`, formData);
@@ -239,19 +240,6 @@ export class AuthService {
     const body = { id_cm: id_cm };
     return this.http.post(`${this.apiUrl}/admin/delete-multimedia`, body);
   }
-
-
-
-
-
-
-
-
-
-
-
-
-  
 
   getNumeroSeguidoresYSeguidos(nombre: string) {
     return this.http.get<any>(`${this.apiUrl}/get-number-followers-and-following?nombre_usuario=${nombre}`);
@@ -356,6 +344,14 @@ export class AuthService {
 
   getPodcast(id_podcast: number, nombre_usuario: string) {
     return this.http.get<any>(`${this.apiUrl}/get-podcast?id_podcast=${id_podcast}&nombre_usuario=${nombre_usuario}`);
+  }
+
+  getEpisode(id_episodio: number) {
+    return this.http.get<any>(`${this.apiUrl}/get-episode?id_ep=${id_episodio}`);
+  }
+
+  getMessages(nombre_usuario_envia: string, nombre_usuario_recibe: string) {
+    return this.http.get<any[]>(`${this.apiUrl}/get-messages?nombre_usuario_envia=${nombre_usuario_envia}&nombre_usuario_recibe=${nombre_usuario_recibe}`);
   }
 
 }

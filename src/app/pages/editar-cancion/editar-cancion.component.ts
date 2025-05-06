@@ -210,6 +210,7 @@ export class EditarCancionComponent {
           this.titulo = data.titulo;
           this.creador = data.autor;
           this.fecha_pub = data.fecha_pub;
+          
           //this.generos = data.generos?.join(', ') || '';
           this.featurings = data.artistas_featurings?.join(', ') || '';
           //this.idiomas = data.idiomas?.join(', ') || '';
@@ -265,7 +266,8 @@ export class EditarCancionComponent {
   }
 
   guardarCancion() {
- 
+    console.log("A");
+
     const formData = new FormData();
   
     formData.append('id', this.id_cancion);
@@ -291,8 +293,10 @@ export class EditarCancionComponent {
     if (this.idiomas) {
       formData.append('idiomas', this.idiomas);
     }
+    console.log("a" + this.id_album);
     if (this.id_album) {
-      formData.append('id_album', this.id_album);
+      console.log(this.id_album);
+      formData.append('id_album', this.id_album);  
     }
     if (this.imagenSeleccionada) {
       formData.append('imagen', this.imagenSeleccionada);
@@ -312,6 +316,8 @@ export class EditarCancionComponent {
         alert('Ocurrió un error al guardar la canción');
       }
     });
+    //log para mostrar el id del album
+    
   }
   
 
