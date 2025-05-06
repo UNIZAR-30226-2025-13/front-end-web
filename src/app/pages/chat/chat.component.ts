@@ -43,9 +43,7 @@ export class ChatComponent implements AfterViewChecked  {
     const usuarioLogueado = this.usuarioService.getUsuario();
     console.log('Usuario logueado:', usuarioLogueado.nombre_usuario);
     this.nombreUsuario = usuarioLogueado ? usuarioLogueado.nombre_usuario : 'Usuario desconocido';
-
-    this.socket.login(this.nombreUsuario);
-
+    
     this.authService.getFriendsList(usuarioLogueado.nombre_usuario)
     .subscribe({
       next: (response: any) => {
