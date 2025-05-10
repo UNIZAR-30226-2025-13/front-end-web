@@ -220,6 +220,8 @@ export class HomeComponent {
 
   cerrarSesion() {
     this.closeDropdown();
+    this.socketService.disconnect(); // Desconectar el socket al cerrar sesión
+    this.socketService.reconnect();
     this.router.navigate(['/login']);
   }
 

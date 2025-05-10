@@ -227,7 +227,6 @@ export class PlayerComponent implements OnInit, OnDestroy {
   
   ngOnInit() {
     let nombreUsuario = this.usuarioService.getUsuario().nombre_usuario;
-    this.clearQueue();
     
     if (this.audioPlayer?.nativeElement) {
       // Aquí se llama al método onSongEnd cuando la canción termina
@@ -262,31 +261,35 @@ export class PlayerComponent implements OnInit, OnDestroy {
     });
 
     setTimeout(() => {
-      this.authService.recoverLastPlaying(nombreUsuario).subscribe((response: any) => {
-        if (response) {
+    this.authService.recoverLastPlaying(nombreUsuario).subscribe((response: any) => {
+      if (response.id_cm != null) {
+        this.queueService.clearQueue(nombreUsuario).subscribe(() => {
           this.queueService.addToQueue(nombreUsuario, response.id_cm).subscribe(() => {
             console.log('Canción añadida a la cola');
             this.queueService.playCm(response.id_cm).subscribe(response2 => {
               console.log('Canción sacada:', response2);
               if (response2) {
-                
                 this.queueService.getQueue(nombreUsuario, 0);
                 this.currentSong = response2;
                 console.log('tiempo', response.tiempo);
                 this.currentTime = this.parseTimeStringToSeconds(response.tiempo);
                 console.log('Tiempo convertido:', this.currentTime);
-                this.cantantes = [response2.autor, ...(response2.artistas_featuring ? response2.artistas_featuring.split(', ') : [])];
+                this.cantantes = [
+                  response2.autor,
+                  ...(response2.artistas_featuring ? response2.artistas_featuring.split(', ') : [])
+                ];
+                console.log('ola:', this.cantantes);
                 this.loadAndPlaySong(this.currentTime);
               }
             });
-            
           });
-          
-        } else {
-          console.log('No hay canción guardada para el usuario');
-        }
-      });
-    }, 1000);
+        });
+      } else {
+        console.log('No hay canción guardada para el usuario');
+      }
+    });
+  }, 1000);
+
   }
   
   ngOnDestroy(): void {
@@ -370,32 +373,57 @@ export class PlayerComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** 🔹 Carga y reproduce la canción actual */
-  loadAndPlaySong(time: number = 0) {
-    if (this.audioPlayer?.nativeElement && this.currentSong?.link_cm) {
-      const audio = this.audioPlayer.nativeElement;
-      audio.src = this.currentSong.link_cm;
-      audio.currentTime = time;
-
-      audio.load();
-      console.log('lolz', time);
-      console.log("lol", audio.currentTime)
-      console.log('Cargando canción:', this.currentSong);
-      audio.oncanplay = () => {
-        this.currentTime = time;
-        this.duration = audio.duration || 0;
-        
-        
-        audio.play().then(() => {
-          this.isPlaying = true;
-        }).catch(err => console.error('Error al reproducir:', err));
-      };
-
-      audio.onended = () => {
-        this.nextSong();
-      };
-    }
+  /** Espera hasta que la condición sea verdadera o se acabe el tiempo */
+  private async waitFor(conditionFn: () => boolean, timeout = 5000, interval = 100): Promise<boolean> {
+    const start = Date.now();
+    return new Promise((resolve) => {
+      const timer = setInterval(() => {
+        if (conditionFn()) {
+          clearInterval(timer);
+          resolve(true);
+        } else if (Date.now() - start > timeout) {
+          clearInterval(timer);
+          resolve(false);
+        }
+      }, interval);
+    });
   }
+
+
+  /** 🔹 Carga y reproduce la canción actual */
+async loadAndPlaySong(time: number = 0) {
+  const ready = await this.waitFor(() => 
+    this.audioPlayer?.nativeElement && this.currentSong?.link_cm
+  );
+
+  if (!ready) {
+    console.warn('Timeout esperando a audioPlayer o currentSong');
+    return;
+  }
+
+  const audio = this.audioPlayer.nativeElement;
+  audio.src = this.currentSong.link_cm;
+  audio.currentTime = time;
+
+  audio.load();
+  console.log('lolz', time);
+  console.log("lol", audio.currentTime)
+  console.log('Cargando canción:', this.currentSong);
+
+  audio.oncanplay = () => {
+    this.currentTime = time;
+    this.duration = audio.duration || 0;
+
+    audio.play().then(() => {
+      this.isPlaying = true;
+    }).catch(err => console.error('Error al reproducir:', err));
+  };
+
+  audio.onended = () => {
+    this.nextSong();
+  };
+}
+
 
   toggleLoop() {
     this.loop = !this.loop;

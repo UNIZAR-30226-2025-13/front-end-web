@@ -26,7 +26,7 @@ import { FormsModule } from '@angular/forms';
       
       <div *ngIf="ancho > this.MIN_WIDTH" class="flex gap-2 my-2">
         <button class="bg-[var(--button)] font-bold text-white px-4 rounded-full hover:bg-gray-700" (click)="cambiarListas()">Listas</button>
-        <button class="bg-[var(--button)] font-bold text-white px-4 rounded-full hover:bg-gray-700" (click)="cambiarPodcasts()">Podcasts</button>
+        <button class="bg-[var(--button)] font-bold text-white px-4 rounded-full hover:bg-gray-700" (click)="cambiarPodcasts()">Podcaster</button>
         <button class="bg-[var(--button)] font-bold text-white px-4 rounded-full hover:bg-gray-700" (click)="cambiarArtistas()">Artistas</button>
       </div>
       @if (ancho > this.MIN_WIDTH) {
