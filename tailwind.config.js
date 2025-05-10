@@ -3,6 +3,7 @@
 module.exports = {
     content: [
       "./src/**/*.{html,ts}", // Ajusta la ruta a tu proyecto Angular
+      "./src/**/*.component.html",
       "./src/**/*.component.ts"  // Específicamente para componentes Angular
     ],
     theme: {
