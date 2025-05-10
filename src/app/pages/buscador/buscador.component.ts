@@ -295,6 +295,8 @@ export class BuscadorComponent implements OnInit {
           this.albums = resultados.albums;
           this.podcasts = resultados.podcasts;
           this.songs = resultados.canciones;
+          console.log(this.songs);
+          console.log("id ",this.songs[0].id);
           this.episodes = resultados.episodios;
           this.listas = resultados.listas;
           this.usuarios = resultados.usuarios;
@@ -340,7 +342,8 @@ export class BuscadorComponent implements OnInit {
             artist: contenido.cantante || contenido.podcast || 'Desconocido',
             duration: contenido.duracion,
             tipo: contenido.tipo,
-            image: contenido.link_imagen
+            image: contenido.link_imagen,
+            id:contenido.id_cm
           }));
         } else {
           return [];
@@ -515,6 +518,7 @@ export class BuscadorComponent implements OnInit {
   }
 
   getRouterLinkMultimedia(contenido: any): string[] {
+    console.log("id_contenido " ,contenido);
     if (contenido.tipo === 'Canción') {
       return ['/inicio/cancion/', contenido.id];
     } else if (contenido.tipo === 'Episodio') {
