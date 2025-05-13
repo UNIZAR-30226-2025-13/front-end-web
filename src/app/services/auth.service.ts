@@ -420,4 +420,20 @@ export class AuthService {
     return this.http.get<any[]>(`${this.apiUrl}/get-messages?nombre_usuario_envia=${nombre_usuario_envia}&nombre_usuario_recibe=${nombre_usuario_recibe}`);
   }
 
+  borrar_multimedia(id_cm:number){
+    const body ={
+      id_cm
+    }
+    return this.http.post<any>(`${this.apiUrl}/admin/delete_multimedia`, body);
+  }
+
+  borrar_lista(id_lista:string){
+    const body ={
+      id_lista
+    }
+    
+    return this.http.post<any>(`${this.apiUrl}/delete-list?id_lista`,body);
+    
+
+  }
 }

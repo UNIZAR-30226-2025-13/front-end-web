@@ -3,7 +3,7 @@
 @import "tailwindcss";
 
 :root {
-    --sponge: #A200F4;
+    --sponge: #A200F4; 
     --spongedark: #341146;
     --buttonhover: #949494;
     --button: #3C3C3C;
