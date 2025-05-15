@@ -139,10 +139,26 @@ export class HomeAdminComponent {
 
   ngOnInit() {
     this.usuarioInfo = this.usuarioService.getUsuario();
+
     if (!this.usuarioInfo) {
       alert('No has iniciado sesión.');
         this.router.navigate(['/login']);    
     }   
+    console.log('Usuario logueado:', this.usuarioInfo.nombre_usuario);
+
+    this.authService.getPerfil(this.usuarioInfo.nombre_usuario).subscribe({
+      next: (perfil) => {
+        if (perfil.es_admin !== 1) {
+          alert('Acceso no autorizado.');
+          this.router.navigate(['/login']);
+        }
+      },
+      error: (error) => {
+        console.error('Error al obtener el perfil:', error);
+        alert('Error al verificar el rol del usuario.');
+        this.router.navigate(['/login']);
+      }
+    });
   }
 
   // Abre/cierra el menú desplegable

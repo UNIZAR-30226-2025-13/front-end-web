@@ -12,6 +12,8 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
+
+
   login(loginData: any) {
     return this.http.post(`${this.apiUrl}/login`, loginData);
   }
@@ -175,6 +177,10 @@ export class AuthService {
       id_lista
     };
     return this.http.post(`${this.apiUrl}/remove-list-from-folder`, list_folderData);
+  }
+
+  search(name: string) {
+    return this.http.get<any>(`${this.apiUrl}/search?cadena=${name}`);
   }
 
   searchCreator(name: string) {
@@ -420,6 +426,7 @@ export class AuthService {
     return this.http.get<any[]>(`${this.apiUrl}/get-messages?nombre_usuario_envia=${nombre_usuario_envia}&nombre_usuario_recibe=${nombre_usuario_recibe}`);
   }
 
+
   borrar_multimedia(id_cm:number){
     const body ={
       id_cm
@@ -436,4 +443,20 @@ export class AuthService {
     
 
   }
+
+
+  getPerfil(nombre_usuario: string) {
+    const token = localStorage.getItem('token');
+
+    return this.http.get<any>(`${this.apiUrl}/perfil?nombre_usuario=${nombre_usuario}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+  }
+
+
+
 }
