@@ -115,7 +115,14 @@ interface Playlist {
 <hr class="border-t-2 border-white my-4">  
 
 <div *ngFor="let episodio of episodios" class="grid grid-cols-32 gap-4 text-white items-center rounded-[10px] transition-transform duration-300 hover:scale-101" >
-    <div class="flex m-3 ml-0 col-span-12">
+    <div class="flex m-3 ml-0 col-span-12 group">
+      <div class="relative w-[44px] h-[44px]  mr-5 min-w-[44px]" (click)="addSongsToQueue(episodio)">
+
+                  <div class="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-[10px]">
+                      <img src="assets/play.png" alt="Play"
+                        class="w-6 h-6 cursor-pointer">
+                  </div>
+              </div>
         <div class="flex flex-col min-w-0 max-w-md" (click)="addSongsToQueue(episodio)">
             <p class="font-montserrat font-bold text-lg text-white line-clamp-1 " [routerLink]="['/inicio/episodio/',episodio.id_ep ]">
                 {{ episodio.nombre_ep }}

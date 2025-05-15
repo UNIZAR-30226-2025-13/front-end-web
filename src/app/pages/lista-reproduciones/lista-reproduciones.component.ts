@@ -227,7 +227,7 @@ interface Playlist {
                 <button class="flex ml-8 m-1 justify-center text-center px-1 w-50 py-0.5 rounded-lg hover:bg-gray-400/50 truncate items-center" 
                         (click)="removeValoracion(cm)">
                         <img class="w-5 h-5 mr-2 text-center" src="assets/trash.png">
-                        <p >borrar la nota </p>
+                        <p >Borrar la nota </p>
 
                         </button>       
             </div>   
@@ -492,8 +492,7 @@ export class ListaReproducionesComponent implements OnInit {
     console.log("id_cm", id_cm)
     this.authService.addToFav(id_cm, this.nombre_usuario).subscribe({
       next: (response: any) => {
-
-        alert('cancion anadida a los favoritos');
+        alert('Cancion anadida a los favoritos');
 
       },
       error: (err) => {
@@ -1094,7 +1093,7 @@ this.openValoracion = false;
     console.log("lista", this.id_lista);
     this.authService.borrar_lista( this.id_lista).subscribe({
       next: () => {  // No necesitamos la respuesta si no la vamos a usar
-        alert('palylist_borada');
+        alert('Playlist borrada');
         this.router.navigate(['/inicio']);
       
       },
@@ -1112,8 +1111,7 @@ this.openValoracion = false;
     console.log("id_lista",this.id_lista)
     this.authService.removeCMFromLista(id_cm.toString(), this.id_lista).subscribe({
       next: () => {  // No necesitamos la respuesta si no la vamos a usar
-        alert('Canción borada de la playlist');
-      
+        this.getPlaylistData(this.id_lista);     
       },
       error: (error) => {
         // Mostrar alerta con el mensaje de error
@@ -1121,7 +1119,6 @@ this.openValoracion = false;
         console.error('Error para borrar la canción de la playlist:', error);
       }
     });
-  
   } 
     toggle_valoracion(song:any){
       
@@ -1139,7 +1136,6 @@ this.openValoracion = false;
 
             this.authService.postRate(cm.id_cm,usuario,valor).subscribe({
               next: () => {  // No necesitamos la respuesta si no la vamos a usar
-                alert('cambio de valor');
                 this.ngOnInit()
               },
               error: (error) => {
