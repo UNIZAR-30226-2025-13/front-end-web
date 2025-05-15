@@ -332,10 +332,10 @@ export class BuscadorComponent implements OnInit {
   }
   
   getContenidoMultimedia(name: string) {
-    return this.authService.searchMultimedia(name).pipe(
+    return this.authService.search(name).pipe(
       map((response: any) => {
-        if (response.top10Completo && response.top10Completo.length > 0) {
-          return response.top10Completo.map((contenido: any) => ({
+        if (response.multimedia && response.multimedia.length > 0) {
+          return response.multimedia.map((contenido: any) => ({
             title: contenido.titulo,
             artist: contenido.cantante || contenido.podcast || 'Desconocido',
             duration: contenido.duracion,

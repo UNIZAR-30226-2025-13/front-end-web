@@ -210,11 +210,11 @@ export class EditarCancionComponent {
           this.titulo = data.titulo;
           this.creador = data.autor;
           this.fecha_pub = data.fecha_pub;
-          
-          //this.generos = data.generos?.join(', ') || '';
-          this.featurings = data.artistas_featurings?.join(', ') || '';
-          //this.idiomas = data.idiomas?.join(', ') || '';
           this.previewImage = data.link_imagen || null;
+          this.generos = data.generos;
+          this.featurings = data.artistas_featurings;
+          this.idiomas = data.idiomas;
+          
         },
         error: (err) => {
           console.error('Error al obtener datos de la canción:', err);
@@ -315,9 +315,7 @@ export class EditarCancionComponent {
         console.error('Error al modificar canción', err);
         alert('Ocurrió un error al guardar la canción');
       }
-    });
-    //log para mostrar el id del album
-    
+    });    
   }
   
 

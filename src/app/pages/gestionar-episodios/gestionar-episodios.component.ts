@@ -59,12 +59,12 @@ import { switchMap } from 'rxjs';
         <hr class="border-t-2 border-white my-4 ">  
         <div *ngFor="let episode of episodes"
           class="grid grid-cols-43 gap-4 pl-40 text-white items-center hover:bg-gray-500/20 rounded-[10px] transition-transform duration-300 hover:scale-101 cursor-pointer"
-          [routerLink]="['/admin/gestionar-episodios/editar/', episode.id]">
+          [routerLink]="['/admin/gestionar-episodios/editar/', episode.id_cm]">
             <div class="flex m-2 col-span-14 ">
           
               <div class="relative w-[44px] h-[44px] group mr-5 min-w-[44px]">
               <!-- Imagen del episodio -->
-                <img [src]="episode.imagen" alt="Icono del episodio"
+                <img [src]="episode.link_imagen" alt="Icono del episodio"
                 class="w-full h-full rounded-[10px] object-cover flex-shrink-0"> 
               </div>
 
@@ -74,8 +74,9 @@ import { switchMap } from 'rxjs';
                   {{ episode.titulo  }}
                 </p>
               
-                <div class="flex flex-row w-full overflow-hidden whitespace-nowrap ">
-                  <p class="text-white text-sm hover:underline min-w-fill max-w-full">{{episode.descripcion}}</p>
+                <!-- FALTA DESCRIPCION -->
+                <div class="flex flex-row w-full overflow-hidden whitespace-nowrap "> 
+                  <p class="text-white text-sm min-w-fill truncate max-w-full">{{episode.descripcion}}</p>
                 </div>
 
               </div>
@@ -83,11 +84,11 @@ import { switchMap } from 'rxjs';
 
             <!-- Podcast -->
             <div class="col-span-8">
-              {{episode.podcast_nombre}}
+              {{episode.podcast}}
             </div>
 
 
-            <!-- Valoración media -->
+            <!-- Valoración media FALTA --> 
             <div class="flex gap-1 col-span-6">
                 <ng-container> 
                     <img *ngFor="let star of generateStars(episode.valoracion_media)" [src]="star" alt="star" class="w-5 h-auto "/>
@@ -159,68 +160,17 @@ export class GestionarEpisodiosComponent {
     this.subscription.unsubscribe();
   }
 
-  getEpisodios(name: string) {
-    return this.authService.searchMultimedia(name).pipe(
-      map((response: any) => {
-        console.log('🔍 Respuesta completa de searchMultimedia:', response);
-  
-        if (!response || !Array.isArray(response.top10Completo)) {
-          console.warn('top10Completo no existe o no es un array');
-          return [];
-        }
-  
-        const episodios = response.top10Completo.filter((item: any) => {
-          console.log('Item tipo:', item.tipo);
-          return item.tipo?.toLowerCase() === 'Episodio';  // <-- Asegura que comparas en minúsculas
-        });
-  
-        console.log('Episodios encontrados tras filtro:', episodios);
-  
-        return episodios.map((ep: any) => ({
-          id: ep.id_cm,
-          titulo: ep.titulo,
-          imagen: ep.link_imagen,
-          duracion: ep.duracion,
-          fecha_pub: ep.fecha_pub,
-          podcast_nombre: ep.podcast
-        }));
-      }),
-  
-      switchMap((episodes: any[]) => {
-        if (episodes.length === 0) return of([]);
-  
-        const requests = episodes.map(ep =>
-          forkJoin({
-            description: this.authService.getEpisode(ep.id).pipe(
-              map((res: any) => res.descripcion),
-              catchError(() => of(null))
-            ),
-            rating: this.authService.getAverageRate(ep.id).pipe(
-              map((res: any) => res.valoracion_media),
-              catchError(() => of(null))
-            )
-          }).pipe(
-            map(({ description, rating }) => {
-              const result = {
-                ...ep,
-                descripcion: description,
-                valoracion_media: rating
-              };
-              console.log('Episodio procesado:', result);
-              return result;
-            })
-          )
-        );
-  
-        return forkJoin(requests);
-      }),
-  
+  getEpisodios(cadena: string) {
+    return this.authService.searchEpisodios(cadena).pipe(
+      map(res => res.top10Episodios),
       catchError(err => {
-        console.error('Error en getEpisodios:', err);
-        return of([]);
+        console.error('Error al obtener episodios:', err);
+        return of([]); 
       })
     );
   }
+
+
   
   
 
