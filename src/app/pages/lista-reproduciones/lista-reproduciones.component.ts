@@ -1120,7 +1120,9 @@ this.openValoracion = false;
         alert('Error para borrar la canción de la playlist');
         console.error('Error para borrar la canción de la playlist:', error);
       }
-    });} 
+    });
+  
+  } 
     toggle_valoracion(song:any){
       
       this.openValoracion = this.openValoracion === song.id_cm ? null : song.id_cm;

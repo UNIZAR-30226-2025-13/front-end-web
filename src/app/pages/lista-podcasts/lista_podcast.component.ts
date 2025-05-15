@@ -262,7 +262,7 @@ export class ListaPodcastComponent implements OnInit, AfterViewInit {
 
    //color and type of the playslist we want to create
   color = "#A200F4";
-  type = "episodes";
+  type = "episodios";
 
   // to know if valoration is open
   openValoracion = false;
@@ -653,9 +653,6 @@ export class ListaPodcastComponent implements OnInit, AfterViewInit {
         addAllSongsToPlaylists(selectedPlaylists);
       }
     }
-
-
-
 
     addSongToPlaylist(episodio:any, playlist: any) {
       console.log("id_ep:", episodio.id_ep);
